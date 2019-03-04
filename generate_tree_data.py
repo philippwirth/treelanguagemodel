@@ -1,23 +1,34 @@
+from networkx import DiGraph, write_gpickle, read_gpickle
+from collections import deque
+import random
+import csv
+import os
 
-class TreeLanguageGenerator:
+class TreeLangGenerator:
 
-	def __init__(self, ntokens, depth):
+	def __init__(self, ntokens, depth, mode='uniform', pstop=0.1):
 
-		if ntokens > 676: 	   # vocab not representable by two letter combinations (TODO)
+		if ntokens > 676: 	   	# vocab not representable by two letter combinations (TODO)
 			raise ValueError("ntokens > 676 (not representable by two letters)")
 
-		self.ntokens = ntokens # vocabulary size
-		self.depth = depth     # maximum length for sentence
+		self.ntokens = ntokens 	# vocabulary size
+		self.depth = depth     	# maximum length for sentence
+		self.mode = mode		# either uniform or power law (determines degree of nodes)
+		self.pstop = pstop		# probability of a node having no descendants
 
-		self.vocab = None	   # vocabulary
-		self.data = None	   # data (text corpus)
-		self.T = None		   # language tree
+		self.vocab = None	   	# vocabulary
+		self.data = None	   	# data (text corpus)
+		self.T = None		   	# language tree
 
-		self.perplexity = 0	   # (OPTIONAL) compute perplexity of tree
-		self.alph = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
+		self.nnodes = 0	   		# number of nodes
+		self.alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
 					 'n', 'o', 'p','q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 
 	def generate_sentences(self, seed=1111):
+		''' take a random seed, build a random tree, and use the tree to generate
+			a dataset of sentences. each sentence corresponds to a path from the
+			root to any node in the tree. 
+		'''
 		
 		# generate the vocabulary
 		self.vocab = self._generate_vocab()
@@ -29,11 +40,58 @@ class TreeLanguageGenerator:
 		self.data = self._collect_sentences()
 
 
-	def save(self):
-		pass
+	def save(self, base='data/treelang/'):
+		''' store tree, info, and data to the folder specified by base '''
 
-	def load(self):
-		pass
+		# if the directory doesn't exist, make it
+		if not os.path.isdir(base):
+			os.mkdir(base)
+
+		# store the graph
+		write_gpickle(self.T, base + 'tree.gpickle')
+		
+		# store info
+		info = dict({'ntokens':self.ntokens, 'depth':self.depth, 'mode':self.mode, 'pstop':self.pstop, 'nnodes':self.nnodes, 'alphabet':self.alphabet})
+		with open(base + 'info.csv', 'w+') as csv_file:
+			writer = csv.writer(csv_file)
+			for key, value in info.items():
+				writer.writerow([key, value])
+
+		# store the dataset
+		extension = '.txt'
+		for filename in ['train', 'test', 'eval']:
+
+			path = os.path.join(base, filename + extension)
+
+			# check if the file already exists (we don't want to overwrite)
+			if os.path.exists(path):
+				print(path + " already exists, continuing...")
+				continue
+
+			# if not, write line by line to the file
+			with open(path, "w+") as f:
+				for line in self.data[filename]:
+					f.write(line + '\n')
+
+
+	def load(self, base='data/treelang/'):
+		''' recover tree, info, and data from folder specified by base '''
+
+		with open(base + 'info.csv') as csv_file:
+			reader = csv.reader(csv_file)
+			info = dict(reader)
+		
+		self.ntokens = int(info['ntokens'])
+		self.depth = int(info['depth'])
+		self.mode = info['mode']
+		self.pstop =float(info['pstop'])
+		self.nnodes = int(info['nnodes'])
+		self.alphabet = [info['alphabet'][2 + i*5] for i in range(26)] # wow that's ugly
+
+		self.vocab = self._generate_vocab()
+		self.T = read_gpickle(base + 'tree.gpickle')
+		self.data = self._collect_sentences()
+
 
 	def _generate_vocab(self):
 		""" represent the vocabulary as all possible two letter combinations 
@@ -43,7 +101,7 @@ class TreeLanguageGenerator:
 		vocab = []
 		i, j = 0, 0
 		while len(vocab) < self.ntokens:
-			vocab.append(self.alph[i] + self.alph[j])
+			vocab.append(self.alphabet[i] + self.alphabet[j])
 			i, j = i if j < 25 else i+1, (j + 1) % 26
 
 		return vocab
@@ -55,16 +113,76 @@ class TreeLanguageGenerator:
 			- size of the subtree starting from and including v (to compute probability of each sentence)
 			- token associated with the edge (to generate sentences from the tree) 
 		"""
-		pass
+
+		# set seed
+		random.seed(seed)
+
+		# initialize root
+		T, nnodes = DiGraph(), 1
+		T.add_node(0, depth=0, seq=[''])
+		q = deque([0])
+
+		# bfs extending
+		while len(q) > 0:
+
+			node = q.popleft()
+
+			# if depth is maximal, continue
+			node_id, node_info = T.nodes(1)[node]
+			if node_info['depth'] >= self.depth:
+				continue
+
+			# with probability pstop, continue
+			if random.random() < self.pstop:
+				continue
+			
+			# determine number of edges
+			if self.mode == 'uniform':
+				ndesc = random.randint(1, self.ntokens)
+			else:
+				raise ValueError("only uniform accepted atm!")
+
+			# determine tokens
+			tokens = [self.vocab[i] for i in random.sample(range(self.ntokens), ndesc)]
+
+			# add nodes to the graph and update queue
+			for token in tokens:
+				T.add_node(nnodes, depth=node_info['depth']+1, seq=node_info['seq'] + [token])
+				T.add_edge(node_id, nnodes)
+				q.append(nnodes)
+				nnodes += 1
+		
+		self.nnodes = nnodes
+		return T
 
 	def _collect_sentences(self):
-		pass
+		""" iterate over all nodes, each representing one sentence """
+		
+		text = []
+		for node_id, node_info in self.T.nodes(1):
 
-	def _perplexity(self):
-		return 0
+			# leave out the root
+			if node_id == 0:
+				continue
+
+			text.append(" ".join(node_info['seq'][1:]))
+
+		# atm train, test, and eval are the same
+		data = dict()
+		data['train'] = text
+		data['test'] = text
+		data['eval'] = text
+		return data
+
+	def _perplexity(self, base=2):
+		''' sentences are distributed uniformly, therefore perplexity is 
+			2^(log(nnodes)) = nnodes
+		'''
+		return self.nnodes
 
 
 if __name__ == '__main__':
-	tlg = TreeLanguageGenerator(ntokens=10, depth=5)
+	tlg = TreeLangGenerator(ntokens=4, depth=8)
 	tlg.generate_sentences()
-	print(tlg.vocab)
+	tlg.save()
+	

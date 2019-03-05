@@ -1,6 +1,9 @@
 from networkx import DiGraph, write_gpickle, read_gpickle
+from networkx.algorithms.dag import descendants
+from networkx.algorithms.shortest_paths.generic import shortest_path
 from collections import deque
 import random
+import math
 import csv
 import os
 
@@ -59,7 +62,7 @@ class TreeLangGenerator:
 
 		# store the dataset
 		extension = '.txt'
-		for filename in ['train', 'test', 'eval']:
+		for filename in ['train', 'test', 'valid']:
 
 			path = os.path.join(base, filename + extension)
 
@@ -91,6 +94,8 @@ class TreeLangGenerator:
 		self.vocab = self._generate_vocab()
 		self.T = read_gpickle(base + 'tree.gpickle')
 		self.data = self._collect_sentences()
+
+		self.ppl = self._perplexity()
 
 
 	def _generate_vocab(self):
@@ -172,14 +177,34 @@ class TreeLangGenerator:
 		data = dict()
 		data['train'] = text
 		data['test'] = text
-		data['eval'] = text
+		data['valid'] = text
 		return data
 
 	def _perplexity(self, base=2):
-		''' sentences are distributed uniformly, therefore perplexity is 
-			2^(log(nnodes)) = nnodes
+		''' UNDER CONSTRUCTION... dont use yet
 		'''
-		return self.nnodes
+
+		lookup = dict()
+		for node_id, node_info in self.T.nodes(1):
+
+			if node_id == 0:
+				continue
+
+			pred = self.T.predecessors(node_id)[0]
+			ndesc = 1+len(descendants(self.T, node_id))
+			prob = ndesc / (len(descendants(self.T, pred)))
+			lookup[node_id] = -math.log(prob)
+
+		entropy = 0
+		for node_id, node_info in self.T.nodes(1):
+			if node_id == 0:
+				continue
+
+			path = shortest_path(self.T, 0, node_id)
+			entropy += sum([lookup[n] for n in path[1:]])
+
+		entropy = entropy / self.nnodes
+		return entropy
 
 
 def main(argv):

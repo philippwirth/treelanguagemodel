@@ -42,6 +42,9 @@ class TreeLangGenerator:
 		# traverse the tree to collect sentences
 		self.data = self._collect_sentences()
 
+		# compute lower bound perplexity
+		self.ppl = self._perplexity()
+
 
 	def save(self, base='data/treelang/'):
 		''' store tree, info, and data to the folder specified by base '''
@@ -180,10 +183,11 @@ class TreeLangGenerator:
 		data['valid'] = text
 		return data
 
-	def _perplexity(self, base=2):
-		''' UNDER CONSTRUCTION... dont use yet
+	def _perplexity(self):
+		''' should give lower bound for the model perplexities, we'll see if true
 		'''
 
+		# lookup holds probability for each node to get there from ancestor
 		lookup = dict()
 		for node_id, node_info in self.T.nodes(1):
 
@@ -195,16 +199,19 @@ class TreeLangGenerator:
 			prob = ndesc / (len(descendants(self.T, pred)))
 			lookup[node_id] = -math.log(prob)
 
+		# iterate over all paths from root to any node, sum log probs
 		entropy = 0
 		for node_id, node_info in self.T.nodes(1):
 			if node_id == 0:
 				continue
 
 			path = shortest_path(self.T, 0, node_id)
-			entropy += sum([lookup[n] for n in path[1:]])
+			entropy += sum([lookup[n] for n in path[1:]]) / len(path[1:])
 
+		# ppl is exp of entropy
 		entropy = entropy / self.nnodes
-		return entropy
+		ppl = math.exp(entropy)
+		return ppl
 
 
 def main(argv):

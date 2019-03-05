@@ -167,6 +167,7 @@ class TreeLangGenerator:
 
 			text.append(" ".join(node_info['seq'][1:]))
 
+		random.shuffle(text)
 		# atm train, test, and eval are the same
 		data = dict()
 		data['train'] = text
@@ -181,8 +182,38 @@ class TreeLangGenerator:
 		return self.nnodes
 
 
+def main(argv):
+
+
+	try:
+		opts, args = getopt.getopt(argv, "ho:d:n:m:p:s:", ["output=", "ntokens=", "depth=", "mode=", "pstop=,", "seed="])
+	except:
+		print('python generate_tree_data.py -o <output path> -n <ntokens> -d <depth> -m <mode> -p <pstop> -s <seed>')
+		sys.exit(2)
+
+	for opt, arg in opts:
+		
+		if opt == '-o':
+			basepath = arg
+		elif opt == '-n':
+			ntokens = int(arg)
+		elif opt == '-d':
+			depth = int(arg)
+		elif opt == '-m':
+			mode = arg
+		elif opt == '-p':
+			pstop = float(arg)
+		elif opt == '-s':
+			seed = int(arg)
+		else:
+			print('python generate_tree_data.py -o <output path> -n <ntokens> -d <depth> -m <mode> -p <pstop> -s <seed>')
+			sys.exit(2)
+
+	tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
+	tlg.generate_sentences(seed=seed)
+	tlg.save(base=basepath)
+
 if __name__ == '__main__':
-	tlg = TreeLangGenerator(ntokens=4, depth=8)
-	tlg.generate_sentences()
-	tlg.save()
+	import sys, getopt
+	main(sys.argv[1:])
 	

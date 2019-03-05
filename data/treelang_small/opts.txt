@@ -1,0 +1,1 @@
+python generate_tree_data.py -o "data/treelang_small/" -n 4 -d 8 -m "uniform" -p 0.1 -s 500

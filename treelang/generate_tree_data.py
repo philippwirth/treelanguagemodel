@@ -57,7 +57,7 @@ class TreeLangGenerator:
 		write_gpickle(self.T, base + 'tree.gpickle')
 		
 		# store info
-		info = dict({'ntokens':self.ntokens, 'depth':self.depth, 'mode':self.mode, 'pstop':self.pstop, 'nnodes':self.nnodes, 'alphabet':self.alphabet})
+		info = dict({'ntokens':self.ntokens, 'depth':self.depth, 'mode':self.mode, 'pstop':self.pstop, 'nnodes':self.nnodes, 'ppl':self.ppl, 'alphabet':self.alphabet})
 		with open(base + 'info.csv', 'w+') as csv_file:
 			writer = csv.writer(csv_file)
 			for key, value in info.items():

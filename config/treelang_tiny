@@ -5,7 +5,7 @@ model="LSTM"
 emsize=4
 nhid=2
 nlayers=1
-epochs=200
+epochs=50
 batchsize=1
 bptt=4
 dropout=0.1
@@ -14,7 +14,6 @@ dropouti=0.1
 dropoute=0.1
 wdrop=0.1
 seed=500
-loginterval=10
-
-
+loginterval=1
+beta=1
 

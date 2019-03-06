@@ -20,9 +20,11 @@ echo "	drope:	" $dropoute
 echo "	wdrop:	" $wdrop
 echo "	seed:	" $seed
 echo "	log:	" $loginterval
+echo "	beta:	" $beta
 
 # run main
 echo "running script: "$script"..."
 python $script --data $path --model $model --emsize $emsize --nhid $nhid --nlayers $nlayers \
 	--epochs $epochs --batch_size $batchsize --bptt $bptt --dropout $dropout --dropouth $dropouth \
-	--dropouti $dropouti --dropoute $dropoute --wdrop $wdrop --seed $seed --log-interval $loginterval
+	--dropouti $dropouti --dropoute $dropoute --wdrop $wdrop --seed $seed --log-interval $loginterval \
+	--beta $beta

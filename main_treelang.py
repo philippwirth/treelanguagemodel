@@ -163,7 +163,7 @@ print('Model total parameters:', total_params)
     a new sequences starts.
 '''
 
-def evaluate(data_source, batch_size=10):
+def evaluate(data_source, batch_size=1):
     # Turn on evaluation mode which disables dropout.
     model.eval()
     if args.model == 'QRNN': model.reset()
@@ -229,7 +229,7 @@ def train():
             # Activiation Regularization
             if args.alpha: loss = loss + sum(args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
             # Temporal Activation Regularization (slowness)
-            if args.beta: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
+            if args.beta and seq_len > 2: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
             loss.backward()
 
             # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.

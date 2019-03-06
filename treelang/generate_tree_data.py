@@ -175,7 +175,8 @@ class TreeLangGenerator:
 
 			text.append(" ".join(node_info['seq'][1:]))
 
-		random.shuffle(text)
+		text.sort(key = lambda s: len(s))
+
 		# atm train, test, and eval are the same
 		data = dict()
 		data['train'] = text
@@ -243,7 +244,7 @@ def main(argv):
 
 	tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
 	tlg.generate_sentences(seed=seed)
-	tlg.save(base=basepath)
+	#tlg.save(base=basepath)
 
 if __name__ == '__main__':
 	import sys, getopt

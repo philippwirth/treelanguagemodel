@@ -1,7 +1,8 @@
 #!/bin/bash
 
 # load settings from config file
-configfile=$1
+#configfile=$1
+configfile="treelang_tiny"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path

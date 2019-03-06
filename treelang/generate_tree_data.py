@@ -244,7 +244,7 @@ def main(argv):
 
 	tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
 	tlg.generate_sentences(seed=seed)
-	#tlg.save(base=basepath)
+	tlg.save(base=basepath)
 
 if __name__ == '__main__':
 	import sys, getopt

@@ -10,9 +10,11 @@ def repackage_hidden(h):
         return tuple(repackage_hidden(v) for v in h)
 
 
-def batchify(data, bsz, args):
+def batchify(data, bsz, seq_len, args):
     # Work out how cleanly we can divide the dataset into bsz parts.
     nbatch = data.size(0) // bsz
+    nseqs = nbatch // seq_len
+    nbatch = nseqs * seq_len
     # Trim off any extra elements that wouldn't cleanly fit (remainders).
     data = data.narrow(0, 0, nbatch * bsz)
     # Evenly divide the data across the bsz batches.
@@ -25,13 +27,14 @@ def batchify(data, bsz, args):
 def batchify_treelang(data, bsz, args):
     ''' data is dictionary with seq_len as key and concatenated sequences as items 
         idea: batch each group of sequences of same length individually
+        attention! we may lose data for bsz > 1! see batchify()
     '''
 
     # iterate over key,item pairs
     for key, item in data.items():
 
         # batchify each group of sequences
-        data[key] = batchify(item, bsz, args)
+        data[key] = batchify(item, bsz, key, args)
 
     return data
 

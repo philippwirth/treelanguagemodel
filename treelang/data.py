@@ -79,4 +79,5 @@ class Corpus(object):
                     ids[token] = self.dictionary.word2idx[word]
                     token += 1
 
+            id_dict[key] = ids.narrow(0, 0, token)
         return id_dict

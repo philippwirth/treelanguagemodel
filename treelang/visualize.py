@@ -15,11 +15,11 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 	for ctxts in contexts:
 
 		# convert tensor to numpy
-                ctxts.cpu()
-                np_ctxts = ctxts.detach().numpy()
+		ctxts.cpu()
+		np_ctxts = ctxts.detach().numpy()
 		#np_ctxts = ctxts
 
-                # every batch is bsz*seq_len rows
+		# every batch is bsz*seq_len rows
 		seq_len = np.size(np_ctxts, 0) // bsz
 
 		# iterate over all sequences and extract plottable lines

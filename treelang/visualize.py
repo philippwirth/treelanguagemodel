@@ -56,9 +56,9 @@ def visualize_contexts(data):
 
 
 # test
-header = 'depth1 (int), depth2 (int), x_1 (hsz float), x_2 (hsz float)'
-contexts = [np.random.rand(4,2), np.random.rand(8,2), np.random.rand(10, 2)]
+if __name__ == '__main__':
+	contexts = [np.random.rand(4,2), np.random.rand(8,2), np.random.rand(10, 2)]
 
-dump_contexts(contexts, basepath='test', bsz=2)
-data = load_contexts(path='test0.out')
-visualize_contexts(data)
+	dump_contexts(contexts, basepath='test', bsz=2)
+	data = load_contexts(path='test0.out')
+	visualize_contexts(data)

@@ -76,7 +76,7 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
 args = parser.parse_args()
-args.tied = True
+args.tied = False
 
 # Set the random seed manually for reproducibility.
 np.random.seed(args.seed)

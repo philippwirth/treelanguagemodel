@@ -20,7 +20,8 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 
 		# every batch is bsz*seq_len rows
 		seq_len = np.size(np_ctxts, 0) // bsz
-		print(np.size(np_ctxts))
+		print(np_ctxts)
+		print(data)
 
 		# iterate over all sequences and extract plottable lines
 		for i in range(0, np.size(np_ctxts, 0)-1, seq_len):

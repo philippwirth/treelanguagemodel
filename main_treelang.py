@@ -66,6 +66,13 @@ parser.add_argument('--optimizer', type=str,  default='sgd',
                     help='optimizer to use (sgd, adam)')
 parser.add_argument('--when', nargs="+", type=int, default=[-1],
                     help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
+
+# context dump arguments
+parser.add_argument('--dumpat', type=int, default=0,
+                    help='Dump contexts every <dumpat> epochs, 0 means no dump.')
+parser.add_argument('--dumpto', type=str, default="context_dump_",
+                    help="Dump contexts to file starting with <dumpto>.")
+
 args = parser.parse_args()
 args.tied = True
 
@@ -163,13 +170,16 @@ print('Model total parameters:', total_params)
     a new sequences starts.
 '''
 
-def evaluate(data_source, batch_size=1):
+def evaluate(data_source, batch_size=1, dump_vars=None:
     # Turn on evaluation mode which disables dropout.
     model.eval()
     if args.model == 'QRNN': model.reset()
     total_loss = 0
     ntokens = len(corpus.dictionary)
     len_data_source = 0
+
+    # if we dump contexts, need a list to store them
+    if not dump_vars is None: contexts = []
 
     # iterate over sequences of same length
     for seq_len, seq_data in data_source.items():
@@ -186,8 +196,15 @@ def evaluate(data_source, batch_size=1):
             total_loss += len(data) * criterion(model.decoder.weight, model.decoder.bias, output, targets).data
             hidden = repackage_hidden(hidden)
 
+            # collect context vectors
+            if not dump_vars is None: contexts.append(output)
+
         len_data_source += len(seq_data)
 
+    # dump contexts
+    if not dump_vars is None: dump_contexts(contexts, bsz=batch_size, **dump_vars)
+
+    # return loss
     return total_loss.item() / len_data_source
 
 
@@ -311,6 +328,11 @@ try:
                 optimizer.param_groups[0]['lr'] /= 10.
 
             best_val_loss.append(val_loss)
+
+        # every dumpat iteration: store contexts to file for later plotting
+        if args.dumpat > 0 and epoch % args.dumpat == 0:
+            dump_vars = dict({'basepath': args.dumpto, 'epoch':epoch, 'hsz':args.nhid})
+            evaluate(test_data, test_batch_size, dump_vars)
 
 except KeyboardInterrupt:
     print('-' * 89)

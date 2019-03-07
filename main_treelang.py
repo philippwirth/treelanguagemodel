@@ -12,6 +12,8 @@ import merity.model as model
 # same same
 from treelang.utils import batchify_treelang, get_batch, repackage_hidden
 
+from treelang.visualize import dump_contexts
+
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
                     help='location of the data corpus')
@@ -170,7 +172,7 @@ print('Model total parameters:', total_params)
     a new sequences starts.
 '''
 
-def evaluate(data_source, batch_size=1, dump_vars=None:
+def evaluate(data_source, batch_size=1, dump_vars=None):
     # Turn on evaluation mode which disables dropout.
     model.eval()
     if args.model == 'QRNN': model.reset()

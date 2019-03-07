@@ -53,15 +53,21 @@ def visualize_contexts(data):
 		plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Greys(data[i,0]/maxdepth))
 		plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Greys(data[i,1]/maxdepth))
 
-	plt.axis("equal")
-	plt.show()
+
+		plt.axis('off')
 	
 
 
 # test
 if __name__ == '__main__':
-	contexts = [np.random.rand(4,2), np.random.rand(8,2), np.random.rand(10, 2)]
 
-	dump_contexts(contexts, basepath='test', bsz=2)
-	data = load_contexts(path='test0.out')
-	visualize_contexts(data)
+	j = 1
+	for i in range(5, 51, 5):
+
+		plt.subplot(2, 5, j)
+		plt.title("epoch: " + str(i))
+		path = "../plot_test/context_dump_" + str(i) + ".out"
+		data = load_contexts(path=path)
+		visualize_contexts(data)
+		j += 1
+	plt.show()

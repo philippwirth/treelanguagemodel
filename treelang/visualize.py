@@ -15,8 +15,7 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 	for ctxts in contexts:
 
 		# convert tensor to numpy
-		ctxts.cpu()
-		np_ctxts = ctxts.detach().numpy()
+		np_ctxts = ctxts.detach().cpu().numpy()
 		#np_ctxts = ctxts
 
 		# every batch is bsz*seq_len rows

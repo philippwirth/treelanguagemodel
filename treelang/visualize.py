@@ -35,6 +35,7 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 				n += 1
 
 	savepath = basepath + str(epoch) + '.out'
+	header = "depth 1, depth 2, context1, context2"
 	formatstr = ' '.join(['%i']*2 + ['%1.3e']*2*hsz)
 	np.savetxt(savepath, data, header=header, delimiter=' ', fmt=formatstr)
 

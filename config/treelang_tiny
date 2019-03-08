@@ -1,7 +1,7 @@
 script=main_treelang.py
 path="data/treelang_tiny/"
 
-model="LSTM"
+model="RNN"
 emsize=4
 nhid=2
 nlayers=1

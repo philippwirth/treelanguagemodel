@@ -5,7 +5,7 @@ model="RNN"
 emsize=4
 nhid=2
 nlayers=1
-epochs=50
+epochs=10
 batchsize=1
 bptt=4
 dropout=0.1
@@ -16,5 +16,5 @@ wdrop=0.1
 seed=500
 loginterval=1
 beta=1
-dumpat=5
+dumpat=1
 

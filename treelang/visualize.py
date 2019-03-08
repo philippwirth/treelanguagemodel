@@ -20,8 +20,6 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 
 		# every batch is bsz*seq_len rows
 		seq_len = np.size(np_ctxts, 0) // bsz
-		print(np_ctxts)
-		print(data)
 
 		# iterate over all sequences and extract plottable lines
 		for i in range(0, np.size(np_ctxts, 0)-1, seq_len):
@@ -54,7 +52,7 @@ def visualize_contexts(data):
 		plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Greys(data[i,1]/maxdepth))
 
 
-		plt.axis('off')
+		#plt.axis('off')
 	
 
 
@@ -66,7 +64,7 @@ if __name__ == '__main__':
 
 		plt.subplot(2, 5, j)
 		plt.title("epoch: " + str(i))
-		path = "../plot_test/context_dump_" + str(i) + ".out"
+		path = "../results/rnn_plot_test/context_dump_" + str(i) + ".out"
 		data = load_contexts(path=path)
 		visualize_contexts(data)
 		j += 1

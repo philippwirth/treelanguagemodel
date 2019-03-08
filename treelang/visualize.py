@@ -60,11 +60,11 @@ def visualize_contexts(data):
 if __name__ == '__main__':
 
 	j = 1
-	for i in range(5, 51, 5):
+	for i in range(1, 11, 1):
 
 		plt.subplot(2, 5, j)
 		plt.title("epoch: " + str(i))
-		path = "../results/rnn_plot_test/context_dump_" + str(i) + ".out"
+		path = "../results/rnn_dump1/context_dump_" + str(i) + ".out"
 		data = load_contexts(path=path)
 		visualize_contexts(data)
 		j += 1

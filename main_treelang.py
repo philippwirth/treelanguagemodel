@@ -293,6 +293,13 @@ try:
     if args.optimizer == 'adam':
         optimizer = torch.optim.Adam(params, lr=args.lr, weight_decay=args.wdecay)
     for epoch in range(1, args.epochs+1):
+
+
+        if epoch == 1:
+            val_loss = evaluate(val_data, eval_batch_size)
+            print(val_loss)
+
+
         epoch_start_time = time.time()
         train()
         if 't0' in optimizer.param_groups[0]:

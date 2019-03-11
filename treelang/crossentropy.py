@@ -26,6 +26,9 @@ class TreelangCrossEntropyLoss(nn.Module):
 			targets: words of seq at time t in 2...T ()
 		'''
 
+		# words to cuda
+		words = words.cuda()
+
 		# for i in range seq_len! do all this
 		total_loss = 0
 		seq_len = len(targets)

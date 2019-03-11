@@ -60,7 +60,7 @@ def visualize_contexts(data):
 # test
 if __name__ == '__main__':
 
-	'''
+	
 	
 	j = 1
 	for i in range(1, 11, 1):
@@ -71,14 +71,16 @@ if __name__ == '__main__':
 		data = load_contexts(path=path)
 		visualize_contexts(data)
 		j += 1
-	'''
 	
-
+	plt.show()
+	
+	'''
 	path = "../results/crossentropy_test/context_dump_10.out"
 	data = load_contexts(path=path)
 	visualize_contexts(data)
 	
 	plt.show()
+	'''
 
 	
 	

@@ -36,7 +36,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			h = last_hidden.expand(self.ntokens, -1)
 
 			# forward pass through RNN to get output (seq_len*n_words, ndir*hsz)
-			output, hidden = model(self.words, h.view(1, self.ntokens, model.nhid))
+			output, hidden = model(self.words, [h.view(1, self.ntokens, model.nhid)])
 
 			# compute squared distances
 			d = -self.distance(last_hidden, output)

@@ -19,7 +19,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 		self.loss = nn.CrossEntropyLoss()
 
-	def forward(self, model, hiddens, targets, words=words):
+	def forward(self, model, hiddens, targets, words=None):
 		'''
 			model: RNN
 			hiddens: outputs of RNN for t in 1...T-1 ()

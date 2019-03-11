@@ -52,7 +52,8 @@ def visualize_contexts(data):
 		plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Greys(data[i,1]/maxdepth))
 
 
-		#plt.axis('off')
+		#plt.axis('equal')
+		plt.axis([-1.001, -0.999, -1.001, -0.998])
 	
 
 
@@ -60,17 +61,48 @@ def visualize_contexts(data):
 if __name__ == '__main__':
 
 	'''
+	
 	j = 1
-	for i in range(5, 51, 5):
+	for i in range(1, 11, 1):
 
 		plt.subplot(2, 5, j)
 		plt.title("epoch: " + str(i))
-		path = "../results/plot_test/context_dump_" + str(i) + ".out"
+		path = "../results/crossentropy_test/context_dump_" + str(i) + ".out"
 		data = load_contexts(path=path)
 		visualize_contexts(data)
 		j += 1
 	'''
-	path = "../results/crossentropy_test/context_dump_50.out"
+	'''
+	
+	path = "../results/crossentropy_test/context_dump_10.out"
 	data = load_contexts(path=path)
 	visualize_contexts(data)
+	
 	plt.show()
+	'''
+
+
+	
+	
+	path = "../results/crossentropy_test/context_dump_10.out"
+	data = load_contexts(path=path)
+
+	i = 0
+	k = 1
+	while k < 12:
+
+		plt.subplot(3,4,k)
+
+		j = i+1
+		while (j < 29 and data[j,0] > 0):
+			j += 1
+
+		print([i,j])
+		visualize_contexts(data[i:j, :])
+		k = k + 1
+
+		i = j
+	print(data.shape)
+	#plt.show()
+	
+

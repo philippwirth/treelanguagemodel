@@ -16,5 +16,5 @@ wdrop=0.1
 seed=500
 loginterval=1
 beta=1
-dumpat=5
+dumpat=100
 loss="treelangcrossentropy"

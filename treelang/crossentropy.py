@@ -49,7 +49,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# input is of size (bsz x n_words)
 			total_loss += self.loss(d.view(1, self.ntokens), targets[i].view(1))
 
-		return total_loss / seq_len
+		return (total_loss / seq_len).type_as(model.decoder.weight)
 
 
 if __name__ == '__main__':

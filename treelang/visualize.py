@@ -22,14 +22,14 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 		seq_len = np.size(np_ctxts, 0) // bsz
 
 		# iterate over all sequences and extract plottable lines
-		for i in range(0, np.size(np_ctxts, 0)-1, seq_len):
+		for i in range(0, np.size(np_ctxts, 0), seq_len):
 
 			data[n, 0] = 0
 			data[n, 1] = 1
 			data[n, 2:2+hsz] = np.zeros(hsz)
 			data[n, 2+hsz:] = np_ctxts[i, :]
 			n += 1
-			
+
 			for j in range(i, i + seq_len-1, 1):
 
 				data[n, 0] = int(j-i + 1)			# depth of first node

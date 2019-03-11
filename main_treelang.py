@@ -75,6 +75,10 @@ parser.add_argument('--dumpat', type=int, default=0,
 parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
+# loss function
+parser.add_argument('--loss', type=str, default='splitcross',
+                    help='Which loss function to use.')
+
 args = parser.parse_args()
 args.tied = False
 
@@ -124,8 +128,12 @@ test_data = batchify_treelang(corpus.test, test_batch_size, args)
 # Build the model
 ###############################################################################
 
-from merity.splitcross import SplitCrossEntropyLoss
-criterion = None
+if args.loss == 'splitcross':
+    from merity.splitcross import SplitCrossEntropyLoss
+    criterion = None
+elif args.loss == 'treelang':
+    from treelang.crossentropy import TreelangCrossEntropyLoss
+    criterion = TreelangCrossEntropyLoss()
 
 ntokens = len(corpus.dictionary)
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)

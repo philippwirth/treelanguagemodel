@@ -198,10 +198,14 @@ def evaluate(data_source, batch_size=1, dump_vars=None):
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
             # new sequence -> reset hidden state
-            hidden = model.init_hidden(batch_size)  
+            hidden = model.init_hidden(batch_size)
 
             # get batch
             data, targets = get_batch(seq_data, i, args, seq_len=seq_len, evaluation=True)
+
+            print(data)
+            print(targets)
+            print('....')
 
             # evaluate
             output, hidden = model(data, hidden)

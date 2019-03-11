@@ -43,18 +43,18 @@ def load_contexts(path):
 
 def visualize_contexts(data):
 
-	maxdepth = np.amax(data[:, 0:2])
+	maxdepth = 2
 	hsz = (np.size(data, 1) - 2) // 2
 	for i in range(np.size(data, 0)):
 
-		plt.plot([data[i,2], data[i,4]], [data[i,3], data[i,5]], 'k')
-		plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Greys(data[i,0]/maxdepth))
-		plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Greys(data[i,1]/maxdepth))
+		#plt.plot([data[i,2], data[i,4]], [data[i,3], data[i,5]], 'k')
+		#plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor='k') #plt.cm.Purples(float(data[i,0])/maxdepth))
+		#plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Purples(float(data[i,1])/maxdepth))
+		plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.0000001, head_width=0.00005, head_length=0.00005, fc='k', ec='k')
 
 
 		#plt.axis('equal')
 		plt.axis([-1.001, -0.999, -1.001, -0.998])
-	
 
 
 # test
@@ -72,29 +72,30 @@ if __name__ == '__main__':
 		visualize_contexts(data)
 		j += 1
 	'''
-	'''
 	
+
 	path = "../results/crossentropy_test/context_dump_10.out"
 	data = load_contexts(path=path)
 	visualize_contexts(data)
 	
 	plt.show()
-	'''
-
 
 	
+	
+
+	'''
 	
 	path = "../results/crossentropy_test/context_dump_10.out"
 	data = load_contexts(path=path)
 
 	i = 0
 	k = 1
-	while k < 12:
+	while k <= 12:
 
 		plt.subplot(3,4,k)
 
 		j = i+1
-		while (j < 29 and data[j,0] > 0):
+		while (j < 33 and data[j,0] > 0):
 			j += 1
 
 		print([i,j])
@@ -102,7 +103,26 @@ if __name__ == '__main__':
 		k = k + 1
 
 		i = j
-	print(data.shape)
-	#plt.show()
+	#print(data.shape)
+	plt.show()
+	'''
+	'''
+	path = "../results/crossentropy_test/context_dump_10.out"
+	data = load_contexts(path=path)
+
+	i = 17
+	k = 1
+	while k <= 16:
+
+		plt.subplot(4,4,k)
+
+		visualize_contexts(data[i:i+1, :])
+		k = k + 1
+		i = i + 1
+		print(i)
+	#print(data.shape)
+	plt.show()
+	'''
+	
 	
 

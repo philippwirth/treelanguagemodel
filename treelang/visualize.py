@@ -57,12 +57,12 @@ def visualize_contexts(data):
 		#plt.plot([data[i,2], data[i,4]], [data[i,3], data[i,5]], 'k')
 		#plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor='k') #plt.cm.Purples(float(data[i,0])/maxdepth))
 		#plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Purples(float(data[i,1])/maxdepth))
-		plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.0000001, head_width=0.00005, head_length=0.00005, fc='k', ec='k')
+		plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.01, head_width=0.1, head_length=0.1, fc='k', ec='k')
 
 
 		#plt.axis('equal')
-		plt.axis([-1.001, -0.999, -1.001, -0.998])
-
+		#plt.axis([-1.001, -0.999, -1.001, -0.998])
+		plt.axis([-2, 2, -2, 2])
 
 # test
 if __name__ == '__main__':
@@ -74,7 +74,7 @@ if __name__ == '__main__':
 
 		plt.subplot(2, 5, j)
 		plt.title("epoch: " + str(i))
-		path = "../results/crossentropy_test/context_dump_" + str(i) + ".out"
+		path = "../results/naja/context_dump_" + str(i) + ".out"
 		data = load_contexts(path=path)
 		visualize_contexts(data)
 		j += 1

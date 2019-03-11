@@ -131,7 +131,7 @@ test_data = batchify_treelang(corpus.test, test_batch_size, args)
 if args.loss == 'splitcross':
     from merity.splitcross import SplitCrossEntropyLoss
     criterion = None
-elif args.loss == 'treelang':
+else:
     from treelang.crossentropy import TreelangCrossEntropyLoss
     criterion = TreelangCrossEntropyLoss()
 

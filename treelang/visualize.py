@@ -70,7 +70,7 @@ if __name__ == '__main__':
 		visualize_contexts(data)
 		j += 1
 	'''
-	path = "../results/plot_test/context_dump_10.out"
+	path = "../results/crossentropy_test/context_dump_50.out"
 	data = load_contexts(path=path)
 	visualize_contexts(data)
 	plt.show()

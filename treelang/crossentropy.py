@@ -14,7 +14,8 @@ class TreelangCrossEntropyLoss(nn.Module):
 		super(TreelangCrossEntropyLoss, self).__init__()
 
 		self.ntokens = ntokens
-		self.words = torch.cuda.LongTensor([i for i in range(self.ntokens)]).view(1, self.ntokens)
+		self.words = torch.LongTensor([i for i in range(self.ntokens)])
+                self.words = self.words.contiguous()
 		self.distance = eucl_entailcone_dist if distance == 'entailcone' else eucl_dist_square
 
 		self.loss = nn.CrossEntropyLoss()
@@ -36,14 +37,14 @@ class TreelangCrossEntropyLoss(nn.Module):
 			h = last_hidden.expand(self.ntokens, -1)
 
 			# forward pass through RNN to get output (seq_len*n_words, ndir*hsz)
-			output, hidden = model(self.words, [h.view(1, self.ntokens, model.nhid)])
+			output, hidden = model(self.words, [h.view(1, self.ntokens, model.nhid).contiguous()])
 
 			# compute squared distances
 			d = -self.distance(last_hidden, output)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)
-			total_loss += self.loss(d.view(1, self.ntokens), targets[i])
+			total_loss += self.loss(d.view(1, self.ntokens), targets[i].view(1))
 
 		return total_loss / seq_len
 

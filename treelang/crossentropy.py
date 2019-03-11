@@ -27,6 +27,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 		'''
 
 		# words to cuda
+		words = words.view(self.ntokens, 1).t().contiguous()
 		words = words.cuda()
 
 		# for i in range seq_len! do all this

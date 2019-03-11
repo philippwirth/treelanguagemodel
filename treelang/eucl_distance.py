@@ -22,13 +22,13 @@ def eucl_entailcone_dist(hidden, next_hidden):
 	dist_fn = nn.PairwiseDistance(p=2)
 	pw_dist = dist_fn(hidden, next_hidden)
 
-	hidden = hidden.expand(next_hidden.size(0))
+	hidden = hidden.expand(next_hidden.size(0), -1)
 	hidden_len = hidden.norm(p=2, dim=1)
 	next_hidden_len = next_hidden.norm(p=2, dim=1)
 
 	inpt1 = next_hidden_len.pow(2) - hidden_len.pow(2) - pw_dist.pow(2)
 	inpt2 = torch.mul(torch.mul(hidden_len, 2), pw_dist)
-	inpt = torch.div(inpt, inpt2)
+	inpt = torch.div(inpt1, inpt2)
 
 	return torch.acos(inpt)
 

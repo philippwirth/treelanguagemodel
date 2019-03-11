@@ -205,7 +205,7 @@ def evaluate(data_source, batch_size=1, dump_vars=None):
 
             # evaluate
             output, hidden = model(data, hidden)
-            total_loss += len(data) * criterion(model, output, targets).data#, words=words).data
+            total_loss += len(data) * criterion(model, output, targets, words=words).data
             hidden = repackage_hidden(hidden)
 
             # collect context vectors
@@ -252,7 +252,7 @@ def train():
             optimizer.zero_grad()
 
             output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
-            raw_loss = criterion(model, output, targets).data#, words=words)
+            raw_loss = criterion(model, output, targets, words=words)
 
             loss = raw_loss
             # Activiation Regularization

@@ -209,6 +209,7 @@ def evaluate(data_source, batch_size=1, dump_vars=None):
 
             # evaluate
             output, hidden = model(data, hidden)
+            print(output)
             total_loss += len(data) * criterion(model, output, targets).data#, words=words).data
             hidden = repackage_hidden(hidden)
 

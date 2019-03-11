@@ -7,8 +7,8 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 		- one row per line {depth1, depth2, x1, y1, x2, y2 }
 	"""
 	
-	# the overall number of lines is sum(bsz*(seq_len - 1)) over all contexts
-	nlines = sum([len(ctxts)-bsz for ctxts in contexts])
+	# the overall number of lines is sum(bsz*(seq_len)) over all contexts
+	nlines = sum([len(ctxts) for ctxts in contexts])
 	data = np.zeros((nlines, 2*hsz + 2))
 	
 	n = 0
@@ -23,10 +23,17 @@ def dump_contexts(contexts, basepath='', epoch=0, hsz=2, bsz=1):
 
 		# iterate over all sequences and extract plottable lines
 		for i in range(0, np.size(np_ctxts, 0)-1, seq_len):
+
+			data[n, 0] = 0
+			data[n, 1] = 1
+			data[n, 2:2+hsz] = np.zeros(hsz)
+			data[n, 2+hsz:] = np_ctxts[i, :]
+			n += 1
+			
 			for j in range(i, i + seq_len-1, 1):
 
-				data[n, 0] = int(j-i)				# depth of first node
-				data[n, 1] = int(j-i+1) 			# depth of second node
+				data[n, 0] = int(j-i + 1)			# depth of first node
+				data[n, 1] = int(j-i+2 ) 			# depth of second node
 				data[n, 2:2+hsz] = np_ctxts[j,:]	# coordinates of first node
 				data[n, 2+hsz:] = np_ctxts[j+1,:]	# coordinates of second node
 

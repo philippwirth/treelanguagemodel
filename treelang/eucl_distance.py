@@ -28,6 +28,7 @@ def eucl_entailcone_dist(hidden, next_hidden):
 
 	inpt1 = next_hidden_len.pow(2) - hidden_len.pow(2) - pw_dist.pow(2)
 	inpt2 = torch.mul(torch.mul(hidden_len, 2), pw_dist)
+	inpt2[inpt2 == 0] = 1e-5
 	inpt = torch.div(inpt1, inpt2)
 
 	return torch.acos(inpt)

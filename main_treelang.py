@@ -299,7 +299,11 @@ try:
 
 
         if epoch == 1:
-            val_loss = evaluate(val_data, eval_batch_size)
+            if args.dumpat > 0:
+                dump_vars = dict({'basepath': args.dumpto, 'epoch':0, 'hsz':args.nhid})
+                val_loss = evaluate(val_data, eval_batch_size, dump_vars)
+            else:
+                val_loss = evaluate(val_data, eval_batch_size)
             print(val_loss)
 
 

@@ -2,7 +2,7 @@
 
 # load settings from config file
 #configfile=$1
-configfile="crossentropy_test"
+configfile="treelang_tiny_gru"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path

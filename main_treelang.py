@@ -358,7 +358,7 @@ try:
             evaluate(test_data, test_batch_size, dump_vars)
 
         # track gradients
-        for p,n in zip(rnn.parameters(),rnn._all_weights[0]):
+        for p,n in zip(model.parameters(),model._all_weights[0]):
             if n[:6] == 'weight':
                 print('===========\ngradient:{}\n----------\n{}'.format(n,p.grad))
 

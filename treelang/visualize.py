@@ -61,8 +61,8 @@ def visualize_contexts(data):
 
 
 		#plt.axis('equal')
-		#plt.axis([-1.001, -0.999, -1.001, -0.998])
-		plt.axis([-2, 2, -2, 2])
+		#plt.axis([ 0.999, 1.001, 0.998, 1.001])
+		plt.axis([-1.2, 1.2, -1.2, 1.2])
 
 # test
 if __name__ == '__main__':

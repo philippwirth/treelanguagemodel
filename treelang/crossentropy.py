@@ -14,12 +14,12 @@ class TreelangCrossEntropyLoss(nn.Module):
 		super(TreelangCrossEntropyLoss, self).__init__()
 
 		self.ntokens = ntokens
-		self.words = torch.LongTensor([i for i in range(self.ntokens)]).contiguous()
+		self.words = torch.LongTensor([i for i in range(self.ntokens)])
 		self.distance = eucl_entailcone_dist if distance == 'entailcone' else eucl_dist_square
 
 		self.loss = nn.CrossEntropyLoss()
 
-	def forward(self, model, hiddens, targets, words=None):
+	def forward(self, model, hiddens, targets, verbose=False):
 		'''
 			model: RNN
 			hiddens: outputs of RNN for t in 1...T-1 ()
@@ -27,7 +27,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 		'''
 
 		# words to cuda
-		words = words.view(self.ntokens, 1).t().contiguous()
+		words = self.words.view(self.ntokens, 1).t().contiguous()
 		words = words.cuda()
 
 		# for i in range seq_len! do all this

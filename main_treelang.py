@@ -129,14 +129,16 @@ test_data = batchify_treelang(corpus.test, test_batch_size, args)
 ###############################################################################
 
 ntokens = len(corpus.dictionary)
-words = torch.LongTensor([i for i in range(ntokens)])
 
 if args.loss == 'splitcross':
     from merity.splitcross import SplitCrossEntropyLoss
     criterion = None
+elif args.loss == 'treelang_eucl':
+    from treelang.crossentropy import TreelangCrossEntropyLoss
+    criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl')
 else:
     from treelang.crossentropy import TreelangCrossEntropyLoss
-    criterion = TreelangCrossEntropyLoss()
+    criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl')
 
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)
 ###
@@ -205,7 +207,7 @@ def evaluate(data_source, batch_size=1, dump_vars=None):
 
             # evaluate
             output, hidden = model(data, hidden)
-            total_loss += len(data) * criterion(model, output, targets, words=words).data
+            total_loss += len(data) * criterion(model, output, targets).data
             hidden = repackage_hidden(hidden)
 
             # collect context vectors
@@ -252,7 +254,7 @@ def train():
             optimizer.zero_grad()
 
             output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
-            raw_loss = criterion(model, output, targets, words=words)
+            raw_loss = criterion(model, output, targets)
 
             loss = raw_loss
             # Activiation Regularization

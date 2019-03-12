@@ -50,44 +50,49 @@ def load_contexts(path):
 
 def visualize_contexts(data):
 
-	maxdepth = 2
+	maxdepth = 4
 	hsz = (np.size(data, 1) - 2) // 2
-	for i in range(np.size(data, 0)):
+	for i in range(0, np.size(data, 0)):
 
-		#plt.plot([data[i,2], data[i,4]], [data[i,3], data[i,5]], 'k')
-		#plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor='k') #plt.cm.Purples(float(data[i,0])/maxdepth))
-		#plt.plot(data[i,4], data[i,5], marker='o', markeredgecolor='k', markerfacecolor=plt.cm.Purples(float(data[i,1])/maxdepth))
-		plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.01, head_width=0.1, head_length=0.1, fc='k', ec='k')
+		plt.plot([data[i,2], data[i,4]], [data[i,3], data[i,5]], 'k')
+		c1 = plt.cm.Purples(float(data[i,0])/maxdepth)
+		c2 = plt.cm.Purples(float(data[i,1])/maxdepth)
+		plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor=c1) #plt.cm.Purples(float(data[i,0])/maxdepth))
+		plt.plot(data[i,4], data[i,5], marker='o', markerfacecolor=c2, markeredgecolor='k')
+		#plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.0001, head_width=0.0001, head_length=0.0001, fc='k', ec='k')
 
 
-		#plt.axis('equal')
-		#plt.axis([ 0.999, 1.001, 0.998, 1.001])
-		plt.axis([-1.2, 1.2, -1.2, 1.2])
+		plt.axis('equal')
+		plt.xlim(-0.005, 0.015)
+		plt.ylim(-0.005, 0.015)
+		#plt.axis([-0.005, 0.01, -0.005, 0.05])
 
 # test
 if __name__ == '__main__':
 
 	
-	
+	'''
 	j = 1
-	for i in range(1, 11, 1):
+	for i in range(1, 51, 5):
 
 		plt.subplot(2, 5, j)
 		plt.title("epoch: " + str(i))
-		path = "../results/naja/context_dump_" + str(i) + ".out"
+		path = "../results/test/context_dump_" + str(i) + ".out"
 		data = load_contexts(path=path)
 		visualize_contexts(data)
 		j += 1
 	
 	plt.show()
+	'''
 	
 	'''
-	path = "../results/crossentropy_test/context_dump_10.out"
+	path = "../results/test/context_dump_50.out"
 	data = load_contexts(path=path)
 	visualize_contexts(data)
 	
 	plt.show()
 	'''
+
 
 	
 	
@@ -115,23 +120,24 @@ if __name__ == '__main__':
 	#print(data.shape)
 	plt.show()
 	'''
-	'''
-	path = "../results/crossentropy_test/context_dump_10.out"
+	
+	path = "../results/test/context_dump_1.out"
 	data = load_contexts(path=path)
 
+	#i = 8
 	i = 17
 	k = 1
-	while k <= 16:
+	while k <= 4:
 
-		plt.subplot(4,4,k)
-
-		visualize_contexts(data[i:i+1, :])
+		visualize_contexts(data[i:i+4, :])
+		print(data[i:i+4])
 		k = k + 1
-		i = i + 1
+		i = i + 4
 		print(i)
+		plt.show()
 	#print(data.shape)
 	plt.show()
-	'''
+	
 	
 	
 

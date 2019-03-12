@@ -18,3 +18,4 @@ loginterval=1
 beta=1
 dumpat=1
 loss="splitcross"
+temp=100

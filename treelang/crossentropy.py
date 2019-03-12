@@ -9,13 +9,14 @@ class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, distance='eucl'):
+	def __init__(self, ntokens=3, distance='eucl', temp=100):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
 		self.ntokens = ntokens
 		self.words = torch.LongTensor([i for i in range(self.ntokens)])
 		self.distance = eucl_entailcone_dist if distance == 'entailcone' else eucl_dist_square
+		self.temp = temp
 
 		self.loss = nn.CrossEntropyLoss()
 
@@ -43,7 +44,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			output, hidden = model(words, [h.view(1, self.ntokens, model.nhid).contiguous()])
 
 			# compute squared distances
-			d = -self.distance(last_hidden, output)
+			d = -self.temp * self.distance(last_hidden, output)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)

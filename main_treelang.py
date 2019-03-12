@@ -78,6 +78,8 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
 # loss function
 parser.add_argument('--loss', type=str, default='splitcross',
                     help='Which loss function to use.')
+parser.add_argument('--temperature', type=float, default=100,
+                    help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 
 args = parser.parse_args()
 args.tied = False
@@ -135,10 +137,10 @@ if args.loss == 'splitcross':
     criterion = None
 elif args.loss == 'treelang_eucl':
     from treelang.crossentropy import TreelangCrossEntropyLoss
-    criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl')
+    criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl', temp=args.temperature)
 else:
     from treelang.crossentropy import TreelangCrossEntropyLoss
-    criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl')
+    criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl', temp=args.temperature)
 
 model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)
 ###

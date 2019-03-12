@@ -63,8 +63,8 @@ def visualize_contexts(data):
 
 
 		plt.axis('equal')
-		plt.xlim(-0.005, 0.015)
-		plt.ylim(-0.005, 0.015)
+		#plt.xlim(-0.005, 0.015)
+		#plt.ylim(-0.005, 0.015)
 		#plt.axis([-0.005, 0.01, -0.005, 0.05])
 
 # test
@@ -120,8 +120,31 @@ if __name__ == '__main__':
 	#print(data.shape)
 	plt.show()
 	'''
+
+	base = []
+	da, db = [], []
+	for i in range(50):
+
+		path = "../results/test/context_dump_" + str(i) + ".out"
+		data = load_contexts(path=path)
+
+		x0 = np.zeros(2)
+		x1 = data[0,4:6]
+		x2 = data[1,4:6]
+
+		base.append(i)
+		print([x0, x1])
+		print([x0, x2])
+		da.append(np.exp(-1000*pow(np.linalg.norm(x1-x0),2)))
+		db.append(np.exp(-1000*pow(np.linalg.norm(x2-x0),2)))
+
+	plt.plot(base, [a / (a+ b) for (a,b) in zip(da, db)], 'r')
+	plt.plot(base, [b / (a+ b) for (a,b) in zip(da, db)], 'g')
+	plt.show()
+
+	'''
 	
-	path = "../results/test/context_dump_1.out"
+	path = "../results/test/context_dump_50.out"
 	data = load_contexts(path=path)
 
 	#i = 8
@@ -137,6 +160,7 @@ if __name__ == '__main__':
 		plt.show()
 	#print(data.shape)
 	plt.show()
+	'''
 	
 	
 	

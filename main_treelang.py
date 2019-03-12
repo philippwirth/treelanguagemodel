@@ -278,6 +278,7 @@ def train():
                     elapsed * 1000 / args.log_interval, cur_loss, math.exp(cur_loss), cur_loss / math.log(2)))
                 total_loss = 0
                 start_time = time.time()
+
             ###
             batch += 1
 
@@ -355,6 +356,11 @@ try:
         if args.dumpat > 0 and epoch % args.dumpat == 0:
             dump_vars = dict({'basepath': args.dumpto, 'epoch':epoch, 'hsz':args.nhid})
             evaluate(test_data, test_batch_size, dump_vars)
+
+        # track gradients
+        for p,n in zip(rnn.parameters(),rnn._all_weights[0]):
+            if n[:6] == 'weight':
+                print('===========\ngradient:{}\n----------\n{}'.format(n,p.grad))
 
 except KeyboardInterrupt:
     print('-' * 89)

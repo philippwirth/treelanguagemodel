@@ -21,6 +21,7 @@ echo "	wdrop:	" $wdrop
 echo "	seed:	" $seed
 echo "	log:	" $loginterval
 echo "	beta:	" $beta
+echo "	alpha:	" $alpha
 echo "	dumpat:	" $dumpat
 echo "	loss:	" $loss
 echo "	temp:	" $temp
@@ -30,4 +31,4 @@ echo "running script: "$script"..."
 python $script --data $path --model $model --emsize $emsize --nhid $nhid --nlayers $nlayers \
 	--epochs $epochs --batch_size $batchsize --bptt $bptt --dropout $dropout --dropouth $dropouth \
 	--dropouti $dropouti --dropoute $dropoute --wdrop $wdrop --seed $seed --log-interval $loginterval \
-	--beta $beta --dumpat $dumpat --loss $loss --temperature $temp
+	--alpha $alpha --beta $beta --dumpat $dumpat --loss $loss --temperature $temp

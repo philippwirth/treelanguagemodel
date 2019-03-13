@@ -365,7 +365,7 @@ try:
 
         # track gradients
         for p in model.parameters():
-            print(p.grad)
+            pass #print(p.grad)
 
 except KeyboardInterrupt:
     print('-' * 89)

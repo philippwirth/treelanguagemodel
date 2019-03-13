@@ -3,7 +3,7 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 
 
-#from treelang.eucl_distance import eucl_dist_square, eucl_entailcone_dist
+from treelang.eucl_distance import eucl_dist_square, eucl_entailcone_dist
 
 class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
@@ -44,8 +44,8 @@ class TreelangCrossEntropyLoss(nn.Module):
 			output, hidden = model(words, [h.view(1, self.ntokens, model.nhid).contiguous()])
 
 			# compute squared distances
-			d = self.temp * self.distance(last_hidden, output)
-			d = -torch.log(d)
+			d = self.distance(last_hidden, output)
+			d = -self.temp * d
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)

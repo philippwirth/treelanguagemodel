@@ -10,7 +10,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='rbf', x0=0.1, sigma=0.1):
+	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='rbf', x0=0.0, sigma=0.5):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
@@ -56,7 +56,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			d = self.distance(last_hidden, output)
 
 			# apply kernel
-			k = self.kernel(d)
+			k = self.temp * self.kernel(d)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)

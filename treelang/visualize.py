@@ -114,12 +114,13 @@ if __name__ == '__main__':
 	#print(data.shape)
 	plt.show()
 	'''
+	'''
 	
 	base = []
 	da, db = [], []
-	for i in range(50):
+	for i in range(10):
 
-		path = "../results/test/context_dump_" + str(i) + ".out"
+		path = "../results/this_is_a_step_forward/context_dump_" + str(i) + ".out"
 		data = load_contexts(path=path)
 
 		x0 = np.zeros(2)
@@ -136,14 +137,14 @@ if __name__ == '__main__':
 	plt.plot(base, [a / (a + b) for (a,b) in zip(da, db)], 'r')
 	plt.plot(base, [b / (a + b) for (a,b) in zip(da, db)], 'g')
 	plt.show()
-
-	
-	
 	'''
+	
+	
+	
 
 	#i = 8
 	epoch = 10
-	path = "../results/merity_tiny_gru/context_dump_" + str(epoch) + ".out"
+	path = "../results/this_is_a_step_forward/context_dump_" + str(epoch) + ".out"
 	data = load_contexts(path=path)
 
 	i = 17
@@ -158,7 +159,7 @@ if __name__ == '__main__':
 	
 	#plt.axis('equal')
 	plt.show()
-	'''
+	
 		
 
 	

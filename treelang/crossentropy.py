@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 from treelang.eucl_distance import EuclideanDistance
-from treelang.eucl_kernel import RBFKernel
+from treelang.eucl_kernel import RBFKernel, PolynomialKernel
 
 class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
@@ -24,8 +24,10 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 		if kernel == 'rbf':
 			self.kernel = RBFKernel(x0=x0, sigma=sigma)
-		self.temp = temp
+		elif kernel == 'polynomial':
+			self.kernel = PolynomialKernel(x0=x0)
 
+		self.temp = temp
 		self.loss = nn.CrossEntropyLoss()
 
 	def forward(self, model, hiddens, targets, verbose=False):
@@ -62,6 +64,8 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# input is of size (bsz x n_words)
 			softmax = nn.Softmax()
 			print(softmax(k.view(1, self.ntokens)))
+			print(targets[i].view(1))
+			print(self.loss(k.view(1, self.ntokens), targets[i].view(1)))
 			total_loss += self.loss(k.view(1, self.ntokens), targets[i].view(1))
 
 		return (total_loss / seq_len).type_as(model.decoder.weight)

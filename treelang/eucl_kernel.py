@@ -1,6 +1,15 @@
 import torch
 import torch.nn as nn
 
+class PolynomialKernel(nn.Module):
+
+	def __init__(self, x0=0.1, p=2):
+
+		super(PolynomialKernel, self).__init__()
+		self.p = p
+
+	def forward(self, x, temp):
+		return -(x - self.x0).pow(2)
 
 class RBFKernel(nn.Module):
 

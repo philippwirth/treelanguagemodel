@@ -13,7 +13,7 @@ def eucl_dist_square(hidden, next_hidden):
 
 	dist_fn = nn.PairwiseDistance(p=2)	# define the distance function
 	dist = dist_fn(hidden, next_hidden)	# compute distance of hidden to each next_hidden
-	return torch.mul(0.1 - dist, 0.1 - dist)		# square the distance and return it
+	return torch.mul(dist, dist)		# square the distance and return it
 	
 
 def eucl_entailcone_dist(hidden, next_hidden):

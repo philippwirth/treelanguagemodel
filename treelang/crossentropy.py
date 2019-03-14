@@ -47,6 +47,9 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# forward pass through RNN to get output (seq_len*n_words, ndir*hsz)
 			output, hidden = model(words, [h.view(1, self.ntokens, model.nhid).contiguous()])
 
+			print('output')
+			print(output)
+
 			# compute squared distances
 			d = self.distance(last_hidden, output)
 			#d = torch.clamp(d, min=1e-10)

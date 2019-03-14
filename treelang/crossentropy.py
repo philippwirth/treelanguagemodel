@@ -45,7 +45,8 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 			# compute squared distances
 			d = self.distance(last_hidden, output)
-			d = -self.temp * d
+			d[d < 1e-10] = 1e-10 
+			d = 1 / (self.temp * d)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)

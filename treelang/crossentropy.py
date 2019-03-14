@@ -50,7 +50,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# compute squared distances
 			d = self.distance(last_hidden, output)
 			#d = torch.clamp(d, min=1e-10)
-			d = -self.temp * d
+			d = self.temp * d
 
 			print('distance: ')
 			print(d)

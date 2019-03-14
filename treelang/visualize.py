@@ -144,7 +144,7 @@ if __name__ == '__main__':
 
 	#i = 8
 	epoch = 10
-	path = "../results/this_is_a_step_forward/context_dump_" + str(epoch) + ".out"
+	path = "../results/maybe/context_dump_" + str(epoch) + ".out"
 	data = load_contexts(path=path)
 
 	i = 17

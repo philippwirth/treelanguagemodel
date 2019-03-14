@@ -282,26 +282,26 @@ def train():
             # Temporal Activation Regularization (slowness)
             if args.beta and seq_len > 2: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
             
-        loss.backward()
+    loss.backward()
 
-        # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
-        if args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
-        optimizer.step()
+    # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
+    if args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
+    optimizer.step()
 
-        total_loss += raw_loss.data
-        optimizer.param_groups[0]['lr'] = lr2
-        if batch % args.log_interval == 0 and batch > 0:
-            cur_loss = total_loss.item() / args.log_interval
-            elapsed = time.time() - start_time
-            print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:05.5f} | ms/batch {:5.2f} | '
-                    'loss {:5.2f} | ppl {:8.2f} | bpc {:8.3f}'.format(
-                epoch, batch, len(train_data) // args.bptt, optimizer.param_groups[0]['lr'],
-                elapsed * 1000 / args.log_interval, cur_loss, cur_loss, cur_loss / math.log(2)))
-            total_loss = 0
-            start_time = time.time()
+    total_loss += raw_loss.data
+    optimizer.param_groups[0]['lr'] = lr2
+    if batch % args.log_interval == 0 and batch > 0:
+        cur_loss = total_loss.item() / args.log_interval
+        elapsed = time.time() - start_time
+        print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:05.5f} | ms/batch {:5.2f} | '
+                'loss {:5.2f} | ppl {:8.2f} | bpc {:8.3f}'.format(
+            epoch, batch, len(train_data) // args.bptt, optimizer.param_groups[0]['lr'],
+            elapsed * 1000 / args.log_interval, cur_loss, cur_loss, cur_loss / math.log(2)))
+        total_loss = 0
+        start_time = time.time()
 
-        ###
-        batch += 1
+    ###
+    batch += 1
 
 # Loop over epochs.
 lr = args.lr

@@ -34,11 +34,15 @@ class TreelangCrossEntropyLoss(nn.Module):
 		# for i in range seq_len! do all this
 		total_loss = 0
 		seq_len = len(targets)
+		print('seq_len: ' + str(seq_len))
 		for i in range(seq_len):
 
 			# replicate h_t-1 to shape (n_layers*ndir x n_words x hsz)
 			last_hidden = hiddens[i][:]
 			h = last_hidden.expand(self.ntokens, -1)
+
+			print('last_hidden: ')
+			print(last_hidden)
 
 			# forward pass through RNN to get output (seq_len*n_words, ndir*hsz)
 			output, hidden = model(words, [h.view(1, self.ntokens, model.nhid).contiguous()])
@@ -51,6 +55,8 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)
 			total_loss += self.loss(d.view(1, self.ntokens), targets[i].view(1))
+
+			print(total_loss)
 
 		return (total_loss / seq_len).type_as(model.decoder.weight)
 

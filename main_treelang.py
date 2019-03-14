@@ -1,4 +1,5 @@
 import argparse
+import random
 import time
 import math
 import numpy as np
@@ -240,7 +241,9 @@ def train():
     batch = 0
 
     # iterate over sequences of same length
-    for seq_len, seq_data in train_data.items():    
+    items = list(train_data.items())
+    random.shuffle(items)
+    for seq_len, seq_data in items:    
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
             # new sequece -> reset hidden state

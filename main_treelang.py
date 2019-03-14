@@ -208,7 +208,14 @@ def evaluate(data_source, batch_size=1, dump_vars=None):
             data, targets = get_batch(seq_data, i, args, seq_len=seq_len, evaluation=True)
 
             # evaluate
-            output, hidden = model(data, hidden)
+            output, new_hidden = model(data, hidden)
+
+            if args.loss == 'treelang_eucl':
+                # need to augment output and targets with initial hidden state
+                output = torch.cat((hidden[0][0][:], output), dim=0)
+                targets = torch.cat((data[0].view(1), targets))
+
+            hidden = new_hidden
             total_loss += len(data) * criterion(model, output, targets).data
             hidden = repackage_hidden(hidden)
 
@@ -255,7 +262,14 @@ def train():
             hidden = repackage_hidden(hidden)
             optimizer.zero_grad()
 
-            output, hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
+            output, new_hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
+
+            if args.loss == 'treelang_eucl':
+                # need to augment output and targets with initial hidden state
+                output = torch.cat((hidden[0][0][:], output), dim=0)
+                targets = torch.cat((data[0].view(1), targets))
+
+            hidden = new_hidden
             raw_loss = criterion(model, output, targets)
 
             loss = raw_loss

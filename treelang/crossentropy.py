@@ -9,13 +9,20 @@ class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, distance='eucl', temp=100):
+	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='rbf', x0=0.1, sigma=0.1):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
 		self.ntokens = ntokens
 		self.words = torch.LongTensor([i for i in range(self.ntokens)])
-		self.distance = eucl_entailcone_dist if distance == 'entailcone' else eucl_dist_square
+		
+		if distance == 'eucl':
+			self.distance = EuclideanDistance()
+		else:
+			pass
+
+		if kernel == 'rbf':
+			self.kernel = RBFKernel(x0=x0, sigma=sigma)
 		self.temp = temp
 
 		self.loss = nn.CrossEntropyLoss()
@@ -41,26 +48,20 @@ class TreelangCrossEntropyLoss(nn.Module):
 			last_hidden = hiddens[i][:]
 			h = last_hidden.expand(self.ntokens, -1)
 
-			print('last_hidden: ')
-			print(h)
-
 			# forward pass through RNN to get output (seq_len*n_words, ndir*hsz)
 			output, hidden = model(words, [h.view(1, self.ntokens, model.nhid).contiguous()])
 
-			# compute squared distances
+			# compute distance
 			d = self.distance(last_hidden, output)
-			#d = torch.clamp(d, min=1e-10)
-			d = self.temp * d
 
-			print('distance: ')
-			print(d)
+			# apply kernel
+			k = self.kernel(d)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)
-			print('loss: ')
-			print(self.loss(d.view(1, self.ntokens), targets[i].view(1)))
-			print(targets[i].view(1))
-			total_loss += self.loss(d.view(1, self.ntokens), targets[i].view(1))
+			softmax = nn.Softmax()
+			print(softmax(k.view(1, self.ntokens)))
+			total_loss += self.loss(k.view(1, self.ntokens), targets[i].view(1))
 
 		return (total_loss / seq_len).type_as(model.decoder.weight)
 

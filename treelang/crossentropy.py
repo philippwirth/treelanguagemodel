@@ -3,7 +3,8 @@ import torch.nn as nn
 import matplotlib.pyplot as plt
 
 
-from treelang.eucl_distance import eucl_dist_square, eucl_entailcone_dist
+from treelang.eucl_distance import EuclideanDistance
+from treelang.eucl_kernel import RBFKernel
 
 class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2

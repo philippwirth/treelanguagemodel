@@ -88,8 +88,8 @@ if torch.cuda.is_available():
 
 
 args.dumpat = 0
-temps = [20, 40, 60, 80]
-#seeds = [1468]
+temps = [10, 20, 30, 40, 50]
+seeds = [1020, 1468]
 best =[100, 0, 0]
 
 for temp in temps:

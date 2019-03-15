@@ -147,7 +147,7 @@ def train(args, model, criterion, optimizer, train_data, corpus, params):
 
     # iterate over sequences of same length
     items = list(train_data.items())
-    #random.shuffle(items)
+    random.shuffle(items)
     for seq_len, seq_data in items:    
         for i in range(0, seq_data.size(0) - 1, seq_len):
 

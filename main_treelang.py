@@ -77,7 +77,7 @@ args = parser.parse_args()
 args.tied = False
 
 # Set the random seed manually for reproducibility.
-random.seed(args.seed)
+#random.seed(args.seed)
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if torch.cuda.is_available():

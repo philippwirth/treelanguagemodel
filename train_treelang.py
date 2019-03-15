@@ -6,7 +6,7 @@ import torch.nn as nn
 
 # imports from treelang!
 import treelang.data as data
-import merity.model as model
+from merity.model import RNNModel
 
 # same same
 from treelang.utils import batchify_treelang, get_batch, repackage_hidden
@@ -56,7 +56,7 @@ def build_model(args, ntokens):
 		raise ValueError("args.loss must be in ['splitcross', 'treelang_eucl']")
 
 	# build model
-	model = model.RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)
+	model = RNNModel(args.model, ntokens, args.emsize, args.nhid, args.nlayers, args.dropout, args.dropouth, args.dropouti, args.dropoute, args.wdrop, args.tied)
 	
 	# if resume, load model
 	if args.resume:

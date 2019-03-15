@@ -10,7 +10,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='polynomial', x0=0.0, sigma=0.5):
+	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='rbf', x0=0.0, sigma=0.5):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
@@ -25,7 +25,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 		if kernel == 'rbf':
 			self.kernel = RBFKernel(x0=x0, sigma=sigma)
 		elif kernel == 'polynomial':
-			self.kernel = PolynomialKernel(x0=x0, p=1)
+			self.kernel = PolynomialKernel(x0=x0, p=2)
 
 		self.temp = temp
 		self.loss = nn.CrossEntropyLoss()

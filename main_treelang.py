@@ -1,6 +1,7 @@
 import argparse
 import random
 import torch
+import time
 import numpy as np
 
 from train_treelang import train_treelang

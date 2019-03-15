@@ -47,18 +47,20 @@ def visualize_contexts(data, title=''):
 	hsz = (np.size(data, 1) - 2) // 2
 	for i in range(0, np.size(data, 0)):
 
-		plt.plot([data[i,2], data[i,4]], [data[i,3], data[i,5]], 'k')
+		plt.plot([-data[i,2], -data[i,4]], [-data[i,3], -data[i,5]], 'k')
 		c1 = plt.cm.Greys(float(data[i,0])/maxdepth)
 		c2 = plt.cm.Greys(float(data[i,1])/maxdepth)
-		plt.plot(data[i,2], data[i,3], marker='o', markeredgecolor='k', markerfacecolor=c1) #plt.cm.Purples(float(data[i,0])/maxdepth))
-		plt.plot(data[i,4], data[i,5], marker='o', markerfacecolor=c2, markeredgecolor='k')
+		plt.plot(-data[i,2], -data[i,3], marker='o', markeredgecolor='k', markerfacecolor=c1) #plt.cm.Purples(float(data[i,0])/maxdepth))
+		plt.plot(-data[i,4], -data[i,5], marker='o', markerfacecolor=c2, markeredgecolor='k')
 		#plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.0001, head_width=0.0001, head_length=0.0001, fc='k', ec='k')
 
 
 		plt.title(title)
 		plt.axis('equal')
-		#plt.xlim(-0.01, 0.05)
-		#plt.ylim(-0.005, 0.03)
+		plt.xlim(-0.5, 0.9)
+		plt.ylim(-0.5, 0.9)
+		#plt.xlim(-0.1, 0.6)
+		#plt.ylim(-0.1, 0.5)
 		#plt.axis([-0.005, 0.01, -0.005, 0.05])
 
 # test
@@ -144,20 +146,104 @@ if __name__ == '__main__':
 
 	#i = 8
 	epoch = 10
-	path = "../results/maybe/context_dump_" + str(epoch) + ".out"
+	path = "../results/best_so_far/context_dump_" + str(epoch) + ".out"
 	data = load_contexts(path=path)
+
+	
+	
+
+	i = 0
+	k = 1
+	plt.subplot(2,2,1)
+	#titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
+	while k <= 2:
+
+		#
+		plt.title('length: 1')
+		plt.plot([-data[i,2], -data[i,4]], [-data[i,3], -data[i,5]], 'k')
+		c1 = plt.cm.Greys(float(data[i,0])/4)
+		c2 = plt.cm.Greys(float(data[i,1])/4)
+		plt.plot(-data[i,2], -data[i,3], marker='o', markeredgecolor='k', markerfacecolor=c1) #plt.cm.Purples(float(data[i,0])/maxdepth))
+		plt.plot(-data[i,4], -data[i,5], marker='o', markerfacecolor=c2, markeredgecolor='k')
+
+		plt.axis('equal')
+		plt.xlim(-0.5, 0.9)
+		plt.ylim(-0.5, 0.9)		#visualize_contexts(data[i, :], title='')#, title=titles[k-1])
+		print(data[i,:])
+		k = k + 1
+		i = i + 1
+		plt.xticks([])
+		plt.yticks([])
+
+	i = 2
+	k = 1
+	#titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
+	plt.subplot(2,2,2)
+	while k <= 3:
+
+		#
+
+		visualize_contexts(data[i:i+2, :], title='')#, title=titles[k-1])
+		print(data[i:i+1,:])
+		k = k + 1
+		i = i + 2
+		plt.title('length: 2')
+		plt.xticks([])
+		plt.yticks([])
+
+	i = 8
+	k = 1
+	#titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
+	plt.subplot(2,2,3)
+	while k <= 3:
+
+		#
+
+		visualize_contexts(data[i:i+3, :], title='')#, title=titles[k-1])
+		print(data[i:i+3])
+		k = k + 1
+		i = i + 3
+		plt.title('length: 3')
+		plt.xticks([])
+		plt.yticks([])
 
 	i = 17
 	k = 1
-	titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
+	#titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
+	plt.subplot(2,2,4)
 	while k <= 4:
 
-		visualize_contexts(data[i:i+4, :], title="epoch: "+str(epoch))#, title=titles[k-1])
+		#
+
+		visualize_contexts(data[i:i+4, :], title='')#, title=titles[k-1])
 		print(data[i:i+4])
 		k = k + 1
 		i = i + 4
+		plt.title('length: 4')
+		plt.xticks([])
+		plt.yticks([])
+	
 	
 	#plt.axis('equal')
+
+	'''
+	i = 17
+	k = 1
+	titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
+	
+	while k <= 4:
+
+		#
+		plt.subplot(2,2,k)
+
+		visualize_contexts(data[i:i+4, :], title=titles[k-1])#, title=titles[k-1])
+		print(data[i:i+4])
+		k = k + 1
+		i = i + 4
+		plt.xticks([])
+		plt.yticks([])
+	
+	'''	
 	plt.show()
 	
 		

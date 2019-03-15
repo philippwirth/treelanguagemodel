@@ -1,19 +1,9 @@
 import argparse
 import random
-import time
-import math
-import numpy as np
 import torch
-import torch.nn as nn
+import numpy as np
 
-# imports from treelang!
-import treelang.data as data
-import merity.model as model
-
-# same same
-from treelang.utils import batchify_treelang, get_batch, repackage_hidden
-
-from treelang.visualize import dump_contexts
+from train_treelang import train_treelang
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',

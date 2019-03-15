@@ -72,6 +72,8 @@ parser.add_argument('--loss', type=str, default='splitcross',
                     help='Which loss function to use.')
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
+parser.add_argument('--sigma', type=float, default=0.5,
+                    help='Sigma for RBF Kernel.')
 
 args = parser.parse_args()
 args.tied = False
@@ -88,23 +90,27 @@ if torch.cuda.is_available():
 
 
 args.dumpat = 0
-temps = [10, 20, 30, 40, 50]
-seeds = [1020, 1468]
-best =[100, 0, 0]
+temps = [10, 20, 30]
+sigmas = [0.01, 0.1, 1.0, 0.25, 0.5, 0.75]
+seeds = [1020]
+best =[100, 0, 0, 0]
 
 for temp in temps:
     for seed in seeds:
-        random.seed(seed)
-        np.random.seed(seed)
-        torch.manual_seed(seed)
-        args.temperature = temp
-        test_loss  = train_treelang(args)
-        print(test_loss)
+        for sigma in sigmas:
+            random.seed(seed)
+            np.random.seed(seed)
+            torch.manual_seed(seed)
+            args.temperature = temp
+            args.sigma = sigma
+            test_loss  = train_treelang(args)
+            print(test_loss)
 
-        if test_loss < best[0]:
-            best[0] = test_loss
-            best[1] = seed
-            best[2] = temp
+            if test_loss < best[0]:
+                best[0] = test_loss
+                best[1] = seed
+                best[2] = temp
+                best[3] = sigma
 
 print(best)
 

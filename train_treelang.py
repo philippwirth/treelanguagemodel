@@ -296,7 +296,7 @@ def train_treelang(args):
 	                print('Saving model before learning rate decreased')
 	                model_save('{}.e{}'.format(args.save, epoch))
 	                print('Dividing learning rate by 10')
-	             	optimizer.param_groups[0]['lr'] /= 10.
+	                optimizer.param_groups[0]['lr'] /= 10.
 
 	            best_val_loss.append(val_loss)
 

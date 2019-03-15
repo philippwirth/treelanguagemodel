@@ -6,9 +6,9 @@ class PolynomialKernel(nn.Module):
 	def __init__(self, x0=0.1, p=2):
 
 		super(PolynomialKernel, self).__init__()
-		self.p = p
+		self.p, self.x0 = p, x0
 
-	def forward(self, x, temp):
+	def forward(self, x):
 		return -(x - self.x0).pow(2)
 
 class RBFKernel(nn.Module):

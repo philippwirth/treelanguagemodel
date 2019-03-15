@@ -44,7 +44,6 @@ class TreelangCrossEntropyLoss(nn.Module):
 		# for i in range seq_len! do all this
 		total_loss = 0
 		seq_len = len(targets)
-		print('seq_len: ' + str(seq_len))
 		for i in range(seq_len):
 
 			# replicate h_t-1 to shape (n_layers*ndir x n_words x hsz)
@@ -63,9 +62,6 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)
 			softmax = nn.Softmax()
-			print(softmax(k.view(1, self.ntokens)))
-			print(targets[i].view(1))
-			print(self.loss(k.view(1, self.ntokens), targets[i].view(1)))
 			total_loss += self.loss(k.view(1, self.ntokens), targets[i].view(1))
 
 		return (total_loss / seq_len).type_as(model.decoder.weight)

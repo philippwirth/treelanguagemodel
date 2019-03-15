@@ -121,7 +121,7 @@ def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_var
             if args.loss == 'treelang_eucl':
                 # need to augment output and targets with initial hidden state
                 output = torch.cat((hidden[0][0][:], output), dim=0)
-                #targets = torch.cat((data[0].view(1), targets))
+                targets = torch.cat((data[0].view(1), targets))
 
             hidden = new_hidden
             total_loss += len(data) * criterion(model, output, targets).data
@@ -177,7 +177,7 @@ def train(args, model, criterion, optimizer, train_data, corpus, params):
             if args.loss == 'treelang_eucl':
                 # need to augment output and targets with initial hidden state
                 output = torch.cat((hidden[0][0][:], output), dim=0)
-                #targets = torch.cat((data[0].view(1), targets))
+                targets = torch.cat((data[0].view(1), targets))
 
             hidden = new_hidden
             raw_loss = criterion(model, output, targets)

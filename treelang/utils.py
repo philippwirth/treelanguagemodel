@@ -42,5 +42,5 @@ def batchify_treelang(data, bsz, args):
 def get_batch(source, i, args, seq_len=None, evaluation=False):
     seq_len = min(seq_len-1 if seq_len else args.bptt, len(source) - 1 - i)
     data = source[i:i+seq_len]
-    target = source[i:i+1+seq_len].view(-1)
+    target = source[i+1:i+1+seq_len].view(-1)
     return data, target

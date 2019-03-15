@@ -14,7 +14,7 @@ from treelang.utils import batchify_treelang, get_batch, repackage_hidden
 from treelang.visualize import dump_contexts
 
 
-def model_save(fn):
+def model_save(model, criterion, optimizer, fn):
     with open(fn, 'wb') as f:
         torch.save([model, criterion, optimizer], f)
 
@@ -267,7 +267,7 @@ def train_treelang(args):
 	            print('-' * 89)
 
 	            if val_loss2 < stored_loss:
-	                model_save(args.save)
+	                model_save(model, criterion, optimizer, args.save)
 	                print('Saving Averaged!')
 	                stored_loss = val_loss2
 
@@ -283,7 +283,7 @@ def train_treelang(args):
 	            print('-' * 89)
 
 	            if val_loss < stored_loss:
-	                model_save(args.save)
+	                model_save(model, criterion, optimizer, args.save)
 	                print('Saving model (new best validation)')
 	                stored_loss = val_loss
 
@@ -293,7 +293,7 @@ def train_treelang(args):
 
 	            if epoch in args.when:
 	                print('Saving model before learning rate decreased')
-	                model_save('{}.e{}'.format(args.save, epoch))
+	                model_save(model, criterion, optimizer, '{}.e{}'.format(args.save, epoch))
 	                print('Dividing learning rate by 10')
 	                optimizer.param_groups[0]['lr'] /= 10.
 

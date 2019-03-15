@@ -316,7 +316,7 @@ def train_treelang(args):
 	model_load(args.save)
 
 	# Run on test data.
-	test_loss = evaluate(args, model, test_data, corpus, test_batch_size)
+	test_loss = evaluate(args, model, criterion, test_data, corpus, test_batch_size)
 	print('=' * 89)
 	print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
 	    test_loss, math.exp(test_loss), test_loss / math.log(2)))

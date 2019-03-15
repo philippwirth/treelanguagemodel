@@ -93,7 +93,7 @@ def build_model(args, ntokens):
 
 	return model, criterion
 
-def evaluate(data_source, batch_size=1, dump_vars=None):
+def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_vars=None):
     # Turn on evaluation mode which disables dropout.
     model.eval()
     if args.model == 'QRNN': model.reset()
@@ -136,7 +136,8 @@ def evaluate(data_source, batch_size=1, dump_vars=None):
 
     # return loss
     return total_loss.item() / len_data_source
-def train():
+
+def train(args, model, criterion, optimizer, train_data):
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
     total_loss = 0
@@ -146,7 +147,7 @@ def train():
 
     # iterate over sequences of same length
     items = list(train_data.items())
-    random.shuffle(items)
+    #random.shuffle(items)
     for seq_len, seq_data in items:    
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
@@ -245,14 +246,12 @@ def train_treelang(args):
 	        if epoch == 1:
 	            if args.dumpat > 0:
 	                dump_vars = dict({'basepath': args.dumpto, 'epoch':0, 'hsz':args.nhid})
-	                val_loss = evaluate(val_data, eval_batch_size, dump_vars)
+	                val_loss = evaluate(args, model, criterion, val_data, corpus, eval_batch_size, dump_vars)
 	            else:
-	                val_loss = evaluate(val_data, eval_batch_size)
-	            print(val_loss)
-
+	                pass
 
 	        epoch_start_time = time.time()
-	        train()
+	        train(args, model, criterion, optimizer, train_data)
 	        if 't0' in optimizer.param_groups[0]:
 	            tmp = {}
 	            for prm in model.parameters():
@@ -260,7 +259,7 @@ def train_treelang(args):
 	                if 'ax' in optimizer.state[prm]:
 	                    prm.data = optimizer.state[prm]['ax'].clone()
 
-	            val_loss2 = evaluate(val_data)
+	            val_loss2 = evaluate(args, model, criterion, val_data, corpus)
 	            print('-' * 89)
 	            print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
 	                'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
@@ -276,7 +275,7 @@ def train_treelang(args):
 	                prm.data = tmp[prm].clone()
 
 	        else:
-	            val_loss = evaluate(val_data, eval_batch_size)
+	            val_loss = evaluate(args, model, criterion, val_data, corpus, eval_batch_size)
 	            print('-' * 89)
 	            print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
 	                'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
@@ -303,7 +302,7 @@ def train_treelang(args):
 	        # every dumpat iteration: store contexts to file for later plotting
 	        if args.dumpat > 0 and epoch % args.dumpat == 0:
 	            dump_vars = dict({'basepath': args.dumpto, 'epoch':epoch, 'hsz':args.nhid})
-	            evaluate(test_data, test_batch_size, dump_vars)
+	            evaluate(args, model, criterion, test_data, corpus, test_batch_size, dump_vars)
 
 	        # track gradients
 	        for p in model.parameters():
@@ -317,7 +316,7 @@ def train_treelang(args):
 	model_load(args.save)
 
 	# Run on test data.
-	test_loss = evaluate(test_data, test_batch_size)
+	test_loss = evaluate(args, model, test_data, corpus, test_batch_size)
 	print('=' * 89)
 	print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
 	    test_loss, math.exp(test_loss), test_loss / math.log(2)))

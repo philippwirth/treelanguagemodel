@@ -52,7 +52,7 @@ def build_model(args, ntokens):
 		criterion = None
 	elif args.loss == 'treelang_eucl':
 		from treelang.crossentropy import TreelangCrossEntropyLoss
-		criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl', temp=args.temperature, sigma=args.sigma, x0=args.x0)
+		criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl', temp=args.temperature, sigma=args.sigma, x0=args.x0, p=args.p)
 	else:
 		raise ValueError("args.loss must be in ['splitcross', 'treelang_eucl']")
 
@@ -209,7 +209,7 @@ def train(args, model, criterion, optimizer, train_data, corpus, params):
     ###
     batch += 1
 
-def train_treelang(args):
+def train_treelang(args, asgd):
 
 	# load data!
 	eval_batch_size = 1 # batch size 1 for tiny treelang datasets!
@@ -289,8 +289,9 @@ def train_treelang(args):
 	                stored_loss = val_loss
 
 	            if args.optimizer == 'sgd' and 't0' not in optimizer.param_groups[0] and (len(best_val_loss)>args.nonmono and val_loss > min(best_val_loss[:-args.nonmono])):
-	                print('Switching to ASGD')
-	                #optimizer = torch.optim.ASGD(model.parameters(), lr=args.lr, t0=0, lambd=0., weight_decay=args.wdecay)
+	                if asgd:
+	                	print('Switching to ASGD')
+	                	optimizer = torch.optim.ASGD(model.parameters(), lr=args.lr, t0=0, lambd=0., weight_decay=args.wdecay)
 
 	            if epoch in args.when:
 	                print('Saving model before learning rate decreased')

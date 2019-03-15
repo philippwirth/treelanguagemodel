@@ -74,7 +74,10 @@ parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 parser.add_argument('--sigma', type=float, default=0.5,
                     help='Sigma for RBF Kernel.')
-parser.add_argument('--x0', type=float, default=0.0, help='x0')
+parser.add_argument('--x0', type=float, default=0.0,
+                    help='Offset for kernel')
+parser.add_argument('--p', type=int, default=2,
+                    help='Power for polynomial kernel')
 args = parser.parse_args()
 args.tied = False
 
@@ -88,36 +91,9 @@ if torch.cuda.is_available():
     else:
         torch.cuda.manual_seed(args.seed)
 
+asgd = False
+test_loss  = train_treelang(args, asgd)
 
-args.dumpat = 0
-temps = [20]#+ [10*(i+1) for i in range(10)]
-sigmas = [1.0]
-x0s = [0.3, 0.4, 0.5, 0.6]
-seeds = [1020]# + [random.randint(0, 5000) for i in range(19)]
-
-best =[100, 0, 0, 0, 0]
-
-for temp in temps:
-    for seed in seeds:
-        for sigma in sigmas:
-            for x0 in x0s:
-                random.seed(seed)
-                np.random.seed(seed)
-                torch.manual_seed(seed)
-                args.temperature = temp
-                args.sigma = sigma
-                args.x0 = x0
-                test_loss  = train_treelang(args)
-                print(test_loss)
-
-                if test_loss < best[0]:
-                    best[0] = test_loss
-                    best[1] = seed
-                    best[2] = temp
-                    best[3] = sigma
-                    best[4] = x0
-
-print(best)
 
 
 

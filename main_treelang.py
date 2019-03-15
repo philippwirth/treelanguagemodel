@@ -105,5 +105,7 @@ for temp in temps:
             best[0] = test_loss
             best[1] = seed
 
+print(best)
+
 
 

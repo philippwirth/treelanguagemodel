@@ -137,7 +137,7 @@ def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_var
     # return loss
     return total_loss.item() / len_data_source
 
-def train(args, model, criterion, optimizer, train_data, corpus):
+def train(args, model, criterion, optimizer, train_data, corpus, params):
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
     total_loss = 0
@@ -251,7 +251,7 @@ def train_treelang(args):
 	                pass
 
 	        epoch_start_time = time.time()
-	        train(args, model, criterion, optimizer, train_data, corpus)
+	        train(args, model, criterion, optimizer, train_data, corpus, params)
 	        if 't0' in optimizer.param_groups[0]:
 	            tmp = {}
 	            for prm in model.parameters():

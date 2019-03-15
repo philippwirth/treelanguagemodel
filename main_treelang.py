@@ -88,9 +88,9 @@ if torch.cuda.is_available():
 
 
 args.dumpat = 0
-temps = [1, 10, 20, 30, 40, 50, 60, 70, 80, 100]
-seeds = [random.randint(0, 5000) for i in range(10)]
-best =[100, 0]
+temps = [1, 10, 20]
+seeds = [random.randint(0, 5000) for i in range(20)]
+best =[100, 0, 0]
 
 for temp in temps:
     for seed in seeds:
@@ -104,6 +104,7 @@ for temp in temps:
         if test_loss < best[0]:
             best[0] = test_loss
             best[1] = seed
+            best[2] = temp
 
 print(best)
 

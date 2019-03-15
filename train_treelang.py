@@ -41,7 +41,7 @@ def load_data(args, eval_batch_size=1, test_batch_size=1):
 	val_data = batchify_treelang(corpus.valid, eval_batch_size, args)
 	test_data = batchify_treelang(corpus.test, test_batch_size, args)
 
-	return train_data, val_data, test_data
+	return corpus, train_data, val_data, test_data
 
 def build_model(args, ntokens):
 
@@ -213,7 +213,7 @@ def train_treelang(args):
 	eval_batch_size = 1 # batch size 1 for tiny treelang datasets!
 	test_batch_size = 1
 
-	train_data, val_data, test_data = load_data(args, eval_batch_size, test_batch_size)
+	corpus, train_data, val_data, test_data = load_data(args, eval_batch_size, test_batch_size)
 
 	# build model!
 	ntokens = len(corpus.dictionary)

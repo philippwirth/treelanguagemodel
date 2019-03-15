@@ -77,7 +77,7 @@ args = parser.parse_args()
 args.tied = False
 
 # Set the random seed manually for reproducibility.
-#random.seed(args.seed)
+random.seed(args.seed)
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
 if torch.cuda.is_available():
@@ -86,8 +86,24 @@ if torch.cuda.is_available():
     else:
         torch.cuda.manual_seed(args.seed)
 
-test_loss  = train_treelang(args)
-print(test_loss)
+
+args.dumpat = 0
+temps = [1, 10, 20, 30, 40, 50, 60, 70, 80, 100]
+seeds = [random.randint(0, 5000) for i in range(10)]
+best =[100, 0]
+
+for temp in temps:
+    for seed in seeds:
+        random.seed(seed)
+        np.random.seed(seed)
+        torch.manual_seed(seed)
+        args.temperature = temp
+        test_loss  = train_treelang(args)
+        print(test_loss)
+
+        if test_loss < best[0]:
+            best[0] = test_loss
+            best[1] = seed
 
 
 

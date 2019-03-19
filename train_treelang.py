@@ -189,12 +189,13 @@ def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
 			if args.beta and seq_len > 2: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
 			total_loss += loss
 
+			optimizer.param_groups[0]['lr'] = lr2
+
 	total_loss.backward()
             
 	# `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs
 	if args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
 	optimizer.step()
-	optimizer.param_groups[0]['lr'] = lr2
 
 
 def train(args, model, criterion, optimizer, train_data, corpus, params, epoch):

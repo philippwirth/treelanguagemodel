@@ -70,7 +70,7 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
 # loss function
 parser.add_argument('--loss', type=str, default='splitcross',
                     help='Which loss function to use.')
-parser.add_argument('--temperature', type=float, default=100,
+parser.add_argument('--temperature', type=float, default=30,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 parser.add_argument('--sigma', type=float, default=0.5,
                     help='Sigma for RBF Kernel.')

@@ -138,6 +138,72 @@ def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_var
     # return loss
     return total_loss.item() / len_data_source
 
+def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
+	'''
+		for the tiny data set, we iterate over the all of the data before calling 
+		optimizer.step to avoid jerky sgd behaviour
+	'''
+	
+	# Turn on training mode which enables dropout.
+	if args.model == 'QRNN': model.reset()
+	total_loss = 0
+	start_time = time.time()
+	ntokens = len(corpus.dictionary)
+	batch = 0
+
+	# iterate over sequences of same length
+    items = list(train_data.items())
+	random.shuffle(items)
+
+	optimizer.zero_grad()
+
+	for seq_len, seq_data in items:
+		for i in range(0, seq_data.size(0) - 1, seq_len):
+
+            # new sequece -> reset hidden state
+            hidden = model.init_hidden(args.batch_size)
+            
+            #bptt = args.bptt if np.random.random() < 0.95 else args.bptt / 2.
+            # Prevent excessively small or negative sequence lengths
+            #seq_len = max(5, int(np.random.normal(bptt, 5)))
+            # There's a very small chance that it could select a very long sequence length resulting in OOM
+            # seq_len = min(seq_len, args.bptt + 10)
+
+            lr2 = optimizer.param_groups[0]['lr']
+            #optimizer.param_groups[0]['lr'] = lr2 * seq_len / args.bptt
+            model.train()
+
+            data, targets = get_batch(seq_data, i, args, seq_len=seq_len)
+
+            # Starting each batch, we detach the hidden state from how it was previously produced.
+            # If we didn't, the model would try backpropagating all the way to start of the dataset.
+            hidden = repackage_hidden(hidden)
+
+            output, new_hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
+
+            if args.loss == 'treelang_eucl':
+                # need to augment output and targets with initial hidden state
+                output = torch.cat((hidden[0][0][:], output), dim=0)
+                targets = torch.cat((data[0].view(1), targets))
+
+            hidden = new_hidden
+            raw_loss = criterion(model, output, targets)
+
+            loss = raw_loss
+            # Activiation Regularization
+            if args.alpha: loss = loss + sum(args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
+            # Temporal Activation Regularization (slowness)
+            if args.beta and seq_len > 2: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
+            total_loss += loss
+            
+	total_loss.backward()
+            
+	# `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs
+	if args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
+	optimizer.step()
+	optimizer.param_groups[0]['lr'] = lr2
+
+
 def train(args, model, criterion, optimizer, train_data, corpus, params, epoch):
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
@@ -254,7 +320,7 @@ def train_treelang(args, asgd):
 	                pass
 
 	        epoch_start_time = time.time()
-	        train(args, model, criterion, optimizer, train_data, corpus, params, epoch)
+	        train_tiny(args, model, criterion, optimizer, train_data, corpus, params)
 	        if 't0' in optimizer.param_groups[0]:
 	            tmp = {}
 	            for prm in model.parameters():

@@ -2,7 +2,7 @@
 
 # load settings from config file
 #configfile=$1
-configfile="treelang_tiny_gru"
+configfile="treelang_small_gru"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path
@@ -25,10 +25,11 @@ echo "	alpha:	" $alpha
 echo "	dumpat:	" $dumpat
 echo "	loss:	" $loss
 echo "	temp:	" $temp
+echo "	x0:	" $x0
 
 # run main
 echo "running script: "$script"..."
 python $script --data $path --model $model --emsize $emsize --nhid $nhid --nlayers $nlayers \
 	--epochs $epochs --batch_size $batchsize --bptt $bptt --dropout $dropout --dropouth $dropouth \
 	--dropouti $dropouti --dropoute $dropoute --wdrop $wdrop --seed $seed --log-interval $loginterval \
-	--alpha $alpha --beta $beta --dumpat $dumpat --loss $loss --temperature $temp
+	--alpha $alpha --beta $beta --dumpat $dumpat --loss $loss --temperature $temp --x0 $x0

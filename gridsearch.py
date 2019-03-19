@@ -97,34 +97,41 @@ if torch.cuda.is_available():
 # turn dump off
 args.dumpat = 0
 reseed = False
-K = 3
+K = 10
 
 # lists
-L = [
-[0.1 * 2 * (i+1) for i in range(5)],        # x0
-[0.1 * 2 * (i+1) for i in range(5)],        # sigma
-[1] + [10 * 2 *(i+1) for i in range(5)],    # temperature temp
-[1, 2],                                     # power p
-[True, False]]                               # use ASGD
+L = [[30],#lr
+    [2],#alpha
+    [1],
+    [1, 10, 20, 30, 50, 100],
+    [False],
+    [0.2],
+    [0.5]]#beta                         # use ASGD
 L = list(itertools.product(*L))
 
 # initialize loss and settings
 best_loss = 1e5
 best_settings = []
-
-for (x0, sigma, temp, p, asgd) in L:
-    args.x0 = x0
-    args.sigma = sigma
+asgd=True
+for (lr, alph, beta, temp, asgd, dropout, wdrop) in L:
+    args.alpha = alph
+    args.beta = beta
+    args.lr = lr
     args.temperature = temp
-    args.p = p
+    args.dropout = dropout
+    args.dropouth = dropout
+    args.dropouti = dropout
+    args.dropoute = dropout
+    args.wdrop = wdrop
 
-    loss = 0
+    loss = 1e5
     for i in range(K):
-        loss += train_treelang(args, asgd) / K
+        loss = min(train_treelang(args, asgd), loss)
+        #loss += train_treelang(args, asgd) / K
 
     if loss < best_loss:
         best_loss = loss
-        best_settings = dict({'x0':x0, 'sigma':sigma, 'temp':temp, 'p':p, 'asgd':asgd})
+        best_settings = dict({'do':dropout, 'wd':wdrop, 'lr':lr, 'alpha':alph, 'beta':beta, 'temp':temp, 'asgd':asgd})
 
 print('--- Results of Gridsearch --- ')
 print(best_loss)

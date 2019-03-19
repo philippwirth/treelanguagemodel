@@ -17,7 +17,7 @@ parser.add_argument('--nhid', type=int, default=1150,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=3,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=30,
+parser.add_argument('--lr', type=float, default=40,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
@@ -92,8 +92,14 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 asgd = False
-test_loss  = train_treelang(args, asgd)
+K = 10
+losses = np.zeros(K)
+for i in range(K):
+    losses[i]  = train_treelang(args, asgd)
 
+    if losses[i] < 0.70:
+        args.dumpat = 0
 
-
-
+print('Best:    ' + str(min(losses)))
+print('Avrg:    ' + str(np.mean(losses)))
+print('Var :    ' + str(np.var(losses)))

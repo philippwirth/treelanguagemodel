@@ -138,7 +138,7 @@ def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_var
     # return loss
     return total_loss.item() / len_data_source
 
-def train(args, model, criterion, optimizer, train_data, corpus, params):
+def train(args, model, criterion, optimizer, train_data, corpus, params, epoch):
     # Turn on training mode which enables dropout.
     if args.model == 'QRNN': model.reset()
     total_loss = 0
@@ -149,7 +149,7 @@ def train(args, model, criterion, optimizer, train_data, corpus, params):
     # iterate over sequences of same length
     items = list(train_data.items())
     random.shuffle(items)
-    for seq_len, seq_data in items:    
+    for seq_len, seq_data in items:
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
             # new sequece -> reset hidden state
@@ -187,27 +187,29 @@ def train(args, model, criterion, optimizer, train_data, corpus, params):
             if args.alpha: loss = loss + sum(args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
             # Temporal Activation Regularization (slowness)
             if args.beta and seq_len > 2: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
+            total_loss += loss
             
-    loss.backward()
-
-    # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs.
-    if args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
-    optimizer.step()
-
-    total_loss += raw_loss.data
-    optimizer.param_groups[0]['lr'] = lr2
-    if batch % args.log_interval == 0 and batch > 0:
-        cur_loss = total_loss.item() / args.log_interval
-        elapsed = time.time() - start_time
-        print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:05.5f} | ms/batch {:5.2f} | '
-                'loss {:5.2f} | ppl {:8.2f} | bpc {:8.3f}'.format(
-            epoch, batch, len(train_data) // args.bptt, optimizer.param_groups[0]['lr'],
-            elapsed * 1000 / args.log_interval, cur_loss, cur_loss, cur_loss / math.log(2)))
-        total_loss = 0
-        start_time = time.time()
-
-    ###
-    batch += 1
+            total_loss /= seq_data.size(0)
+            total_loss.backward()
+            
+            # `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs
+            if args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
+            optimizer.step()
+            
+            #total_loss += raw_loss.data
+            optimizer.param_groups[0]['lr'] = lr2
+            if batch % args.log_interval == 0 and batch > 0:
+                cur_loss = total_loss.item() / args.log_interval
+                elapsed = time.time() - start_time
+                print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:05.5f} | ms/batch {:5.2f} | '
+                        'loss {:5.2f} | ppl {:8.2f} | bpc {:8.3f}'.format(
+                            epoch, batch, len(train_data) // args.bptt, optimizer.param_groups[0]['lr'],
+                            elapsed * 1000 / args.log_interval, cur_loss, cur_loss, cur_loss / math.log(2)))
+                        
+            total_loss = 0
+            start_time = time.time()
+            ###
+            batch += 1
 
 def train_treelang(args, asgd):
 
@@ -252,7 +254,7 @@ def train_treelang(args, asgd):
 	                pass
 
 	        epoch_start_time = time.time()
-	        train(args, model, criterion, optimizer, train_data, corpus, params)
+	        train(args, model, criterion, optimizer, train_data, corpus, params, epoch)
 	        if 't0' in optimizer.param_groups[0]:
 	            tmp = {}
 	            for prm in model.parameters():

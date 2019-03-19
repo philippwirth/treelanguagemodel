@@ -163,7 +163,7 @@ def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
 			# new sequece -> reset hidden state
 			hidden = model.init_hidden(args.batch_size)
 			lr2 = optimizer.param_groups[0]['lr']
-			#optimizer.param_groups[0]['lr'] = lr2 * seq_len / args.bptt
+			optimizer.param_groups[0]['lr'] = lr2 * seq_len / args.bptt
 			model.train()
 
 			data, targets = get_batch(seq_data, i, args, seq_len=seq_len)
@@ -188,7 +188,7 @@ def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
 			# Temporal Activation Regularization (slowness)
 			if args.beta and seq_len > 2: loss = loss + sum(args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
 			total_loss += loss
-            
+
 	total_loss.backward()
             
 	# `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs

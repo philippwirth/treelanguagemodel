@@ -100,23 +100,27 @@ reseed = False
 K = 10
 
 # lists
-L = [[0.1, 5],#lr
-    [50, 100],
+L = [[0.5],#lr
+    [100],
     [False]]
 L = list(itertools.product(*L))
 
 # initialize loss and settings
 best_loss = 1e5
 best_settings = []
-
+avrgs = dict()
 for (lr, temp, asgd) in L:
     args.lr = lr
     args.temperature = temp
 
     loss = 1e5
+    losses = []
     for i in range(K):
-        loss = min(train_treelang(args, asgd), loss)
-        #loss += train_treelang(args, asgd) / K
+        cur_loss = train_treelang(args, asgd)
+        loss = min(cur_loss, loss) 
+        losses.append(cur_loss)
+    key = 'lr' + str(lr) + 'temp' + str(temp)
+    avrgs[key] = np.mean(losses)
 
     if loss < best_loss:
         best_loss = loss
@@ -125,7 +129,7 @@ for (lr, temp, asgd) in L:
 print('--- Results of Gridsearch --- ')
 print(best_loss)
 print(best_settings)
-
+print(avrgs)
 
 
 

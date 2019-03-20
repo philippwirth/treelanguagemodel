@@ -19,5 +19,5 @@ alpha=2
 beta=1
 dumpat=10
 loss="treelang_eucl"
-temp=1
+temp=100
 x0=0.0

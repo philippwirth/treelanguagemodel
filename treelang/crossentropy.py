@@ -44,14 +44,14 @@ class TreelangCrossEntropyLoss(nn.Module):
 		words = words.cuda()
 
 		# reshape hiddens to seq_len x bsz x hsz
-		hiddens = hiddens.view(seq_len, bsz, -1)
+		#hiddens = hiddens.view(seq_len, bsz, -1)
 
 		# for i in range seq_len! do all this
 		total_loss = 0
 		for i in range(seq_len):
 
-			print(hiddens[i].size())
-			last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz
+			print(hiddens[i])
+			#last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz
 			last_hidden = hiddens[i]
 			h = last_hidden.repeat(self.ntokens, 1)	# (ntokens * bsz) x hsz but wrong order
 			print(h.size())

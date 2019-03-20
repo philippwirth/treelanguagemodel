@@ -120,8 +120,8 @@ def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_var
             output, new_hidden = model(data, hidden)
 
             if args.loss == 'treelang_eucl':
-                # need to augment output and targets with initial hidden state
-                output = torch.cat((hidden[0][0][:], output), dim=0)
+                print(output.view(seq_len-1, eff_bsz, -1).size())# need to augment output and targets with initial hidden state
+                output = torch.cat((hidden[0], output.view(seq_len-1, eff_bsz, -1)), dim=0)
                 targets = torch.cat((data[0].view(1), targets))
 
             hidden = new_hidden
@@ -215,7 +215,7 @@ def train(args, model, criterion, optimizer, train_data, corpus, params, epoch):
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
             # new sequece -> reset hidden state
-            eff_bsz = args.batch_size if args.batch_size == 1 else (args.batch_size // seq_len) * seq_len
+            eff_bsz = len(seq_data)#args.batch_size if args.batch_size == 1 else (args.batch_size // seq_len) * seq_len
             hidden = model.init_hidden(eff_bsz)
             
             #bptt = args.bptt if np.random.random() < 0.95 else args.bptt / 2.
@@ -238,8 +238,8 @@ def train(args, model, criterion, optimizer, train_data, corpus, params, epoch):
             output, new_hidden, rnn_hs, dropped_rnn_hs = model(data, hidden, return_h=True)
 
             if args.loss == 'treelang_eucl':
-                # need to augment output and targets with initial hidden state
-                output = torch.cat((hidden[0][0][:], output), dim=0)
+                print(seq_len)# need to augment output and targets with initial hidden state
+                output = torch.cat((hidden[0], output.view(seq_len, eff_bsz, -1)), dim=0)
                 targets = torch.cat((data[0], targets))
 
             hidden = new_hidden

@@ -40,9 +40,9 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 		# find batchsize and seq_len
 		bsz = targets.size(0)
-                seq_len = len(targets)
+		seq_len = len(targets)
 		
-                # words to cuda (words becomes a 1 x (ntokens * bsz) vector)
+		# words to cuda (words becomes a 1 x (ntokens * bsz) vector)
 		words = self.words.expand(bsz, -1).contiguous()
 		words = words.view(1, self.ntokens * bsz)
 		words = words.cuda()

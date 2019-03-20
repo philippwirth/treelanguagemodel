@@ -110,7 +110,8 @@ def evaluate(args, model, criterion, data_source, corpus, batch_size=1, dump_var
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
             # new sequence -> reset hidden state
-            hidden = model.init_hidden(batch_size)
+            eff_bsz = batch_size if batch_size == 1 else (batch_size // seq_len) * seq_len
+            hidden = model.init_hidden(eff_bsz)
 
             # get batch
             data, targets = get_batch(seq_data, i, args, seq_len=seq_len, evaluation=True)
@@ -161,7 +162,8 @@ def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
 		for i in range(0, seq_data.size(0) - 1, seq_len):
 
 			# new sequece -> reset hidden state
-			hidden = model.init_hidden(args.batch_size)
+			eff_bsz = 1
+			hidden = model.init_hidden(eff_bsz)
 			lr2 = optimizer.param_groups[0]['lr']
 			optimizer.param_groups[0]['lr'] = lr2 * seq_len / args.bptt
 			model.train()
@@ -213,7 +215,8 @@ def train(args, model, criterion, optimizer, train_data, corpus, params, epoch):
         for i in range(0, seq_data.size(0) - 1, seq_len):
 
             # new sequece -> reset hidden state
-            hidden = model.init_hidden(args.batch_size)
+            eff_bsz = args.batch_size if args.batch_size == 1 else (args.batch_size // seq_len) * seq_len
+            hidden = model.init_hidden(eff_bsz)
             
             #bptt = args.bptt if np.random.random() < 0.95 else args.bptt / 2.
             # Prevent excessively small or negative sequence lengths

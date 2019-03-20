@@ -12,13 +12,14 @@ def repackage_hidden(h):
 
 def batchify(data, bsz, seq_len, args):
     # Work out how cleanly we can divide the dataset into bsz parts.
-    nbatch = data.size(0) // bsz
-    nseqs = nbatch // seq_len
-    nbatch = nseqs * seq_len
+
+    eff_bsz = 1 if bsz == 1 else (bsz // seq_len) * seq_len
+    nbatch = data.size(0) // eff_bsz
+
     # Trim off any extra elements that wouldn't cleanly fit (remainders).
-    data = data.narrow(0, 0, nbatch * bsz)
+    data = data.narrow(0, 0, nbatch * eff_bsz)
     # Evenly divide the data across the bsz batches.
-    data = data.view(bsz, -1).t().contiguous()
+    data = data.view(eff_bsz, -1).t().contiguous()
     if args.cuda:
         data = data.cuda()
     return data

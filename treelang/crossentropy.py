@@ -51,11 +51,11 @@ class TreelangCrossEntropyLoss(nn.Module):
 		for i in range(seq_len):
 
 			print(hiddens[i].size())
-                        last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz
+			last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz
 			last_hidden = hiddens[i]
 			h = last_hidden.repeat(self.ntokens, 1)	# (ntokens * bsz) x hsz but wrong order
 			print(h.size())
-                        index = torch.LongTensor(np.concatenate([bsz * np.arange(self.ntokens) + i for i in range(bsz)]))
+			index = torch.LongTensor(np.concatenate([bsz * np.arange(self.ntokens) + i for i in range(bsz)]))
 			h = torch.index_select(h, 0, index.cuda()) # reorder
 			h = [h.contiguous().view(1, self.ntokens * bsz, -1)]
 

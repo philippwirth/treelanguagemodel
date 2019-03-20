@@ -16,6 +16,9 @@ def batchify(data, bsz, seq_len, args):
     eff_bsz = 1 if bsz == 1 else (bsz // seq_len) * seq_len
     nbatch = data.size(0) // eff_bsz
 
+    if nbatch == 0:
+        return torch.LongTensor().cuda() if args.cuda else torch.LongTensor()
+
     # Trim off any extra elements that wouldn't cleanly fit (remainders).
     data = data.narrow(0, 0, nbatch * eff_bsz)
     # Evenly divide the data across the bsz batches.

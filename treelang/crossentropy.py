@@ -24,7 +24,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			pass
 
 		if kernel == 'polynomial':
-			self.kernel = PolynomialKernel(x0=x0, p=2)
+			self.kernel = PolynomialKernel(x0=0, p=2)
 		else:
 			pass
 			
@@ -38,10 +38,11 @@ class TreelangCrossEntropyLoss(nn.Module):
 			targets: words of seq at time t in 2...T ()
 		'''
 
-		# find batchsize
+		# find batchsize and seq_len
 		bsz = targets.size(0)
-
-		# words to cuda (words becomes a 1 x (ntokens * bsz) vector)
+                seq_len = len(targets)
+		
+                # words to cuda (words becomes a 1 x (ntokens * bsz) vector)
 		words = self.words.expand(bsz, -1).contiguous()
 		words = words.view(1, self.ntokens * bsz)
 		words = words.cuda()
@@ -51,7 +52,6 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 		# for i in range seq_len! do all this
 		total_loss = 0
-		seq_len = len(targets)
 		for i in range(seq_len):
 
 			# last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz

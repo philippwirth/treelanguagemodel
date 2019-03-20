@@ -2,7 +2,7 @@
 
 # load settings from config file
 #configfile=$1
-configfile="treelang_tiny_gru"
+configfile="treelang_small_rnn"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path

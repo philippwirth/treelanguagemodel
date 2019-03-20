@@ -314,7 +314,7 @@ def train_treelang(args, asgd):
 	                pass
 
 	        epoch_start_time = time.time()
-	        train_tiny(args, model, criterion, optimizer, train_data, corpus, params)
+	        train(args, model, criterion, optimizer, train_data, corpus, params, epoch)#train_tiny(args, model, criterion, optimizer, train_data, corpus, params)
 	        if 't0' in optimizer.param_groups[0]:
 	            tmp = {}
 	            for prm in model.parameters():

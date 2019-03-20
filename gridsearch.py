@@ -100,29 +100,18 @@ reseed = False
 K = 10
 
 # lists
-L = [[30],#lr
-    [2],#alpha
-    [1],
-    [1, 10, 20, 30, 50, 100],
-    [False],
-    [0.2],
-    [0.5]]#beta                         # use ASGD
+L = [[0.1, 5],#lr
+    [50, 100],
+    [False]]
 L = list(itertools.product(*L))
 
 # initialize loss and settings
 best_loss = 1e5
 best_settings = []
-asgd=True
-for (lr, alph, beta, temp, asgd, dropout, wdrop) in L:
-    args.alpha = alph
-    args.beta = beta
+
+for (lr, temp, asgd) in L:
     args.lr = lr
     args.temperature = temp
-    args.dropout = dropout
-    args.dropouth = dropout
-    args.dropouti = dropout
-    args.dropoute = dropout
-    args.wdrop = wdrop
 
     loss = 1e5
     for i in range(K):
@@ -131,7 +120,7 @@ for (lr, alph, beta, temp, asgd, dropout, wdrop) in L:
 
     if loss < best_loss:
         best_loss = loss
-        best_settings = dict({'do':dropout, 'wd':wdrop, 'lr':lr, 'alpha':alph, 'beta':beta, 'temp':temp, 'asgd':asgd})
+        best_settings = dict({'lr':lr,  'temp':temp, 'asgd':asgd})
 
 print('--- Results of Gridsearch --- ')
 print(best_loss)

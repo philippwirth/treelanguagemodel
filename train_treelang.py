@@ -386,6 +386,6 @@ def train_treelang(args, asgd):
 	    test_loss, math.exp(test_loss), test_loss / math.log(2)))
 	print('=' * 89)
 
-	return test_loss
+	return stored_loss
 
 

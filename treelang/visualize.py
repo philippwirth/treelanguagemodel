@@ -45,11 +45,13 @@ def visualize_contexts(data, title=''):
 
 	maxdepth = 4
 	hsz = (np.size(data, 1) - 2) // 2
+	plt.plot([0,-data[0,2]], [0, -data[0,3]], 'k')
+	plt.plot([0],[0],marker='o', markeredgecolor='k', markerfacecolor='w')
 	for i in range(0, np.size(data, 0)):
 
 		plt.plot([-data[i,2], -data[i,4]], [-data[i,3], -data[i,5]], 'k')
-		c1 = plt.cm.Greys(float(data[i,0])/maxdepth)
-		c2 = plt.cm.Greys(float(data[i,1])/maxdepth)
+		c1 = plt.cm.Greys(float(data[i,0] + 1)/maxdepth)
+		c2 = plt.cm.Greys(float(data[i,1] + 1)/maxdepth)
 		plt.plot(-data[i,2], -data[i,3], marker='o', markeredgecolor='k', markerfacecolor=c1) #plt.cm.Purples(float(data[i,0])/maxdepth))
 		plt.plot(-data[i,4], -data[i,5], marker='o', markerfacecolor=c2, markeredgecolor='k')
 		#plt.arrow(data[i,2], data[i,3], data[i,4] - data[i,2], data[i,5] - data[i,3], width=0.0001, head_width=0.0001, head_length=0.0001, fc='k', ec='k')
@@ -57,10 +59,10 @@ def visualize_contexts(data, title=''):
 
 		plt.title(title)
 		plt.axis('equal')
-		plt.xlim(-0.5, 0.9)
-		plt.ylim(-0.5, 0.9)
-		#plt.xlim(-0.1, 0.6)
-		#plt.ylim(-0.1, 0.5)
+		plt.xlim(-0.1, 0.1)
+		plt.ylim(-0.1, 0.1)
+		#plt.xlim(-0.05, 0.55)
+		#plt.ylim(-0.20, 0.40)
 		#plt.axis([-0.005, 0.01, -0.005, 0.05])
 
 # test
@@ -145,13 +147,12 @@ if __name__ == '__main__':
 	
 
 	#i = 8
-	epoch = 10
-	path = "../results/best_so_far/context_dump_" + str(epoch) + ".out"
+	epoch = 100
+	path = "../results/merity_tiny_lstm100/context_dump_" + str(epoch) + ".out"
 	data = load_contexts(path=path)
 
-	
-	
-
+		
+	'''
 	i = 0
 	k = 1
 	plt.subplot(2,2,1)
@@ -166,14 +167,16 @@ if __name__ == '__main__':
 		plt.plot(-data[i,2], -data[i,3], marker='o', markeredgecolor='k', markerfacecolor=c1) #plt.cm.Purples(float(data[i,0])/maxdepth))
 		plt.plot(-data[i,4], -data[i,5], marker='o', markerfacecolor=c2, markeredgecolor='k')
 
-		plt.axis('equal')
-		plt.xlim(-0.5, 0.9)
-		plt.ylim(-0.5, 0.9)		#visualize_contexts(data[i, :], title='')#, title=titles[k-1])
+		#plt.axis('equal')
+		#plt.xlim(-0.05, 0.6)
+		#plt.ylim(-0.05, 0.6)		#visualize_contexts(data[i, :], title='')#, title=titles[k-1])
 		print(data[i,:])
 		k = k + 1
 		i = i + 1
 		plt.xticks([])
 		plt.yticks([])
+		plt.xlim(-0.05, 0.45)
+		plt.ylim(-0.20, 0.40)
 
 	i = 2
 	k = 1
@@ -227,7 +230,8 @@ if __name__ == '__main__':
 	#plt.axis('equal')
 
 	'''
-	i = 17
+	i = 9
+	#i=17
 	k = 1
 	titles = ['A A B A', 'A A A A', 'A A A B', 'B A A B']
 	
@@ -236,14 +240,15 @@ if __name__ == '__main__':
 		#
 		plt.subplot(2,2,k)
 
-		visualize_contexts(data[i:i+4, :], title=titles[k-1])#, title=titles[k-1])
-		print(data[i:i+4])
+		visualize_contexts(data[i:i+3, :], title=titles[k-1])#, title=titles[k-1])
+		print(data[i:i+3])
 		k = k + 1
-		i = i + 4
+		i = i + 3
 		plt.xticks([])
 		plt.yticks([])
+
 	
-	'''	
+	
 	plt.show()
 	
 		

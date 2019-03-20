@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import matplotlib.pyplot as plt
+import numpy as np
 
 
 from treelang.eucl_distance import EuclideanDistance
@@ -10,7 +11,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='polynomial', x0=0.0, sigma=0.5, p=1):
+	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='polynomial'):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
@@ -22,11 +23,11 @@ class TreelangCrossEntropyLoss(nn.Module):
 		else:
 			pass
 
-		if kernel == 'rbf':
-			self.kernel = RBFKernel(x0=x0, sigma=sigma)
-		elif kernel == 'polynomial':
-			self.kernel = PolynomialKernel(x0=x0, p=p)
-
+		if kernel == 'polynomial':
+			self.kernel = PolynomialKernel(x0=x0, p=2)
+		else:
+			pass
+			
 		self.temp = temp
 		self.loss = nn.CrossEntropyLoss()
 
@@ -37,21 +38,31 @@ class TreelangCrossEntropyLoss(nn.Module):
 			targets: words of seq at time t in 2...T ()
 		'''
 
-		# words to cuda
-		words = self.words.view(self.ntokens, 1).t().contiguous()
+		# find batchsize
+		bsz = targets.size(0)
+
+		# words to cuda (words becomes a 1 x (ntokens * bsz) vector)
+		words = self.words.expand(bsz, -1).contiguous()
+		words = words.view(1, self.ntokens * bsz)
 		words = words.cuda()
+
+		# reshape hiddens to seq_len x bsz x hsz
+		hiddens = hiddens.view(seq_len, bsz, -1)
 
 		# for i in range seq_len! do all this
 		total_loss = 0
 		seq_len = len(targets)
 		for i in range(seq_len):
 
-			# replicate h_t-1 to shape (n_layers*ndir x n_words x hsz)
-			last_hidden = hiddens[i][:]
-			h = last_hidden.expand(self.ntokens, -1)
+			# last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz
+			last_hidden = hiddens[i]
+			h = last_hidden.repeat(ntokens, -1)	# (ntokens * bsz) x hsz but wrong order
+			index = torch.LongTensor(np.concatenate([bsz * np.arange(self.ntokens) + i for i in range(bsz)]))
+			h = torch.index_select(h, 0, index) # reorder
+			h = h.contiguous().view(1, self.ntokens * bsz, -1)
 
-			# forward pass through RNN to get output (seq_len*n_words, ndir*hsz)
-			output, hidden = model(words, [h.view(1, self.ntokens, model.nhid).contiguous()])
+			# forward pass through RNN to get output (1*bsz*n_words, ndir*hsz)
+			output, hidden = model(words, h)
 
 			# compute distance
 			d = self.distance(last_hidden, output)
@@ -61,8 +72,10 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)
-			softmax = nn.Softmax()
-			total_loss += self.loss(k.view(1, self.ntokens), targets[i].view(1))
+			if bsz == 1:
+				total_loss += self.loss(k.view(1, self.ntokens), targets[i].view(1))
+			else:
+				total_loss += self.loss(k, targets[:][i])
 
 		return (total_loss / seq_len).type_as(model.decoder.weight)
 

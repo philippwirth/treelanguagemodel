@@ -52,7 +52,7 @@ def build_model(args, ntokens):
 		criterion = None
 	elif args.loss == 'treelang_eucl':
 		from treelang.crossentropy import TreelangCrossEntropyLoss
-		criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl', temp=args.temperature, sigma=args.sigma, x0=args.x0, p=args.p)
+		criterion = TreelangCrossEntropyLoss(ntokens=ntokens, distance='eucl', temp=args.temperature)
 	else:
 		raise ValueError("args.loss must be in ['splitcross', 'treelang_eucl']")
 

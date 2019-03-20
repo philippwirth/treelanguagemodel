@@ -2,6 +2,7 @@ script=main_treelang.py
 path="data/treelang_tiny/"
 
 model="RNN"
+lr=0.25
 emsize=4
 nhid=2
 nlayers=1
@@ -17,7 +18,6 @@ seed=1020
 loginterval=1
 alpha=2
 beta=1
-dumpat=10
+dumpat=1
 loss="treelang_eucl"
-temp=1
-x0=0.0
+temp=100

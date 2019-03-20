@@ -17,7 +17,7 @@ parser.add_argument('--nhid', type=int, default=1150,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=3,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=5,
+parser.add_argument('--lr', type=float, default=0.25,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
@@ -70,14 +70,9 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
 # loss function
 parser.add_argument('--loss', type=str, default='splitcross',
                     help='Which loss function to use.')
-parser.add_argument('--temperature', type=float, default=30,
+parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
-parser.add_argument('--sigma', type=float, default=0.5,
-                    help='Sigma for RBF Kernel.')
-parser.add_argument('--x0', type=float, default=0.0,
-                    help='Offset for kernel')
-parser.add_argument('--p', type=int, default=2,
-                    help='Power for polynomial kernel')
+
 args = parser.parse_args()
 args.tied = False
 

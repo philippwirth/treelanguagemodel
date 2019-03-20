@@ -3,7 +3,7 @@ import torch.nn as nn
 
 class PolynomialKernel(nn.Module):
 
-	def __init__(self, x0=0.1, p=2):
+	def __init__(self, x0=0.0, p=2):
 
 		super(PolynomialKernel, self).__init__()
 		self.p, self.x0 = p, x0

@@ -1,11 +1,13 @@
 from networkx import DiGraph, write_gpickle, read_gpickle
 from networkx.algorithms.dag import descendants
 from networkx.algorithms.shortest_paths.generic import shortest_path
+import matplotlib.pyplot as plt
 from collections import deque
 import random
 import math
 import csv
 import os
+import networkx
 
 class TreeLangGenerator:
 
@@ -242,9 +244,23 @@ def main(argv):
 			print('python generate_tree_data.py -o <output path> -n <ntokens> -d <depth> -m <mode> -p <pstop> -s <seed>')
 			sys.exit(2)
 
-	tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
-	tlg.generate_sentences(seed=seed)
-	tlg.save(base=basepath)
+	#tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
+	#tlg.generate_sentences(seed=seed)
+	#tlg.save(base=basepath)
+
+	tlg = TreeLangGenerator(2,3)
+	tlg.load('../data/treelang_tiny/')
+	pos = networkx.layout.spring_layout(tlg.T)
+	G = tlg.T
+	node_sizes = [100 - (3 + 10 * i )for i in range(len(G))]
+	M = G.number_of_edges()
+	edge_colors = [M-i  + 5 for i in range(M)]#range(10, M + 10)
+	edge_alphas = [1 for i in range(M)]#[(5 + i) / (M + 4) for i in range(M)]
+	nodes = networkx.draw_networkx_nodes(tlg.T, pos, node_size=node_sizes, node_color='black')
+	edges = networkx.draw_networkx_edges(tlg.T, pos, node_size=node_sizes, arrowstyle='-',
+                               arrowsize=0, edge_color='black', arrows=False,
+                               edge_cmap=plt.cm.viridis, width=2)
+	plt.show()
 
 if __name__ == '__main__':
 	import sys, getopt

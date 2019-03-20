@@ -73,12 +73,6 @@ parser.add_argument('--loss', type=str, default='splitcross',
                     help='Which loss function to use.')
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
-parser.add_argument('--sigma', type=float, default=0.5,
-                    help='Sigma for RBF Kernel.')
-parser.add_argument('--x0', type=float, default=0.0, 
-                    help='Offset for kernel')
-parser.add_argument('--p', type=int, default=2,
-                    help='Power for polynomial kernel')
 
 args = parser.parse_args()
 args.tied = False

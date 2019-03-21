@@ -34,18 +34,23 @@ class TinyLanguageModel():
 		self.corpus, self.train_data, self.val_data, self.test_data = self._load_data()
 		self.ntokens = len(self.corpus.dictionary)
 
-		# initialize model, criterion and optimizer
+		# initialize model and criterion
 		self.model, self.criterion = self._build_model()
+
+		# collect all parameters
+		self.params = list(self.model.parameters()) + list(self.criterion.parameters())
+		self.total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in self.params if x.size())
+		print('Args:', self.args)
+		print('Model total parameters:', self.total_params)
+
+		# initialize optimizer
 		if self.args.optimizer == 'sgd':
 			self.optimizer = torch.optim.SGD(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
 		if self.args.optimizer == 'adam':
 			self.optimizer = torch.optim.Adam(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
 
-		# collect all parameters and finish up initialization
-		self.params = list(self.model.parameters()) + list(self.criterion.parameters())
-		self.total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in self.params if x.size())
-		print('Args:', self.args)
-		print('Model total parameters:', self.total_params)
+		# finish up
+		print('Initialization successful!')
 
 
 	def _model_load(self, fn):

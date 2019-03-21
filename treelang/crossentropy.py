@@ -39,7 +39,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 		'''
 
 		# find bsz (number of sequences done in parallel)
-		bsz = targets.size(1)
+		bsz = 1 if len(targets.size()) < 2 else targets.size(1)
 
 		# find sequence length
 		seq_len = targets.size(0)

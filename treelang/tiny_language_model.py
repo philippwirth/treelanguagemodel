@@ -36,8 +36,8 @@ class TinyLanguageModel():
 
 		# initialize model, criterion and optimizer
 		self.model, self.criterion = self._build_model()
-	    if self.args.optimizer == 'sgd':
-	    	self.optimizer = torch.optim.SGD(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
+		if self.args.optimizer == 'sgd':
+			self.optimizer = torch.optim.SGD(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
 		if self.args.optimizer == 'adam':
 			self.optimizer = torch.optim.Adam(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
 

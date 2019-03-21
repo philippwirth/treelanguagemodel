@@ -44,8 +44,8 @@ class TinyLanguageModel():
 		# collect all parameters and finish up initialization
 		self.params = list(self.model.parameters()) + list(self.criterion.parameters())
 		self.total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in self.params if x.size())
-		print('Args:', args)
-		print('Model total parameters:', total_params)
+		print('Args:', self.args)
+		print('Model total parameters:', self.total_params)
 
 
 	def _model_load(self, fn):
@@ -69,7 +69,7 @@ class TinyLanguageModel():
 			corpus = torch.load(fn)
 		else:
 			print('Producing dataset...')
-			corpus = data.Corpus(args.data)
+			corpus = data.Corpus(self.args.data)
 			torch.save(corpus, fn)
 
 		# need to batchify differently for the treelang data
@@ -106,8 +106,8 @@ class TinyLanguageModel():
 		if self.args.wdrop:
 			from merity.weight_drop import WeightDrop
 			for rnn in model.rnns:
-				if type(rnn) == WeightDrop: rnn.dropout = args.wdrop
-				elif rnn.zoneout > 0: rnn.zoneout = args.wdrop
+				if type(rnn) == WeightDrop: rnn.dropout = self.args.wdrop
+				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
 		# split tokens for quick crossentropy	
 		if not criterion:
@@ -121,7 +121,7 @@ class TinyLanguageModel():
 				# WikiText-103
 				splits = [2800, 20000, 76000]
 			print('Using', splits)
-			criterion = SplitCrossEntropyLoss(args.emsize, splits=splits, verbose=False)
+			criterion = SplitCrossEntropyLoss(self.args.emsize, splits=splits, verbose=False)
 
 		# apply cuda
 		if self.args.cuda:
@@ -150,7 +150,7 @@ class TinyLanguageModel():
 				hidden = self.model.init_hidden(batch_size)
 
 				# get batch
-				data, targets = get_batch(seq_data, i, args, seq_len=seq_len, evaluation=True)
+				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
 
 				# evaluate
 				output, new_hidden = self.model(data, hidden)
@@ -206,7 +206,7 @@ class TinyLanguageModel():
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()
 
-				data, targets = get_batch(seq_data, i, args, seq_len=seq_len)
+				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len)
 
 				# Starting each batch, we detach the hidden state from how it was previously produced.
 				# If we didn't, the model would try backpropagating all the way to start of the dataset.
@@ -235,7 +235,7 @@ class TinyLanguageModel():
 		total_loss.backward()
 	            
 		# `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs
-		if self.args.clip: torch.nn.utils.clip_grad_norm_(params, args.clip)
+		if self.args.clip: torch.nn.utils.clip_grad_norm_(params, self.args.clip)
 		self.optimizer.step()
 
 
@@ -300,11 +300,11 @@ class TinyLanguageModel():
 				if self.args.optimizer == 'sgd' and 't0' not in self.optimizer.param_groups[0] and (len(best_val_loss)>self.args.nonmono and val_loss > min(best_val_loss[:-self.args.nonmono])):
 					if self.asgd:
 						print('Switching to ASGD')
-						self.optimizer = torch.optim.ASGD(model.parameters(), lr=args.lr, t0=0, lambd=0., weight_decay=args.wdecay)
+						self.optimizer = torch.optim.ASGD(self.model.parameters(), lr=self.args.lr, t0=0, lambd=0., weight_decay=self.args.wdecay)
 
-				if epoch in args.when:
+				if epoch in self.args.when:
 					print('Saving model before learning rate decreased')
-					model_save('{}.e{}'.format(args.save, epoch))
+					model_save('{}.e{}'.format(self.args.save, epoch))
 					print('Dividing learning rate by 10')
 					self.optimizer.param_groups[0]['lr'] /= 10.
 

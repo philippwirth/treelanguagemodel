@@ -87,10 +87,10 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 # set asgd to false
-asgd = True
+asgd = False
 
 # number of trials and empty list for loss
-K = 10
+K = 20
 losses = np.zeros(K)
 for i in range(K):
 

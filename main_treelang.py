@@ -5,6 +5,7 @@ import time
 import numpy as np
 
 from treelang.tiny_language_model import TinyLanguageModel
+from treelang.language_model import LanguageModel
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
@@ -73,6 +74,9 @@ parser.add_argument('--loss', type=str, default='splitcross',
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 
+parser.add_argument('--tiny', type=bool, default=True,
+                    help='Work on tiny data set?')
+
 args = parser.parse_args()
 args.tied = False
 
@@ -95,7 +99,7 @@ losses = np.zeros(K)
 for i in range(K):
 
     # build model
-    tlm = TinyLanguageModel(args, asgd)
+    tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
     losses[i] = tlm.train()
 
     if losses[i] < 0.70:

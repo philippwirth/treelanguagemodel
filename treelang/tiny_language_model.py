@@ -117,12 +117,12 @@ class TinyLanguageModel():
 		# split tokens for quick crossentropy	
 		if not criterion:
 			splits = []
-			if ntokens > 500000:
+			if self.ntokens > 500000:
 				# One Billion
 				# This produces fairly even matrix mults for the buckets:
 				# 0: 11723136, 1: 10854630, 2: 11270961, 3: 11219422
 				splits = [4200, 35000, 180000]
-			elif ntokens > 75000:
+			elif self.ntokens > 75000:
 				# WikiText-103
 				splits = [2800, 20000, 76000]
 			print('Using', splits)
@@ -257,7 +257,7 @@ class TinyLanguageModel():
 		best_val_loss = []
 		
 		# iterate over epochs
-		for epoch in range(self.args.epochs + 1):
+		for epoch in range(1, self.args.epochs + 1):
 
 			# train
 			epoch_start_time = time.time()

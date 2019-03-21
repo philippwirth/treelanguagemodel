@@ -162,7 +162,7 @@ class TinyLanguageModel():
 
 				if self.args.loss == 'treelang_eucl':
 					# need to augment output and targets with initial hidden state
-					output = output.view(seq_len, self.batch_size, self.args.nhid)
+					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 					output = torch.cat((hidden[0], output.view(seq_len-1, eff_bsz, -1)), dim=0)
 					targets = torch.cat((data[0].view(1), targets))
 
@@ -221,7 +221,7 @@ class TinyLanguageModel():
 
 				if self.args.loss == 'treelang_eucl':
 					# need to augment output and targets with initial hidden state
-					output = output.view(seq_len, self.batch_size, self.args.nhid)
+					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 					output = torch.cat((hidden[0], output), dim=0)
 					targets = torch.cat((data[0].view(1), targets))
 

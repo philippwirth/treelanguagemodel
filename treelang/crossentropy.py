@@ -31,30 +31,31 @@ class TreelangCrossEntropyLoss(nn.Module):
 		self.temp = temp
 		self.loss = nn.CrossEntropyLoss()
 
-	def forward(self, model, hiddens, targets, bsz, seq_len, verbose=False):
+	def forward(self, model, hiddens, targets, verbose=False):
 		'''
 			model: RNN
 			hiddens: outputs of RNN for t in 1...T-1 ()
 			targets: words of seq at time t in 2...T ()
 		'''
+
+		# find bsz (number of sequences done in parallel)
+		bsz = targets.size(1)
+
+		# find sequence length
+		seq_len = targets.size(0)
 		
 		# words to cuda (words becomes a 1 x (ntokens * bsz) vector)
 		words = self.words.expand(bsz, -1).contiguous()
 		words = words.view(1, self.ntokens * bsz)
 		words = words.cuda()
 
-		# reshape hiddens to seq_len x bsz x hsz
-		#hiddens = hiddens.view(seq_len, bsz, -1)
-
 		# for i in range seq_len! do all this
 		total_loss = 0
 		for i in range(seq_len):
 
-			print(hiddens[i])
 			#last_hidden has size (bsz x hsz) -> bring it to 1 x (ntokens * bsz) x hsz
 			last_hidden = hiddens[i]
 			h = last_hidden.repeat(self.ntokens, 1)	# (ntokens * bsz) x hsz but wrong order
-			print(h.size())
 			index = torch.LongTensor(np.concatenate([bsz * np.arange(self.ntokens) + i for i in range(bsz)]))
 			h = torch.index_select(h, 0, index.cuda()) # reorder
 			h = [h.contiguous().view(1, self.ntokens * bsz, -1)]

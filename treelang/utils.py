@@ -13,7 +13,11 @@ def repackage_hidden(h):
 def batchify(data, bsz, seq_len, args):
     # Work out how cleanly we can divide the dataset into bsz parts.
 
-    eff_bsz = 1 if bsz == 1 else (bsz // seq_len) * seq_len
+    # say bsz is number of sequences in parallel
+    # eff_bsz is length of one batch (must be divisible by seq_len)
+    eff_bsz = ((data.size(0) // bsz) // seq_len) * seq_len
+
+    # number of batches
     nbatch = data.size(0) // eff_bsz
 
     if nbatch == 0:

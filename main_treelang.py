@@ -4,7 +4,7 @@ import torch
 import time
 import numpy as np
 
-from train_treelang import train_treelang
+from treelang.tiny_language_model import TinyLanguageModel
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
@@ -76,7 +76,7 @@ parser.add_argument('--temperature', type=float, default=100,
 args = parser.parse_args()
 args.tied = False
 
-# Set the random seed manually for reproducibility.
+# set the random seed manually for reproducibility.
 random.seed(args.seed)
 np.random.seed(args.seed)
 torch.manual_seed(args.seed)
@@ -86,15 +86,22 @@ if torch.cuda.is_available():
     else:
         torch.cuda.manual_seed(args.seed)
 
+# set asgd to false
 asgd = False
+
+# number of trials and empty list for loss
 K = 10
 losses = np.zeros(K)
 for i in range(K):
-    losses[i]  = train_treelang(args, asgd)
+
+    # build model
+    tlm = TinyLanguageModel(args, asgd)
+    losses[i] = tlm.train()
 
     if losses[i] < 0.70:
         args.dumpat = 0
 
+# print results
 print('Best:    ' + str(min(losses)))
 print('Avrg:    ' + str(np.mean(losses)))
 print('Var :    ' + str(np.var(losses)))

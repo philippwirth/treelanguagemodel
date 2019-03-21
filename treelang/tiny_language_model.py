@@ -323,7 +323,7 @@ class TinyLanguageModel():
 
 		# done with training!
 		# load best model and evaluate it on the test set
-		model_load(self.args.save)
+		self._model_load(self.args.save)
 		test_loss = self._evaluate(self.test_data, self.test_batch_size)
 		print('=' * 89)
 		print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(

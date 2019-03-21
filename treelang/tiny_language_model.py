@@ -236,7 +236,6 @@ class TinyLanguageModel():
 				total_loss += loss
 
 				self.optimizer.param_groups[0]['lr'] = lr2
-				print('this happens')
 
 		total_loss.backward()
 	            

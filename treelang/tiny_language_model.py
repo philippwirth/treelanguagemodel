@@ -190,7 +190,7 @@ class TinyLanguageModel():
 		
 		# Turn on training mode which enables dropout.
 		if self.args.model == 'QRNN':self.model.reset()
-		total_loss = 0
+		total_loss = 0.
 		start_time = time.time()
 		ntokens = self.ntokens
 		batch = 0
@@ -236,11 +236,12 @@ class TinyLanguageModel():
 				total_loss += loss
 
 				self.optimizer.param_groups[0]['lr'] = lr2
+				print('this happens')
 
 		total_loss.backward()
 	            
 		# `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs
-		if self.args.clip: torch.nn.utils.clip_grad_norm_(params, self.args.clip)
+		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
 
 

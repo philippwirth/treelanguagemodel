@@ -20,17 +20,13 @@ def batchify(data, bsz, seq_len, args):
     # number of batches
     nbatch = data.size(0) // eff_bsz
 
-    print([eff_bsz, nbatch, data.size(0)])
-
     if nbatch == 0:
         return torch.LongTensor().cuda() if args.cuda else torch.LongTensor()
 
     # Trim off any extra elements that wouldn't cleanly fit (remainders).
-    print(nbatch * eff_bsz)
     data = data.narrow(0, 0, nbatch * eff_bsz)
     # Evenly divide the data across the bsz batches.
-    data = data.view(eff_bsz, -1).t().contiguous()
-    print(data.size())
+    data = data.view(-1, eff_bsz).t().contiguous()
     if args.cuda:
         data = data.cuda()
     return data

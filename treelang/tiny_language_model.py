@@ -32,7 +32,7 @@ class TinyLanguageModel():
 
 		# initialize data sets
 		self.corpus, self.train_data, self.val_data, self.test_data = self._load_data()
-		self.ntokens = len(corpus.dictionary)
+		self.ntokens = len(self.corpus.dictionary)
 
 		# initialize model, criterion and optimizer
 		self.model, self.criterion = self._build_model()

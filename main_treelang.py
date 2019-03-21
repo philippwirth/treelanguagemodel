@@ -96,7 +96,7 @@ for i in range(K):
 
     # build model
     tlm = TinyLanguageModel(args, asgd)
-    losses[i] = tlm.train()
+    losses[i], l = tlm.train()
 
     if losses[i] < 0.70:
         args.dumpat = 0

@@ -87,7 +87,7 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 # set asgd to false
-asgd = False
+asgd = True
 
 # number of trials and empty list for loss
 K = 10
@@ -96,7 +96,7 @@ for i in range(K):
 
     # build model
     tlm = TinyLanguageModel(args, asgd)
-    losses[i], l = tlm.train()
+    losses[i] = tlm.train()
 
     if losses[i] < 0.70:
         args.dumpat = 0

@@ -333,5 +333,5 @@ class TinyLanguageModel():
 			stored_loss, math.exp(stored_loss), stored_loss / math.log(2)))
 		print('=' * 89)
 
-		return stored_loss, test_loss
+		return test_loss
 

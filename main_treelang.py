@@ -94,7 +94,7 @@ if torch.cuda.is_available():
 asgd = False
 
 # number of trials and empty list for loss
-K = 20
+K = 3
 losses = np.zeros(K)
 for i in range(K):
 

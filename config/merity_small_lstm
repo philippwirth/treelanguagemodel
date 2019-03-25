@@ -18,6 +18,6 @@ seed=1020
 loginterval=1
 alpha=2
 beta=1
-dumpat=1
+dumpat=100
 loss="splitcross"
 temp=100

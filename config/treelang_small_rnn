@@ -2,11 +2,11 @@ script=main_treelang.py
 path="data/treelang_small/"
 
 model="RNN"
-lr=0.25
+lr=0.01
 emsize=4
 nhid=2
 nlayers=1
-epochs=100
+epochs=200
 batchsize=20
 bptt=4
 dropout=0.2

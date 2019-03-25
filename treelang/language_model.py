@@ -14,7 +14,7 @@ from treelang.utils import batchify_treelang, get_batch, repackage_hidden
 
 from treelang.visualize import dump_contexts
 
-class TinyLanguageModel():
+class LanguageModel():
 
 	def __init__(self, args, asgd=False):
 

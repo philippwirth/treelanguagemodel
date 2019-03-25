@@ -5,7 +5,11 @@ import time
 import numpy as np
 import itertools
 
+from operator import mul
 from train_treelang import train_treelang
+
+from treelang.tiny_language_model import TinyLanguageModel
+from treelang.language_model import LanguageModel
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
@@ -74,6 +78,95 @@ parser.add_argument('--loss', type=str, default='splitcross',
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 
+
+def args_to_dict(args, asgd):
+    result = dict()
+    result['lr'] = args.lr
+    result['dropout'] = args.dropout
+    result['wdrop'] = args.wdrop
+    result['temp'] = args.temperature
+    result['asgd'] = asgd
+    result['optimizer'] = args.optimizer
+    return result
+
+def gridsearch(args, K=3, tiny=True,
+                    lr_left=0.1, lr_right=10, lr_n=4,
+                    dropout_left=0.0, dropout_right=0.6, dropout_n=3,
+                    wdrop_left=0.0, wdrop_right=0.6, wdrop_n=3,
+                    temp_left=1, temp_right=200, temp_n=3,
+                    ):
+
+    '''
+        performs gridsearch over:
+            - learning rate
+            - dropout
+            - wdrop
+            - temperature
+            - asgd
+            - optimizer
+    '''
+
+    # no dump!
+    args.dumpat = 0
+
+    # only do tiny!
+    args.tiny = True 
+
+    # build list
+    L = []
+    L.append(np.linspace(lr_left, lr_right, lr_n))                      
+    L.append(np.linspace(dropout_left, dropout_right, dropout_n))
+    L.append([0.] if args.model == 'RNN' else np.linspace(wdrop_left, wdrop_right, wdrop_n))            
+    L.append([0.] if args.loss == 'splitcross' else np.linspace(temp_left, temp_right, temp_n))              
+    L.append([True, False])                                           
+    L.append(['sgd', 'adam'])                                           
+
+    # some info
+    n_settings = np.prod([len(l) for l in L])
+    print('Doing gridsearch over ' + str(n_settings) + ' settings.')
+    L = list(itertools.product(*L))
+
+    # prepare variables for storage
+    best_loss, best_avrg, best_var = 1e5, 1e5, 0
+    best_settings, avrg_settings = dict(), dict()
+    for (lr, dropout, wdrop, temp, asgd, optimizer) in L:
+
+        # set settings
+        args.lr = lr
+        args.dropout = dropout
+        args.dropouth = dropout
+        args.dropouti = dropout
+        args.dropoute = dropout
+        args.wdrop = wdrop
+        args.temperature = temp
+        args.optimizer = optimizer
+
+        # build model and train it K times
+        loss_list = np.zeros(K)
+        for k in range(K):
+            lm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
+            loss_list[k] = lm.train()
+
+        # evaluate loss
+        loss_best = np.amin(loss_list)
+        loss_avrg = np.mean(loss_list)
+        loss_var = np.var(loss_list)
+
+        # updates
+        if loss_avrg < best_avrg:
+            best_avrg = loss_avrg
+            best_var = loss_var
+            avrg_settings = args_to_dict(args, asgd)
+
+        if loss_best < best_loss:
+            best_loss = loss_best
+            best_settings = args_do_dict(args, asgd)
+
+    return best_loss, best_settings, best_avrg, best_var, avrg_settings
+
+
+
+# no tied weights
 args = parser.parse_args()
 args.tied = False
 
@@ -88,42 +181,20 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 
-# turn dump off
-args.dumpat = 0
-reseed = False
-K = 10
 
-# lists
-L = [[0.5],#lr
-    [100],
-    [False]]
-L = list(itertools.product(*L))
+# do the gridsearch
+best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args)
 
-# initialize loss and settings
-best_loss = 1e5
-best_settings = []
-avrgs = dict()
-for (lr, temp, asgd) in L:
-    args.lr = lr
-    args.temperature = temp
+print(' --- Gridsearch is over! --- ')
+print('Best Results:')
+print(' - Loss: ' + str(best_loss))
+print(' - Settings:')
+for key, value in best_settings.items():
+    print(key + ' : ' + str(value))
 
-    loss = 1e5
-    losses = []
-    for i in range(K):
-        cur_loss = train_treelang(args, asgd)
-        loss = min(cur_loss, loss) 
-        losses.append(cur_loss)
-    key = 'lr' + str(lr) + 'temp' + str(temp)
-    avrgs[key] = np.mean(losses)
-
-    if loss < best_loss:
-        best_loss = loss
-        best_settings = dict({'lr':lr,  'temp':temp, 'asgd':asgd})
-
-print('--- Results of Gridsearch --- ')
-print(best_loss)
-print(best_settings)
-print(avrgs)
-
-
-
+print('Best Averaging Results:')
+print(' - Loss: ' + str(best_avrg) + ' with Var: ' + str(best_var))
+print(' - Settings:')
+for key, value in avrg_settings.items():
+    print(key + ' : ' + str(value))
+print(' --------------------------- ')

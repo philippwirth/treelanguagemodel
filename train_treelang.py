@@ -147,7 +147,7 @@ def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
 	
 	# Turn on training mode which enables dropout.
 	if args.model == 'QRNN': model.reset()
-	total_loss = 0
+	total_loss = 0.
 	start_time = time.time()
 	ntokens = len(corpus.dictionary)
 	batch = 0
@@ -192,6 +192,7 @@ def train_tiny(args, model, criterion, optimizer, train_data, corpus, params):
 			total_loss += loss
 
 			optimizer.param_groups[0]['lr'] = lr2
+
 
 	total_loss.backward()
             

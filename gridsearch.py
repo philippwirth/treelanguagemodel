@@ -160,7 +160,7 @@ def gridsearch(args, K=3, tiny=True,
 
         if loss_best < best_loss:
             best_loss = loss_best
-            best_settings = args_do_dict(args, asgd)
+            best_settings = args_to_dict(args, asgd)
 
     return best_loss, best_settings, best_avrg, best_var, avrg_settings
 

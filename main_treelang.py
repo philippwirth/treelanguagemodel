@@ -57,9 +57,9 @@ parser.add_argument('--wdecay', type=float, default=1.2e-6,
                     help='weight decay applied to all weights')
 parser.add_argument('--resume', type=str,  default='',
                     help='path of model to resume')
-parser.add_argument('--optimizer', type=str,  default='sgd',
+parser.add_argument('--optimizer', type=str,  default='sgd', #normally adam
                     help='optimizer to use (sgd, adam)')
-parser.add_argument('--when', nargs="+", type=int, default=[-1],
+parser.add_argument('--when', nargs="+", type=int, default=[-1], # 30 is not bad
                     help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
 
 # context dump arguments
@@ -91,7 +91,7 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 # set asgd to false
-asgd = False
+asgd = True
 
 # number of trials and empty list for loss
 K = 3
@@ -102,7 +102,7 @@ for i in range(K):
     tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
     losses[i] = tlm.train()
 
-    if losses[i] < 0.70:
+    if losses[i] < 0.58:
         args.dumpat = 0
 
 # print results

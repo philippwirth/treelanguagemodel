@@ -1,12 +1,12 @@
-script=main_treelang.py
+script=gridsearch.py
 path="data/treelang_tiny/"
 
 model="LSTM"
 lr=0.25
-emsize=4
+emsize=2
 nhid=2
 nlayers=1
-epochs=100
+epochs=30
 batchsize=1
 bptt=4
 dropout=0.2

@@ -309,7 +309,7 @@ class TinyLanguageModel():
 
 				if epoch in self.args.when:
 					print('Saving model before learning rate decreased')
-					model_save('{}.e{}'.format(self.args.save, epoch))
+					self._model_save('{}.e{}'.format(self.args.save, epoch))
 					print('Dividing learning rate by 10')
 					self.optimizer.param_groups[0]['lr'] /= 10.
 

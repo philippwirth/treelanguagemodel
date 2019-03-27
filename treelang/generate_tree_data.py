@@ -4,6 +4,7 @@ from networkx.algorithms.shortest_paths.generic import shortest_path
 import matplotlib.pyplot as plt
 from collections import deque
 import random
+import numpy as np
 import math
 import csv
 import os
@@ -199,26 +200,40 @@ class TreeLangGenerator:
 
 			pred = self.T.predecessors(node_id)[0]
 			ndesc = 1+len(descendants(self.T, node_id))
-			prob = ndesc / (len(descendants(self.T, pred)))
-			lookup[node_id] = -math.log(prob)
+			prob = ndesc / (1 + len(descendants(self.T, pred)))
+			lookup[node_id] = prob
 
 		# iterate over all paths from root to any node, sum log probs
 		entropy = 0
+		overall = 0
 		for node_id, node_info in self.T.nodes(1):
+
 			if node_id == 0:
 				continue
 
 			path = shortest_path(self.T, 0, node_id)
-			entropy += sum([lookup[n] for n in path[1:]]) / len(path[1:])
+			local_entropy = sum([-lookup[n] * np.log(lookup[n]) for n in path[1:]])
 
+			print([lookup[n] for n in path[1:]])
+
+			ndesc = len(descendants(self.T, node_id))
+			if  ndesc > 0:
+				# this is not a leaf, add escape prob
+				local_entropy += - (1 / (ndesc + 1)) * np.log(1 / (ndesc + 1))
+
+			entropy += local_entropy
+			overall += (len(path)) 
+
+		entropy = entropy# / overall
 		# ppl is exp of entropy
-		entropy = entropy / self.nnodes
+		entropy = entropy / overall
 		ppl = math.exp(entropy)
 		return ppl
 
 
 def main(argv):
 
+	'''
 
 	try:
 		opts, args = getopt.getopt(argv, "ho:d:n:m:p:s:", ["output=", "ntokens=", "depth=", "mode=", "pstop=,", "seed="])
@@ -247,20 +262,11 @@ def main(argv):
 	#tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
 	#tlg.generate_sentences(seed=seed)
 	#tlg.save(base=basepath)
+	'''
 
 	tlg = TreeLangGenerator(2,3)
 	tlg.load('../data/treelang_tiny/')
-	pos = networkx.layout.spring_layout(tlg.T)
-	G = tlg.T
-	node_sizes = [100 - (3 + 10 * i )for i in range(len(G))]
-	M = G.number_of_edges()
-	edge_colors = [M-i  + 5 for i in range(M)]#range(10, M + 10)
-	edge_alphas = [1 for i in range(M)]#[(5 + i) / (M + 4) for i in range(M)]
-	nodes = networkx.draw_networkx_nodes(tlg.T, pos, node_size=node_sizes, node_color='black')
-	edges = networkx.draw_networkx_edges(tlg.T, pos, node_size=node_sizes, arrowstyle='-',
-                               arrowsize=0, edge_color='black', arrows=False,
-                               edge_cmap=plt.cm.viridis, width=2)
-	plt.show()
+	print(tlg.ppl)
 
 if __name__ == '__main__':
 	import sys, getopt

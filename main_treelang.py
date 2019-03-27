@@ -7,6 +7,8 @@ import numpy as np
 from treelang.tiny_language_model import TinyLanguageModel
 from treelang.language_model import LanguageModel
 
+from visualize.dump import dump_val_loss
+
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
                     help='location of the data corpus')
@@ -57,7 +59,7 @@ parser.add_argument('--wdecay', type=float, default=1.2e-6,
                     help='weight decay applied to all weights')
 parser.add_argument('--resume', type=str,  default='',
                     help='path of model to resume')
-parser.add_argument('--optimizer', type=str,  default='sgd', #normally adam
+parser.add_argument('--optimizer', type=str,  default='adam', #normally adam
                     help='optimizer to use (sgd, adam)')
 parser.add_argument('--when', nargs="+", type=int, default=[-1], # 30 is not bad
                     help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
@@ -91,19 +93,25 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 # set asgd to false
-asgd = True
+asgd = False
 
 # number of trials and empty list for loss
 K = 3
-losses = np.zeros(K)
+loss = np.zeros(K)
+val_loss = np.zeros((K, args.epochs))
 for i in range(K):
 
     # build model
     tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
+    
+    # train
     losses[i] = tlm.train()
 
-    if losses[i] < 0.58:
-        args.dumpat = 0
+    # get validation loss
+    val_loss[i,:] = tlm.val_loss
+
+print('dumping validation loss...')
+dump_val_loss(val_loss, args.epochs)
 
 # print results
 print('Best:    ' + str(min(losses)))

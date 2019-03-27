@@ -12,7 +12,7 @@ from merity.model import RNNModel
 # same same
 from treelang.utils import batchify_treelang, get_batch, repackage_hidden
 
-from treelang.visualize import dump_contexts
+from visualize.dump import dump_contexts
 
 class TinyLanguageModel():
 

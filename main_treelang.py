@@ -93,27 +93,27 @@ if torch.cuda.is_available():
         torch.cuda.manual_seed(args.seed)
 
 # set asgd to false
-asgd = False
+asgd = True
 
 # number of trials and empty list for loss
-K = 3
+K = 5
 loss = np.zeros(K)
 val_loss = np.zeros((K, args.epochs))
 for i in range(K):
 
     # build model
     tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
-    
+
     # train
-    losses[i] = tlm.train()
+    loss[i] = tlm.train()
 
     # get validation loss
     val_loss[i,:] = tlm.val_loss
 
 print('dumping validation loss...')
-dump_val_loss(val_loss, args.epochs)
+dump_val_loss(val_loss, args.epochs, basepath='val_loss')
 
 # print results
-print('Best:    ' + str(min(losses)))
-print('Avrg:    ' + str(np.mean(losses)))
-print('Var :    ' + str(np.var(losses)))
+print('Best:    ' + str(np.amin(loss)))
+print('Avrg:    ' + str(np.mean(loss)))
+print('Var :    ' + str(np.var(loss)))

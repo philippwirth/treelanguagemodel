@@ -62,7 +62,7 @@ class RNNModel(nn.Module):
         if self.rnn_type == 'QRNN': [r.reset() for r in self.rnns]
 
     def init_weights(self):
-        initrange = 0.1
+        initrange = 0.1#0.1
         self.encoder.weight.data.uniform_(-initrange, initrange)
         self.decoder.bias.data.fill_(0)
         self.decoder.weight.data.uniform_(-initrange, initrange)

@@ -6,7 +6,7 @@ import numpy as np
 import itertools
 
 from operator import mul
-from train_treelang import train_treelang
+#from train_treelang import train_treelang
 
 from treelang.tiny_language_model import TinyLanguageModel
 from treelang.language_model import LanguageModel
@@ -117,7 +117,7 @@ def gridsearch(args, K=3, tiny=True,
     L.append(np.linspace(lr_left, lr_right, lr_n))                      
     L.append(np.linspace(dropout_left, dropout_right, dropout_n))
     L.append([0.] if args.model == 'RNN' else np.linspace(wdrop_left, wdrop_right, wdrop_n))            
-    L.append([0.] if args.loss == 'splitcross' else [i for i in range(50, 101, 10)])#np.linspace(temp_left, temp_right, temp_n))              
+    L.append([0.] if args.loss == 'splitcross' else [i for i in range(65, 66, 10)])#np.linspace(temp_left, temp_right, temp_n))              
     L.append([False])                                           
     L.append(['adam'])                                           
 
@@ -130,6 +130,17 @@ def gridsearch(args, K=3, tiny=True,
     best_loss, best_avrg, best_var = 1e5, 1e5, 0
     best_settings, avrg_settings = dict(), dict()
     for (lr, dropout, wdrop, temp, asgd, optimizer) in L:
+        
+        # Set the random seed manually for reproducibility.
+        random.seed(args.seed)
+        np.random.seed(args.seed)
+        torch.manual_seed(args.seed)
+        if torch.cuda.is_available():
+            if not args.cuda:
+                print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+            else:
+                torch.cuda.manual_seed(args.seed)
+
 
         # set settings
         args.lr = lr
@@ -170,20 +181,10 @@ def gridsearch(args, K=3, tiny=True,
 args = parser.parse_args()
 args.tied = False
 
-# Set the random seed manually for reproducibility.
-random.seed(args.seed)
-np.random.seed(args.seed)
-torch.manual_seed(args.seed)
-if torch.cuda.is_available():
-    if not args.cuda:
-        print("WARNING: You have a CUDA device, so you should probably run with --cuda")
-    else:
-        torch.cuda.manual_seed(args.seed)
-
 
 
 # do the gridsearch
-best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.05, lr_right=0.25, lr_n=10, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
+best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.001, lr_right=0.201, lr_n=20, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
 
 print(' --- Gridsearch is over! --- ')
 print('Best Results:')

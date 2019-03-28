@@ -1,0 +1,7 @@
+mode,poisson
+ntokens,16
+alphabet,"['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']"
+nnodes,11
+ppl,1.2137973406047222
+pstop,0.1
+depth,4

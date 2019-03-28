@@ -182,20 +182,37 @@ args = parser.parse_args()
 args.tied = False
 
 
+datasets = ['data/treelang_tiny/', 'data/poisson_treelang_tiny/', 'data/power_treelang_tiny']
+loss, settings, avrg_loss, var, avrg_settings_ = [], [], [], [], [] 
+for dataset in datasets:
 
-# do the gridsearch
-best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.001, lr_right=0.201, lr_n=20, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
+    # set data
+    args.data = dataset
 
-print(' --- Gridsearch is over! --- ')
-print('Best Results:')
-print(' - Loss: ' + str(best_loss))
-print(' - Settings:')
-for key, value in best_settings.items():
-    print(key + ' : ' + str(value))
+    # do the gridsearch
+    best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.001, lr_right=0.201, lr_n=10, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
 
-print('Best Averaging Results:')
-print(' - Loss: ' + str(best_avrg) + ' with Var: ' + str(best_var))
-print(' - Settings:')
-for key, value in avrg_settings.items():
-    print(key + ' : ' + str(value))
-print(' --------------------------- ')
+    # append results
+    loss.append(best_loss)
+    settings.append(best_settings)
+    avrg_loss.append(best_avrg)
+    var.append(best_var)
+    avrg_settings_.append(avrg_settings)
+
+# print results
+for i in range(3):
+
+    print(' --- Gridsearch is over! --- ')
+    print('Data: ' + datasets[i])
+    print('Best Results:')
+    print(' - Loss: ' + str(loss[i]))
+    print(' - Settings:')
+    for key, value in settings[i].items():
+        print(key + ' : ' + str(value))
+
+    print('Best Averaging Results:')
+    print(' - Loss: ' + str(avrg_loss[i]) + ' with Var: ' + str(var[i]))
+    print(' - Settings:')
+    for key, value in avrg_settings_[i].items():
+        print(key + ' : ' + str(value))
+    print(' --------------------------- ')

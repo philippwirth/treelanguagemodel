@@ -1,4 +1,4 @@
-script=main_treelang.py
+script=gridsearch.py
 path="data/treelang_tiny/"
 
 model="RNN"
@@ -6,7 +6,7 @@ lr=0.1
 emsize=2
 nhid=2
 nlayers=1
-epochs=500
+epochs=1000
 batchsize=1
 bptt=4
 dropout=0.

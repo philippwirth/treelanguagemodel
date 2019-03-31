@@ -190,7 +190,7 @@ for dataset in datasets:
     args.data = dataset
 
     # do the gridsearch
-    best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.001, lr_right=0.201, lr_n=10, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
+    best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.2, lr_right=0.3, lr_n=10, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
 
     # append results
     loss.append(best_loss)

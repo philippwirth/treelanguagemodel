@@ -96,7 +96,7 @@ if torch.cuda.is_available():
 asgd = True
 
 # number of trials and empty list for loss
-K = 5
+K = 3
 loss = np.zeros(K)
 val_loss = np.zeros((K, args.epochs))
 for i in range(K):
@@ -106,6 +106,7 @@ for i in range(K):
 
     # train
     loss[i] = tlm.train()
+    if loss[i] < 0.42: args.dump = 0
 
     # get validation loss
     val_loss[i,:] = tlm.val_loss

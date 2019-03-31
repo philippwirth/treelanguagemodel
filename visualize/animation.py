@@ -3,7 +3,8 @@ import numpy as np
 from dump import load_contexts
 
 import matplotlib.pyplot as plt
-from matplotlib.animation import FuncAnimation 
+from matplotlib.animation import FuncAnimation, writers
+plt.rcParams['animation.ffmpeg_path'] = '/usr/local/bin/ffmpeg'
 
 
 class Animation:
@@ -25,16 +26,20 @@ class Animation:
 
 		# limits
 		if xlim is None:
-			self.xlim = [-0.25, 0.25]
+			self.xlim = [-0.5, 0.5]
+		else:
+			self.xlim = xlim
 
 		if ylim is None:
-			self.ylim = [-0.45, 0.05]
+			self.ylim = [-0.5, 0.5]
+		else:
+			self.ylim = ylim
 
 		self.fig, self.ax = plt.subplots()
 
 		
 		if not snapshot_mode:
-			self.ani = FuncAnimation(self.fig, self._draw_next_snapshot, frames=len(self.files), interval=1,
+			self.ani = FuncAnimation(self.fig, self._draw_next_snapshot, frames=len(self.files), interval=10,
 										init_func=self._setup_plot, blit=False, repeat=True)
 		else:
 			self._setup_plot()
@@ -87,6 +92,11 @@ class Animation:
 
 
 
-a = Animation("../results/treelang_tiny_gru_500/", snapshot_mode=False)
-#a._draw_next_snapshot(2	)
-a.show()
+path = '../results/treelang_tiny_gru_1000/'
+a = Animation(path, snapshot_mode=True)
+a._draw_next_snapshot(707)
+plt.savefig(path + 'before_jump.jpeg')
+#a.show()
+#Writer = writers['ffmpeg']
+#writer = Writer(fps=10, metadata=dict(artist='Me'), bitrate=1800)
+#a.ani.save('power_merity_tiny_lstm.mp4', writer=writer)

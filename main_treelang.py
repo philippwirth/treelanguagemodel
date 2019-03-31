@@ -96,25 +96,36 @@ if torch.cuda.is_available():
 asgd = True
 
 # number of trials and empty list for loss
+hszs = [pow(2, i+1) for i in range(10)]
 K = 3
 loss = np.zeros(K)
 val_loss = np.zeros((K, args.epochs))
-for i in range(K):
+results = np.zeros(10)
+variance = np.zeros(10)
+for i,hsz in enumerate(hszs):
+    for k in range(K):
 
-    # build model
-    tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
+        # set embedding and hidden size to hsz
+        args.dump = 0
+        args.emsize = hsz
+        args.nhid = hsz
 
-    # train
-    loss[i] = tlm.train()
-    if loss[i] < 0.42: args.dump = 0
+        # build model
+        tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
 
-    # get validation loss
-    val_loss[i,:] = tlm.val_loss
+        # train
+        loss[k] = tlm.train()
 
-print('dumping validation loss...')
-dump_val_loss(val_loss, args.epochs, basepath='val_loss')
+        # get validation loss
+        val_loss[k,:] = tlm.val_loss
+
+    results[i] = np.mean(loss)
+    variance[i] = np.var(loss)
+
+np.savetxt('loss_by_hsz.txt', results, delimiter=' ')
+np.savetxt('var_by_hsz.txt', results, delimiter=' ')
+#print('dumping validation loss...')
+#dump_val_loss(val_loss, args.epochs, basepath='val_loss')
 
 # print results
-print('Best:    ' + str(np.amin(loss)))
-print('Avrg:    ' + str(np.mean(loss)))
-print('Var :    ' + str(np.var(loss)))
+print('Best:    ' + str(np.amin(results)))

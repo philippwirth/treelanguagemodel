@@ -1,6 +1,7 @@
 from networkx import DiGraph, write_gpickle, read_gpickle
 from networkx.algorithms.dag import descendants
 from networkx.algorithms.shortest_paths.generic import shortest_path
+from scipy.stats import powerlaw
 import matplotlib.pyplot as plt
 from collections import deque
 import random
@@ -12,15 +13,18 @@ import networkx
 
 class TreeLangGenerator:
 
-	def __init__(self, ntokens, depth, mode='uniform', pstop=0.1):
+	def __init__(self, ntokens, depth, mode='uniform', pstop=0.1, lam=2, a=1, k=2.5):
 
-		if ntokens > 676: 	   	# vocab not representable by two letter combinations (TODO)
+		if ntokens > 676: 	   	# vocab not representable by two letter 26 (TODO)
 			raise ValueError("ntokens > 676 (not representable by two letters)")
 
 		self.ntokens = ntokens 	# vocabulary size
 		self.depth = depth     	# maximum length for sentence
 		self.mode = mode		# either uniform or power law (determines degree of nodes)
 		self.pstop = pstop		# probability of a node having no descendants
+
+		self.lam = lam 			# this is for the poisson distribution
+		self.a, self.k = a, k 	# this is for the power law stuff
 
 		self.vocab = None	   	# vocabulary
 		self.data = None	   	# data (text corpus)
@@ -108,7 +112,9 @@ class TreeLangGenerator:
 		""" represent the vocabulary as all possible two letter combinations 
 			(could add numbers to make vocab larger or extend to 3 letters)
 		"""
-		
+		if self.ntokens < 27:
+			return self.alphabet
+
 		vocab = []
 		i, j = 0, 0
 		while len(vocab) < self.ntokens:
@@ -127,6 +133,7 @@ class TreeLangGenerator:
 
 		# set seed
 		random.seed(seed)
+		np.random.seed(seed)
 
 		# initialize root
 		T, nnodes = DiGraph(), 1
@@ -150,8 +157,13 @@ class TreeLangGenerator:
 			# determine number of edges
 			if self.mode == 'uniform':
 				ndesc = random.randint(1, self.ntokens)
+			elif self.mode == 'poisson':
+				ndesc = np.random.poisson(lam=self.lam)
+				while ndesc > self.ntokens or ndesc == 0: ndesc = np.random.poisson(lam=self.lam)
+			elif self.mode == 'power':
+				ndesc = self._sample_power()
 			else:
-				raise ValueError("only uniform accepted atm!")
+				raise ValueError("only uniform, poisson, power accepted atm!")
 
 			# determine tokens
 			tokens = [self.vocab[i] for i in random.sample(range(self.ntokens), ndesc)]
@@ -199,8 +211,9 @@ class TreeLangGenerator:
 				continue
 
 			pred = self.T.predecessors(node_id)[0]
+			add = (0 if pred == 0 else 1)
 			ndesc = 1+len(descendants(self.T, node_id))
-			prob = ndesc / (1 + len(descendants(self.T, pred)))
+			prob = ndesc / (add + len(descendants(self.T, pred)))
 			lookup[node_id] = prob
 
 		# iterate over all paths from root to any node, sum log probs
@@ -230,10 +243,17 @@ class TreeLangGenerator:
 		ppl = math.exp(entropy)
 		return ppl
 
+	def _sample_power(self):
+		p = np.power(1./np.arange(1,self.ntokens, 1), self.k)
+		p = p / np.sum(p)
+		p = np.cumsum(p)
+		return 1 + np.searchsorted(p, random.random())
+
+
 
 def main(argv):
 
-	'''
+	
 
 	try:
 		opts, args = getopt.getopt(argv, "ho:d:n:m:p:s:", ["output=", "ntokens=", "depth=", "mode=", "pstop=,", "seed="])
@@ -259,14 +279,15 @@ def main(argv):
 			print('python generate_tree_data.py -o <output path> -n <ntokens> -d <depth> -m <mode> -p <pstop> -s <seed>')
 			sys.exit(2)
 
-	#tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
-	#tlg.generate_sentences(seed=seed)
-	#tlg.save(base=basepath)
-	'''
-
-	tlg = TreeLangGenerator(2,3)
-	tlg.load('../data/treelang_tiny/')
+	tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
+	tlg.generate_sentences(seed=seed)
+	tlg.save(base=basepath)
+	
 	print(tlg.ppl)
+
+	#tlg = TreeLangGenerator(2,3)
+	#tlg.load('../data/treelang_small/')
+	#print(tlg.ppl)
 
 if __name__ == '__main__':
 	import sys, getopt

@@ -5,13 +5,13 @@ import numpy as np
 
 
 from treelang.eucl_distance import EuclideanDistance
-from treelang.eucl_kernel import RBFKernel, PolynomialKernel
+from treelang.eucl_kernel import RBFKernel, PolynomialKernel, DotProduct
 
 class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='polynomial'):
+	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='dot'):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
@@ -25,6 +25,8 @@ class TreelangCrossEntropyLoss(nn.Module):
 
 		if kernel == 'polynomial':
 			self.kernel = PolynomialKernel(x0=0, p=2)
+		elif kernel == 'dot':
+			self.kernel = DotProduct()
 		else:
 			pass
 			
@@ -63,11 +65,11 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# forward pass through RNN to get output (1*bsz*n_words, ndir*hsz)
 			output, hidden = model(words, h)
 
-			# compute distance
-			d = self.distance(last_hidden, output)
-
-			# apply kernel
-			k = self.temp * self.kernel(d)
+			if self.kernel == 'polynomial':
+				d = self.distance(last_hidden, output)
+				k = self.temp * self.kernel(d)
+			else:
+				k = 2*self.kernel(last_hidden, output)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)

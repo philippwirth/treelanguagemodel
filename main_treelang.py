@@ -100,34 +100,23 @@ args.tiny = True
 K = 3
 loss = np.zeros(K)
 val_loss = np.zeros((K, args.epochs))
-#results = np.zeros(5)
-#variance = np.zeros(5)
-lr = 0.15
-args.emsize = 2
-args.nhid = 2
-temps = [i for i in range(1, 101, 5)]
-result = np.zeros((K,20))
 for k in range(K):
 
-    for i,temp in enumerate(temps):
-
-        args.temperature = temp
+    args.temperature = temp
         
-        # build model
-        tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
+    # build model
+    tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)
         
-        # train
-        loss[k] = tlm.train()
+    # train
+    loss[k] = tlm.train()
         
-        # get validation loss
-        val_loss[k,:] = tlm.val_loss
+    # get validation loss
+    val_loss[k,:] = tlm.val_loss
 
-        result[k,i] = loss[k]
-
-np.savetxt('loss_by_hsz.txt', np.mean(result,0), delimiter=' ')
+#np.savetxt('loss_by_hsz.txt', np.mean(result,0), delimiter=' ')
 #np.savetxt('var_by_hsz.txt', variance, delimiter=' ')
 #print('dumping validation loss...')
-#dump_val_loss(val_loss, args.epochs, basepath='val_loss')
+dump_val_loss(val_loss, args.epochs, basepath='val_loss')
 
 # print results
-print('Best:    ' + str(np.amin(result)))
+print('Best:    ' + str(np.amin(loss)))

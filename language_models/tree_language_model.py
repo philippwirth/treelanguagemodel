@@ -13,8 +13,8 @@ from treelang.crossentropy import TreelangCrossEntropyLoss
 from merity.model import RNNModel
 
 # utils
-import treelang.data as data
-from treelang.utils import batchify_treelang, get_batch, repackage_hidden
+from merity.utils import batchify, get_batch, repackage_hidden
+import merity.data as data
 from visualize.dump import dump_contexts
 
 
@@ -26,29 +26,6 @@ class AbstractTreeLanguageModel(AbstractLanguageModel):
 	def __init__(self, args):
 		# call super
 		super(AbstractTreeLanguageModel, self).__init__(args)
-
-	def _load_data(self):
-
-		# imports
-		import os
-		import hashlib
-
-		# hash
-		fn = 'corpus.{}.data'.format(hashlib.md5(self.args.data.encode()).hexdigest())
-		if os.path.exists(fn):
-			print('Loading cached dataset...')
-			corpus = torch.load(fn)
-		else:
-			print('Producing dataset...')
-			corpus = data.Corpus(self.args.data)
-			torch.save(corpus, fn)
-
-		# need to batchify differently for the treelang data
-		train_data = batchify_treelang(corpus.train, self.batch_size, self.args)
-		val_data = batchify_treelang(corpus.valid, self.eval_batch_size, self.args)
-		test_data = batchify_treelang(corpus.test, self.test_batch_size, self.args)
-
-		return corpus, train_data, val_data, test_data
 
 	# overwrite build_model
 	def _build_model(self):

@@ -27,30 +27,6 @@ class AbstractMerityLanguageModel(AbstractLanguageModel):
 		# call super
 		super(AbstractMerityLanguageModel, self).__init__(args)
 
-	# overwrite _load_data
-	def _load_data(self):
-
-		# imports
-		import os
-		import hashlib
-
-		# hash
-		fn = 'corpus.{}.data'.format(hashlib.md5(self.args.data.encode()).hexdigest())
-		if os.path.exists(fn):
-			print('Loading cached dataset...')
-			corpus = torch.load(fn)
-		else:
-			print('Producing dataset...')
-			corpus = data.Corpus(self.args.data)
-			torch.save(corpus, fn)
-
-		# need to batchify differently for the treelang data
-		train_data = batchify(corpus.train, self.batch_size, self.args)
-		val_data = batchify(corpus.valid, self.eval_batch_size, self.args)
-		test_data = batchify(corpus.test, self.test_batch_size, self.args)
-
-		return corpus, train_data, val_data, test_data
-
 	# overwrite _build_model
 	def _build_model(self):
 		

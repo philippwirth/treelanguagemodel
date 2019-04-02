@@ -6,12 +6,7 @@ import torch
 import torch.nn as nn
 import random
 
-# imports from treelang!
-import merity.data as data
 from merity.model import RNNModel
-
-# same same
-from merity.utils import batchify, get_batch, repackage_hidden
 
 class AbstractLanguageModel():
 
@@ -67,11 +62,18 @@ class AbstractLanguageModel():
 		with open(fn, 'wb') as f:
 			torch.save([self.model, self.criterion, self.optimizer], f)
 
+	# overwrite _load_data
 	def _load_data(self):
 
 		# imports
 		import os
 		import hashlib
+		if self.args.treelang:
+			from treelang.utils import batchify_treelang, get_batch, repackage_hidden
+			import treelang.data as data
+		else:
+			from merity.utils import batchify, get_batch, repackage_hidden
+			import merity.data as data
 
 		# hash
 		fn = 'corpus.{}.data'.format(hashlib.md5(self.args.data.encode()).hexdigest())
@@ -83,10 +85,16 @@ class AbstractLanguageModel():
 			corpus = data.Corpus(self.args.data)
 			torch.save(corpus, fn)
 
-		# need to batchify differently for the treelang data
-		train_data = batchify(corpus.train, self.batch_size, self.args)
-		val_data = batchify(corpus.valid, self.eval_batch_size, self.args)
-		test_data = batchify(corpus.test, self.test_batch_size, self.args)
+		# batchify
+		if self.args.treelang:
+			# need to batchify differently for the treelang data
+			train_data = batchify_treelang(corpus.train, self.batch_size, self.args)
+			val_data = batchify_treelang(corpus.valid, self.eval_batch_size, self.args)
+			test_data = batchify_treelang(corpus.test, self.test_batch_size, self.args)
+		else:
+			train_data = batchify(corpus.train, self.batch_size, self.args)
+			val_data = batchify(corpus.valid, self.eval_batch_size, self.args)
+			test_data = batchify(corpus.test, self.test_batch_size, self.args)
 
 		return corpus, train_data, val_data, test_data
 

@@ -32,6 +32,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			
 		self.temp = temp
 		self.loss = nn.CrossEntropyLoss()
+                self.kernel_type = kernel
 
 	def forward(self, model, hiddens, targets, verbose=False):
 		'''
@@ -65,7 +66,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# forward pass through RNN to get output (1*bsz*n_words, ndir*hsz)
 			output, hidden = model(words, h)
 
-			if self.kernel == 'polynomial':
+                        if self.kernel_type == 'polynomial':
 				d = self.distance(last_hidden, output)
 				k = self.temp * self.kernel(d)
 			else:

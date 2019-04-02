@@ -25,7 +25,7 @@ class AbstractMerityLanguageModel(AbstractLanguageModel):
 
 	def __init__(self, args):
 		# call super
-		super(AbstractTreeLanguageModel, self).__init__(args)
+		super(AbstractMerityLanguageModel, self).__init__(args)
 
 	# overwrite _load_data
 	def _load_data(self):
@@ -150,7 +150,7 @@ class TinyLanguageModel(AbstractMerityLanguageModel):
 		return total_loss.item() / len_data_source
 
 
-	def _train(self):
+	def _train(self, epoch):
 		'''
 			for the tiny data set, we iterate over the all of the data before calling 
 			optimizer.step to avoid jerky sgd behaviour
@@ -261,7 +261,7 @@ class SmallLanguageModel(AbstractMerityLanguageModel):
 		return total_loss.item() / len_data_source
 
 
-	def _train(self):
+	def _train(self, epoch):
 		'''
 			Update gradients after each batch
 		'''

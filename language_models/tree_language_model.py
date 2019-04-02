@@ -141,7 +141,7 @@ class TinyTreeLanguageModel(AbstractTreeLanguageModel):
 		return total_loss.item() / len_data_source
 
 
-	def _train(self):
+	def _train(self, epoch):
 		'''
 			for the tiny data set, we iterate over the all of the data before calling 
 			optimizer.step to avoid jerky sgd behaviour
@@ -263,7 +263,7 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 		return total_loss.item() / len_data_source
 
 
-	def _train(self):
+	def _train(self, epoch):
 		'''
 			Update gradients after each batch
 		'''

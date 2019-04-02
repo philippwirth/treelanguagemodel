@@ -60,7 +60,7 @@ parser.add_argument('--optimizer', type=str,  default='adam', #normally adam
                     help='optimizer to use (sgd, adam)')
 parser.add_argument('--when', nargs="+", type=int, default=[-1], # 30 is not bad
                     help='When (which epochs) to divide the learning rate by 10 - accepts multiple')
-
+parser.add_argument('--tied', type=bool, default=False)
 # context dump arguments
 parser.add_argument('--dumpat', type=int, default=0,
                     help='Dump contexts every <dumpat> epochs, 0 means no dump.')

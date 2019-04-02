@@ -1,12 +1,12 @@
 script=main_treelang.py
-path="data/power_treelang_tiny/"
+path="data/treelang_tiny/"
 
 model="GRU"
-lr=0.07
+lr=0.01
 emsize=2
 nhid=2
 nlayers=1
-epochs=1000
+epochs=30
 batchsize=1
 bptt=4
 dropout=0.
@@ -20,4 +20,4 @@ alpha=2
 beta=1
 dumpat=1
 loss="treelang_eucl"
-temp=65
+temp=475

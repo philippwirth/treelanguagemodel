@@ -1,0 +1,27 @@
+script=main.py
+path="data/enwik8/"
+
+model="LSTM"
+lr=0.001
+emsize=400
+nhid=1840
+nlayers=1
+epochs=50
+batchsize=128
+bptt=200
+dropout=0.4
+dropouth=0.1
+dropouti=0.1
+dropoute=0.
+wdrop=0.2
+seed=1111
+loginterval=1
+alpha=0
+beta=0
+optimizer="adam"
+save="ENWIK8.pt"
+when="25 35"
+
+dumpat=5
+loss="splitcross"
+temp=65

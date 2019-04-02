@@ -2,7 +2,7 @@
 
 # load settings from config file
 #configfile=$1
-configfile="merity_tiny_lstm"
+configfile="merity_enwik8_lstm"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path
@@ -23,6 +23,9 @@ echo "	seed:	" $seed
 echo "	log:	" $loginterval
 echo "	beta:	" $beta
 echo "	alpha:	" $alpha
+echo "	opt:	" $optimizer
+echo "	save:	" $save
+echo "  when:	" $when
 echo "	dumpat:	" $dumpat
 echo "	loss:	" $loss
 echo "	temp:	" $temp
@@ -32,4 +35,5 @@ echo "running script: "$script"..."
 python $script --data $path --model $model --emsize $emsize --nhid $nhid --nlayers $nlayers \
 	--epochs $epochs --batch_size $batchsize --bptt $bptt --dropout $dropout --dropouth $dropouth \
 	--dropouti $dropouti --dropoute $dropoute --wdrop $wdrop --seed $seed --log-interval $loginterval \
-	--alpha $alpha --beta $beta --dumpat $dumpat --loss $loss --temperature $temp --lr $lr
+	--alpha $alpha --beta $beta --dumpat $dumpat --loss $loss --temperature $temp --lr $lr \
+	--optimizer $optimizer --save $save --when $when

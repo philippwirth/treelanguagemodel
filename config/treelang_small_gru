@@ -2,8 +2,8 @@ script=main_treelang.py
 path="data/treelang_small/"
 
 model="GRU"
-lr=0.25
-emsize=4
+lr=0.15
+emsize=2
 nhid=2
 nlayers=1
 epochs=100

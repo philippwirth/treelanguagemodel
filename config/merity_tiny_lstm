@@ -1,5 +1,5 @@
 script=main_treelang.py
-path="data/power_treelang_tiny/"
+path="data/poisson_treelang_tiny/"
 
 model="LSTM"
 lr=0.2

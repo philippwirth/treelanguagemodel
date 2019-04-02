@@ -69,7 +69,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 				d = self.distance(last_hidden, output)
 				k = self.temp * self.kernel(d)
 			else:
-				k = 2*self.kernel(last_hidden, output)
+				k = self.temp*self.kernel(last_hidden, output)
 
 			# use CrossEntropyLoss to compute the loss and average
 			# input is of size (bsz x n_words)

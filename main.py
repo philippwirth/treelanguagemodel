@@ -105,10 +105,10 @@ for k in range(K):
     glm = GeneralLanguageModel(args, asgd)
         
     # train
-    loss[k] = tlm.train()
+    loss[k] = glm.train()
         
     # get validation loss
-    val_loss[k,:] = tlm.val_loss
+    val_loss[k,:] = glm.val_loss
 
 
 print('dumping validation loss...')

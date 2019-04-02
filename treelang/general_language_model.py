@@ -6,7 +6,7 @@ import torch.nn as nn
 import random
 
 # imports from treelang!
-import treelang.data as data
+import merity.data as data
 from merity.model import RNNModel
 
 # same same
@@ -150,7 +150,7 @@ class GeneralLanguageModel():
 			hidden = repackage_hidden(hidden)
 		return total_loss.item() / len(data_source)
 
-	def _train(self):
+	def _train(self, epoch):
 
 		# Turn on training mode which enables dropout.
 		if self.args.model == 'QRNN': self.model.reset()
@@ -197,7 +197,7 @@ class GeneralLanguageModel():
 				elapsed = time.time() - start_time
 				print('| epoch {:3d} | {:5d}/{:5d} batches | lr {:05.5f} | ms/batch {:5.2f} | '
 					'loss {:5.2f} | ppl {:8.2f} | bpc {:8.3f}'.format(
-					epoch, batch, len(train_data) // self.args.bptt, self.optimizer.param_groups[0]['lr'],
+					epoch, batch, len(self.train_data) // self.args.bptt, self.optimizer.param_groups[0]['lr'],
 					elapsed * 1000 / self.args.log_interval, cur_loss, math.exp(cur_loss), cur_loss / math.log(2)))
 				total_loss = 0
 				start_time = time.time()
@@ -223,7 +223,7 @@ class GeneralLanguageModel():
 
 			# train
 			epoch_start_time = time.time()
-			self._train()
+			self._train(epoch)
 
 			# this is if asgd is active
 			if 't0' in self.optimizer.param_groups[0]:

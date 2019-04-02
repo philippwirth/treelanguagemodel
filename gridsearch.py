@@ -117,7 +117,7 @@ def gridsearch(args, K=3, tiny=True,
     L.append(np.linspace(lr_left, lr_right, lr_n))                      
     L.append(np.linspace(dropout_left, dropout_right, dropout_n))
     L.append([0.] if args.model == 'RNN' else np.linspace(wdrop_left, wdrop_right, wdrop_n))            
-    L.append([0.] if args.loss == 'splitcross' else [i for i in range(65, 66, 10)])#np.linspace(temp_left, temp_right, temp_n))              
+    L.append([0.] if args.loss == 'splitcross' else [i for i in range(1, 1001, 50)])#np.linspace(temp_left, temp_right, temp_n))              
     L.append([False])                                           
     L.append(['adam'])                                           
 
@@ -190,7 +190,7 @@ for dataset in datasets:
     args.data = dataset
 
     # do the gridsearch
-    best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.2, lr_right=0.3, lr_n=10, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
+    best_loss, best_settings, best_avrg, best_var, avrg_settings = gridsearch(args, lr_left=0.001, lr_right=0.3, lr_n=10, dropout_left=0., dropout_right=0., dropout_n=1, wdrop_left=0., wdrop_right=0., wdrop_n=1)
 
     # append results
     loss.append(best_loss)

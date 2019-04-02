@@ -101,8 +101,6 @@ K = 3
 loss = np.zeros(K)
 val_loss = np.zeros((K, args.epochs))
 for k in range(K):
-
-    args.temperature = temp
         
     # build model
     tlm = TinyLanguageModel(args, asgd) if args.tiny else LanguageModel(args, asgd)

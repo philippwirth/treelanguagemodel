@@ -4,8 +4,6 @@ import torch
 import time
 import numpy as np
 
-from treelang.general_language_model import GeneralLanguageModel
-
 from visualize.dump import dump_val_loss
 
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
@@ -69,17 +67,39 @@ parser.add_argument('--dumpat', type=int, default=0,
 parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
-# loss function
-parser.add_argument('--loss', type=str, default='splitcross',
-                    help='Which loss function to use.')
+# which language model to choose
+parser.add_argument('--lmodel', type=str, default='treelangtiny',
+                    help='Which language model to choose')
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 
-parser.add_argument('--tiny', type=bool, default=False,
-                    help='Work on tiny data set?')
+# average stochastic gradients descent?
+parser.add_argument('--asgd', type=bool, default=True,
+                    help="Use ASGD?")
+
+# how many times should we run the training sess?
+parser.add_argument('--nruns', type=int, default=1,
+                    help="how many times to run.")
 
 args = parser.parse_args()
-args.tied = False
+
+
+# import correct language models
+if args.lmodel == 'treelangtiny':
+    from language_models.tree_language_model import TinyTreeLanguageModel as LanguageModel
+elif args.lmodel == 'treelangsmall':
+    from language_models.tree_language_model import SmallTreeLanguageModel as LanguageModel
+elif args.lmodel == 'treelang':
+    from language_models.tree_language_model import TreeLanguageModel as LanguageModel
+elif args.lmodel == 'meritytiny':
+    from language_models.merity_language_model import TinyLanguageModel as LanguageModel
+elif args.lmodel == 'meritysmall':
+    from language_models.merity_language_model import SmallLanguageModel as LanguageModel
+elif args.lmodel == 'merity':
+    from language_models.merity_language_model import LanguageModel
+else:
+    raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
+
 
 # set the random seed manually for reproducibility.
 random.seed(args.seed)
@@ -91,28 +111,27 @@ if torch.cuda.is_available():
     else:
         torch.cuda.manual_seed(args.seed)
 
-# set asgd to false
-asgd = False
 
 # number of trials and empty list for loss
-K = 1
-loss = np.zeros(K)
-val_loss = np.zeros((K, args.epochs))
+loss = np.zeros(args.nruns)
+val_loss = np.zeros((args.nruns, args.epochs))
 
-for k in range(K):
+for k in range(args.nruns):
         
     # build model
-    glm = GeneralLanguageModel(args, asgd)
+    lm = LanguageModel(args)
         
     # train
-    loss[k] = glm.train()
+    loss[k] = lm.train()
         
     # get validation loss
-    val_loss[k,:] = glm.val_loss
+    val_loss[k,:] = lm.val_loss
 
 
-print('dumping validation loss...')
+print('Dumping validation loss...')
 dump_val_loss(val_loss, args.epochs, basepath='val_loss')
 
 # print results
 print('Best:    ' + str(np.amin(loss)))
+print('Avrg:    ' + str(np.mean(loss)))
+print('Var:     ' + str(np.var(loss)))

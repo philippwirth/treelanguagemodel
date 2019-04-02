@@ -6,21 +6,19 @@ import torch.nn as nn
 import random
 
 # imports from treelang!
-import treelang.data as data
+import merity.data as data
 from merity.model import RNNModel
 
 # same same
-from treelang.utils import batchify_treelang, get_batch, repackage_hidden
+from merity.utils import batchify, get_batch, repackage_hidden
 
-from visualize.dump import dump_contexts
+class AbstractLanguageModel():
 
-class LanguageModel():
-
-	def __init__(self, args, asgd=False):
+	def __init__(self, args):
 
 		# store args
 		self.args = args
-		self.asgd = asgd
+		self.asgd = args.asgd
 
 		# empty list to store val loss
 		self.val_loss = []
@@ -52,6 +50,13 @@ class LanguageModel():
 		# finish up
 		print('Initialization successful!')
 
+	@abstractmethod
+	def _evaluate(self, data_source, batch_size=10, dump_vars=None):
+		pass
+
+	@abstractmethod
+	def _train(self, epoch):
+		pass
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:
@@ -78,9 +83,9 @@ class LanguageModel():
 			torch.save(corpus, fn)
 
 		# need to batchify differently for the treelang data
-		train_data = batchify_treelang(corpus.train, self.batch_size, self.args)
-		val_data = batchify_treelang(corpus.valid, self.eval_batch_size, self.args)
-		test_data = batchify_treelang(corpus.test, self.test_batch_size, self.args)
+		train_data = batchify(corpus.train, self.batch_size, self.args)
+		val_data = batchify(corpus.valid, self.eval_batch_size, self.args)
+		test_data = batchify(corpus.test, self.test_batch_size, self.args)
 
 		return corpus, train_data, val_data, test_data
 
@@ -135,118 +140,6 @@ class LanguageModel():
 
 		return model, criterion
 
-	def _evaluate(self, data_source, batch_size=1, dump_vars=None):
-
-		# Turn on evaluation mode which disables dropout.
-		self.model.eval()
-		if self.args.model == 'QRNN': self.model.reset()
-		total_loss = 0
-		ntokens = self.ntokens
-		len_data_source = 0
-
-		# if we dump contexts, need a list to store them
-		if not dump_vars is None: contexts = []
-
-		# iterate over sequences of same length
-		for seq_len, seq_data in data_source.items():
-			for i in range(0, seq_data.size(0) - 1, seq_len):
-
-				# new sequence -> reset hidden state
-				hidden = self.model.init_hidden(batch_size)
-
-				# get batch
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
-
-				# evaluate
-				output, new_hidden = self.model(data, hidden)
-
-				if self.args.loss == 'treelang_eucl':
-					# need to augment output and targets with initial hidden state
-					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
-					output = torch.cat((hidden[0], output), dim=0)
-					targets = torch.cat((data[0].view(1), targets))
-
-				hidden = new_hidden
-				total_loss += len(data) * self.criterion(self.model, output, targets).data
-				hidden = repackage_hidden(hidden)
-
-				# collect context vectors
-				if not dump_vars is None: contexts.append(output)
-
-			len_data_source += len(seq_data)
-
-		# dump contexts
-		if not dump_vars is None: dump_contexts(contexts, bsz=batch_size, **dump_vars)
-
-		# return loss
-		return total_loss.item() / len_data_source
-
-
-	def _train(self):
-		'''
-		for the tiny data set, we iterate over the all of the data before calling 
-		optimizer.step to avoid jerky sgd behaviour
-		'''
-		
-		# Turn on training mode which enables dropout.
-		if self.args.model == 'QRNN':self.model.reset()
-		total_loss = 0.
-		start_time = time.time()
-		ntokens = self.ntokens
-		batch = 0
-
-		# iterate over sequences of same length
-		items = list(self.train_data.items())
-		random.shuffle(items)
-
-		# reset gradients of optimizer
-		self.optimizer.zero_grad()
-
-		for seq_len, seq_data in items:
-			for i in range(0, seq_data.size(0) - 1, seq_len):
-
-				# new sequece -> reset hidden state
-				hidden = self.model.init_hidden(self.batch_size)
-				lr2 = self.optimizer.param_groups[0]['lr']
-				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
-				self.model.train()
-
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len)
-
-				# Starting each batch, we detach the hidden state from how it was previously produced.
-				# If we didn't, the model would try backpropagating all the way to start of the dataset.
-				hidden = repackage_hidden(hidden)
-
-				output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data, hidden, return_h=True)
-
-				if self.args.loss == 'treelang_eucl':
-					# need to augment output and targets with initial hidden state
-					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
-					output = torch.cat((hidden[0], output), dim=0)
-					targets = torch.cat((data[0].view(1), targets))
-
-				hidden = new_hidden
-				raw_loss = self.criterion(self.model, output, targets)
-
-				loss = raw_loss
-				# Activiation Regularization
-				if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
-				# Temporal Activation Regularization (slowness)
-				if self.args.beta and seq_len > 2: loss = loss + sum(self.args.beta * (rnn_h[1:] - rnn_h[:-1]).pow(2).mean() for rnn_h in rnn_hs[-1:])
-				total_loss += loss
-
-				self.optimizer.param_groups[0]['lr'] = lr2
-
-				total_loss.backward()
-	            
-				# `clip_grad_norm` helps prevent the exploding gradient problem in RNNs / LSTMs
-				if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
-				self.optimizer.step()
-
-				total_loss = 0.
-				batch += 1
-
-
 	def train(self):
 		'''
 			trains the language model for args.epochs number of epochs and evaluates
@@ -264,7 +157,7 @@ class LanguageModel():
 
 			# train
 			epoch_start_time = time.time()
-			self._train()
+			self._train(epoch)
 
 			# this is if asgd is active
 			if 't0' in self.optimizer.param_groups[0]:

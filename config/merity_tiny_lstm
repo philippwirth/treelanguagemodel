@@ -1,12 +1,13 @@
-script=main_treelang.py
-path="data/poisson_treelang_tiny/"
+script=main.py
+path="data/treelang_tiny/"
 
 model="LSTM"
-lr=0.2
+lr=0.1
 emsize=2
 nhid=2
 nlayers=1
-epochs=1000
+clip=0.25
+epochs=100
 batchsize=1
 bptt=4
 dropout=0.
@@ -15,9 +16,15 @@ dropouti=0.
 dropoute=0.
 wdrop=0
 seed=1020
-loginterval=1
+loginterval=200
 alpha=2
 beta=1
+optimizer="adam"
+when="25 35"
+
 dumpat=1
-loss="splitcross"
+lmodel="meritytiny"
 temp=65
+
+asgd=True
+nruns=1

@@ -2,7 +2,7 @@ script=main.py
 path="data/treelang_small/"
 
 model="LSTM"
-lr=0.1
+lr=0.001
 emsize=2
 nhid=2
 nlayers=1
@@ -17,8 +17,8 @@ dropoute=0.
 wdrop=0
 seed=1020
 loginterval=200
-alpha=2
-beta=1
+alpha=0
+beta=0
 optimizer="adam"
 when="25 35"
 

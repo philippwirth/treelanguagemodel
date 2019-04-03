@@ -2,7 +2,7 @@
 
 # load settings from config file
 #configfile=$1
-configfile="merity_enwik8_lstm"
+configfile="treelang_penn_gru"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path
@@ -35,5 +35,5 @@ echo "running script: "$script"..."
 python $script --data $path --model $model --emsize $emsize --nhid $nhid --nlayers $nlayers \
 	--epochs $epochs --batch_size $batchsize --bptt $bptt --dropout $dropout --dropouth $dropouth \
 	--dropouti $dropouti --dropoute $dropoute --wdrop $wdrop --seed $seed --log-interval $loginterval \
-	--alpha $alpha --beta $beta --dumpat $dumpat --loss $loss --temperature $temp --lr $lr \
-	--optimizer $optimizer --save $save --when $when
+	--alpha $alpha --beta $beta --dumpat $dumpat --temperature $temp --lr $lr \
+	--optimizer $optimizer --when $when --lmodel $lmodel --asgd $asgd --nruns $nruns

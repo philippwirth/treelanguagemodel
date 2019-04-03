@@ -220,7 +220,7 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 				output, new_hidden = self.model(data, hidden)
 
 				# need to augment output and targets with initial hidden state
-				output = output.view(seq_len-1, self.batch_size, self.args.nhid)
+				output = output.view(seq_len-1, batch_size, self.args.nhid)
 				output = torch.cat((hidden[0], output), dim=0)
 				targets = torch.cat((data[0].view(1,-1), targets))
 
@@ -263,7 +263,7 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 			for i in range(0, seq_data.size(0) - 1, seq_len):
 
 				# new sequece -> reset hidden state
-				hidden = self.model.init_hidden(self.batch_size)
+				hidden = self.model.init_hidden(seq_data.size(1))#self.batch_size)
 				lr2 = self.optimizer.param_groups[0]['lr']
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()
@@ -277,7 +277,7 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 				output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data, hidden, return_h=True)
 
 				# need to augment output and targets with initial hidden state
-				output = output.view(seq_len-1, self.batch_size, self.args.nhid)
+				output = output.view(seq_len-1, seq_data.size(1), self.args.nhid)
 				output = torch.cat((hidden[0], output), dim=0)
 				targets = torch.cat((data[0].view(1,-1), targets))
 

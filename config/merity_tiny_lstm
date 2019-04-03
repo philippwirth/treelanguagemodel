@@ -2,12 +2,12 @@ script=main.py
 path="data/treelang_tiny/"
 
 model="LSTM"
-lr=0.1
+lr=0.2
 emsize=2
 nhid=2
 nlayers=1
 clip=0.25
-epochs=100
+epochs=1000
 batchsize=1
 bptt=4
 dropout=0.
@@ -17,14 +17,14 @@ dropoute=0.
 wdrop=0
 seed=1020
 loginterval=200
-alpha=2
-beta=1
+alpha=0
+beta=0
 optimizer="adam"
-when="25 35"
+when="-1"
 
-dumpat=1
+dumpat=0
 lmodel="meritytiny"
 temp=65
 
 asgd=True
-nruns=1
+nruns=3

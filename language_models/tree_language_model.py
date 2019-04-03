@@ -13,8 +13,8 @@ from treelang.crossentropy import TreelangCrossEntropyLoss
 from merity.model import RNNModel
 
 # utils
-from merity.utils import batchify, get_batch, repackage_hidden
-import merity.data as data
+from treelang.utils import batchify, get_batch, repackage_hidden
+#import merity.data as data
 from visualize.dump import dump_contexts
 
 

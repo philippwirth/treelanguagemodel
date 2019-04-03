@@ -14,7 +14,7 @@ from merity.model import RNNModel
 
 # utils
 import merity.data as data
-from merity.utils import batchify, get_batch, repackage_hidden
+from treelang.utils import batchify, get_batch, repackage_hidden
 from visualize.dump import dump_contexts
 
 

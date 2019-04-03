@@ -69,10 +69,10 @@ class AbstractLanguageModel():
 		import os
 		import hashlib
 		if self.args.treelang:
-			from treelang.utils import batchify_treelang, get_batch, repackage_hidden
+			from treelang.utils import batchify_treelang
 			import treelang.data as data
 		else:
-			from merity.utils import batchify, get_batch, repackage_hidden
+			from merity.utils import batchify
 			import merity.data as data
 
 		# hash

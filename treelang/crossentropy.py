@@ -44,7 +44,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 		# find bsz (number of sequences done in parallel)
 		bsz = 1 if len(targets.size()) < 2 else targets.size(1)
 
-		print('Batchsize: ' + str(bsz))
+		print('Batchsize: ' + str(targets.size()))
 
 		# find sequence length
 		seq_len = targets.size(0)
@@ -55,7 +55,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 		words = words.view(1, self.ntokens * bsz)
 		words = words.cuda()
 
-		print('Words shape: ' + str(words.size()))
+		#print('Words shape: ' + str(words.size()))
 
 		# for i in range seq_len! do all this
 		total_loss = 0
@@ -69,11 +69,11 @@ class TreelangCrossEntropyLoss(nn.Module):
 			h = [h.contiguous().view(1, self.ntokens * bsz, -1)]
 
 			# forward pass through RNN to get output (1*bsz*n_words, ndir*hsz)
-			print('last_hidden shape: '  + str(last_hidden.size()))
-			print('h shape: ' + str(h.size()))
+			#print('last_hidden shape: '  + str(last_hidden.size()))
+			#print('h shape: ' + str(h.size()))
 			output, hidden = model(words, h)
 
-			print('output shape: ' + str(output.size()))
+			#print('output shape: ' + str(output.size()))
 
 			if self.kernel_type == 'polynomial':
 				d = self.distance(last_hidden, output)

@@ -219,6 +219,7 @@ class AbstractLanguageModel():
 					self.optimizer.param_groups[0]['lr'] /= 10.
 
 				best_val_loss.append(val_loss)
+				self.val_loss.append(val_loss)
 
 			# every dumpat iteration: store contexts to file for later plotting
 			if self.args.dumpat > 0 and epoch % self.args.dumpat == 0:

@@ -275,11 +275,11 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 				hidden = repackage_hidden(hidden)
 
 				output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data, hidden, return_h=True)
-                                
-                                # need to augment output and targets with initial hidden state
-                                output = output.view(seq_len-1, self.batch_size, self.args.nhid)
-                                output = torch.cat((hidden[0], output), dim=0)
-                                targets = torch.cat((data[0].view(1), targets))
+
+				# need to augment output and targets with initial hidden state
+				output = output.view(seq_len-1, self.batch_size, self.args.nhid)
+				output = torch.cat((hidden[0], output), dim=0)
+				targets = torch.cat((data[0].view(1), targets))
 
 				hidden = new_hidden
 				raw_loss = self.criterion(self.model, output, targets)

@@ -260,7 +260,7 @@ class SmallLanguageModel(AbstractMerityLanguageModel):
 			for i in range(0, seq_data.size(0) - 1, seq_len):
 
 				# new sequece -> reset hidden state
-				hidden = self.model.init_hidden(self.batch_size)
+				hidden = self.model.init_hidden(seq_data.size(1))#self.batch_size)
 				lr2 = self.optimizer.param_groups[0]['lr']
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()

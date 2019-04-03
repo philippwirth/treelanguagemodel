@@ -16,8 +16,8 @@ def batchify(data, bsz, seq_len, args):
     # say bsz is number of sequences in parallel
     # eff_bsz is length of one batch (must be divisible by seq_len)
     eff_bsz = ((data.size(0) // bsz) // seq_len) * seq_len
-    if nbatch == 0:
-        return torch.LongTensor().cuda() if args.cude else torch.LongTensor()
+    if eff_bsz == 0:
+        return torch.LongTensor().cuda() if args.cuda else torch.LongTensor()
 
     # number of batches
     nbatch = data.size(0) // eff_bsz

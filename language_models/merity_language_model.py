@@ -13,8 +13,8 @@ from merity.splitcross import SplitCrossEntropyLoss
 from merity.model import RNNModel
 
 # utils
-import merity.data as data
-from treelang.utils import batchify, get_batch, repackage_hidden
+from merity.utils import get_batch, repackage_hidden
+from treelang.utils import get_batch_treelang
 from visualize.dump import dump_contexts
 
 
@@ -105,7 +105,7 @@ class TinyLanguageModel(AbstractMerityLanguageModel):
 				hidden = self.model.init_hidden(batch_size)
 
 				# get batch
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
 
 				# evaluate
 				output, new_hidden = self.model(data, hidden)
@@ -155,7 +155,7 @@ class TinyLanguageModel(AbstractMerityLanguageModel):
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()
 
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len)
 
 				# Starting each batch, we detach the hidden state from how it was previously produced.
 				# If we didn't, the model would try backpropagating all the way to start of the dataset.
@@ -216,7 +216,7 @@ class SmallLanguageModel(AbstractMerityLanguageModel):
 				hidden = self.model.init_hidden(batch_size)
 
 				# get batch
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
 
 				# evaluate
 				output, new_hidden = self.model(data, hidden)
@@ -265,7 +265,7 @@ class SmallLanguageModel(AbstractMerityLanguageModel):
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()
 
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len)
 
 				# Starting each batch, we detach the hidden state from how it was previously produced.
 				# If we didn't, the model would try backpropagating all the way to start of the dataset.

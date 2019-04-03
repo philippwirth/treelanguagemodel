@@ -13,8 +13,8 @@ from treelang.crossentropy import TreelangCrossEntropyLoss
 from merity.model import RNNModel
 
 # utils
-from treelang.utils import batchify, get_batch, repackage_hidden
-#import merity.data as data
+from merity.utils import get_batch, repackage_hidden
+from treelang.utils import get_batch_treelang
 from visualize.dump import dump_contexts
 
 
@@ -31,7 +31,7 @@ class AbstractTreeLanguageModel(AbstractLanguageModel):
 	def _build_model(self):
 		
 		# build criterion
-		criterion = TreelangCrossEntropyLoss(ntokens=self.ntokens, distance='eucl', temp=self.args.temperature)
+		criterion = TreelangCrossEntropyLoss(ntokens=self.ntokens, temp=self.args.temperature)
 
 		# build model
 		model = RNNModel(self.args.model, self.ntokens, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
@@ -92,7 +92,7 @@ class TinyTreeLanguageModel(AbstractTreeLanguageModel):
 				hidden = self.model.init_hidden(batch_size)
 
 				# get batch
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
 
 				# evaluate
 				output, new_hidden = self.model(data, hidden)
@@ -147,7 +147,7 @@ class TinyTreeLanguageModel(AbstractTreeLanguageModel):
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()
 
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len)
 
 				# Starting each batch, we detach the hidden state from how it was previously produced.
 				# If we didn't, the model would try backpropagating all the way to start of the dataset.
@@ -214,7 +214,7 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 				hidden = self.model.init_hidden(batch_size)
 
 				# get batch
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len, evaluation=True)
 
 				# evaluate
 				output, new_hidden = self.model(data, hidden)
@@ -268,7 +268,7 @@ class SmallTreeLanguageModel(AbstractTreeLanguageModel):
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
 				self.model.train()
 
-				data, targets = get_batch(seq_data, i, self.args, seq_len=seq_len)
+				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len)
 
 				# Starting each batch, we detach the hidden state from how it was previously produced.
 				# If we didn't, the model would try backpropagating all the way to start of the dataset.

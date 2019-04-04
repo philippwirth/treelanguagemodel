@@ -10,8 +10,7 @@ from operator import mul
 def args_to_dict(args):
 	result = dict()
 	result['lr'] = args.lr
-	result['alpha'] = args.alpha
-	result['beta'] = args.beta
+	result['kernel'] = args.kernel
 	result['optimizer'] = args.optimizer
 	result['when'] = args.when
 	result['temperature'] = args.temperature
@@ -19,35 +18,22 @@ def args_to_dict(args):
 	return result
 
 
-def gridsearch_step(args, model, epochs,
-				learning_rates, alphas, betas, optimizers, whens, temps, asgds,
-				tiny=True, treelang=True, K=1):
+def gridsearch_step(args, learning_rates, kernels, optimizers, whens, temps, asgds, tiny=True, treelang=True, K=1):
+
+	if args.lmodel == 'tiny':
+		from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
+	elif args.lmodel == 'small':
+		from language_models.small_language_model import SmallLanguageModel as LanguageModel
+	elif args.lmodel == 'regular':
+		from language_models.language_model import LanguageModel
+	else:
+		raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
 
 	# some constant stuff
 	args.dumpat = 0
-	args.tiny = tiny
-	args.treelang = True
-	args.epochs = epochs
-
-	# model
-	args.model = model
-	if args.lmodel == 'treelangtiny':
-	    from language_models.tree_language_model import TinyTreeLanguageModel as LanguageModel
-	elif args.lmodel == 'treelangsmall':
-	    from language_models.tree_language_model import SmallTreeLanguageModel as LanguageModel
-	elif args.lmodel == 'treelang':
-	    from language_models.tree_language_model import TreeLanguageModel as LanguageModel
-	elif args.lmodel == 'meritytiny':
-	    from language_models.merity_language_model import TinyLanguageModel as LanguageModel
-	elif args.lmodel == 'meritysmall':
-	    from language_models.merity_language_model import SmallLanguageModel as LanguageModel
-	elif args.lmodel == 'merity':
-	    from language_models.merity_language_model import LanguageModel
-	else:
-	    raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
 
 	# grid
-	L = [learning_rates, alphas, betas, optimizers, whens, temps, asgds]
+	L = [learning_rates, kernels, optimizers, whens, temps, asgds]
 
 	# some info
 	n_settings = np.prod([len(l) for l in L])
@@ -58,7 +44,7 @@ def gridsearch_step(args, model, epochs,
 	best_loss, best_settings = 1e5, dict()
 
 	# do the grid
-	for (lr, alpha, beta, optimizer, when, temp, asgd) in L:
+	for (lr, kernel, optimizer, when, temp, asgd) in L:
 
 		# reset seed for reproducibility.
 		random.seed(args.seed)
@@ -72,8 +58,7 @@ def gridsearch_step(args, model, epochs,
 
 		# fix settings
 		args.lr = lr
-		args.alpha = alpha
-		args.beta = beta
+		args.kernel = kernel
 		args.optimizer = optimizer
 		args.when = when
 		args.temperature = temp
@@ -91,56 +76,69 @@ def gridsearch_step(args, model, epochs,
 
 	return best_loss, best_settings
 
-def gridsearch(args, treelang):
+def gridsearch_treelang(args):
 
-	# create initial lists
-	epochs = args.epochs
-	if treelang:
-		models = ['RNN', 'GRU']
-		temps = [pow(2,i) for i in range(10)]
+	if args.lmodel == 'tiny':
+		from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
+	elif args.lmodel == 'small':
+		from language_models.small_language_model import SmallLanguageModel as LanguageModel
+	elif args.lmodel == 'regular':
+		from language_models.language_model import LanguageModel
 	else:
-		models = ['RNN', 'GRU', 'LSTM']
-		temps = [1]
+		raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
 
-	learning_rates = [0.001 * pow(2,i) for i in range(16)]
-	alphas = [0, 2]
-	betas = [0, 1]
+	models = ['RNN', 'GRU']
+	learning_rates = [0.001 * pow(2, i) for i in range(16)]
 	optimizers = ['adam', 'sgd']
-	whens = [[-1], [25], [25, 35], [25, 50], [50]]
+	whens = [[-1], [25], [25, 35], [50]]
 	asgds = [True, False]
+	temps = [pow(2,i) for i in range(12)]
+	kernels = ['polynomial1', 'polynomial2', 'dot']
 
+	# store best settings over #epochs for each model
 	storage = dict()
 	for model in models:
 
+		args.model = model
+
 		# do gridsearch step
-		best_loss, best_settings = gridsearch_step(args, model, epochs, learning_rates, alphas, betas, optimizers, whens, temps, asgds)
-
-		#refine settings
-		alphas = [best_settings['alpha']]
-		betas = [best_settings['beta']]
-		optimizers = [best_settings['optimizer']]
-		whens = [best_settings['when']] + [[100], [100, 250]]
-		temps = [i for i in range(best_settings['temperature'] // 2, 2*best_settings['temperature'], 10)]
-		asgds = [best_settings['asgd']]
-
-		# refine learning rates
-		left = best_settings['lr'] / 2
-		right = best_settings['lr'] * 2
-		learning_rates = np.linspace(left, right, 10)
-
-		epochs = epochs * 10
-		best_loss, best_settings = gridsearch_step(args, model, epochs, learning_rates, alphas, betas, optimizers, whens, temps, asgds)
+		best_loss, best_settings = gridsearch_step(args, model, learning_rates, kernels, optimizers, whens, temps, asgds)
 		storage[model] = [best_loss, best_settings]
 
 
-	# output
+	# store best result over 1000 epochs for each model
+	args.epochs = 1000
 	for model in models:
 
-		print('Results for ' + model)
-		print('Best Loss: ' + str(storage[model][0]))
-		print('Best Sets: ' + str(storage[model][1]))
+		args.model = model
 
+		# reset seed for reproducibility.
+		random.seed(args.seed)
+		np.random.seed(args.seed)
+		torch.manual_seed(args.seed)
+		if torch.cuda.is_available():
+			if not args.cuda:
+				print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+			else:
+				torch.cuda.manual_seed(args.seed)
 
+		# fix settings
+		settings = storage[model][1]
+		args.lr = settings['lr']
+		args.kernel = settings['kernel']
+		args.optimizer = settings['optimizers']
+		args.when = settings['when']
+		args.temperature = settings['temperature']
+		args.asgd = settings['asgd']
+
+		# run lm
+		lm = LanguageModel(args)
+		loss = lm.train()
+
+		# store
+		storage[model].append(loss)
+
+	print(storage)
 
 
 

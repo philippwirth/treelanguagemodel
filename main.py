@@ -90,49 +90,61 @@ parser.add_argument('--nruns', type=int, default=1,
 
 args = parser.parse_args()
 
-
-# import correct language model
-if args.lmodel == 'tiny':
-    from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
-elif args.lmodel == 'small':
-    from language_models.small_language_model import SmallLanguageModel as LanguageModel
-elif args.lmodel == 'regular':
-    from language_models.language_model import LanguageModel
-else:
-    raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
-
-
-# set the random seed manually for reproducibility.
-random.seed(args.seed)
-np.random.seed(args.seed)
-torch.manual_seed(args.seed)
-if torch.cuda.is_available():
-    if not args.cuda:
-        print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+def main(args):
+    # import correct language model
+    if args.lmodel == 'tiny':
+        from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
+    elif args.lmodel == 'small':
+        from language_models.small_language_model import SmallLanguageModel as LanguageModel
+    elif args.lmodel == 'regular':
+        from language_models.language_model import LanguageModel
     else:
-        torch.cuda.manual_seed(args.seed)
+        raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
 
 
-# number of trials and empty list for loss
-loss = np.zeros(args.nruns)
-val_loss = np.zeros((args.nruns, args.epochs))
-
-for k in range(args.nruns):
-        
-    # build model
-    lm = LanguageModel(args)
-        
-    # train
-    loss[k] = lm.train()
-        
-    # get validation loss
-    val_loss[k,:] = lm.val_loss
+    # set the random seed manually for reproducibility.
+    random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    if torch.cuda.is_available():
+        if not args.cuda:
+            print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+        else:
+            torch.cuda.manual_seed(args.seed)
 
 
-print('Dumping validation loss...')
-dump_val_loss(val_loss, args.epochs, basepath='val_loss')
+    # number of trials and empty list for loss
+    loss = np.zeros(args.nruns)
+    val_loss = np.zeros((args.nruns, args.epochs))
 
-# print results
-print('Best:    ' + str(np.amin(loss)))
-print('Avrg:    ' + str(np.mean(loss)))
-print('Var:     ' + str(np.var(loss)))
+    for k in range(args.nruns):
+            
+        # build model
+        lm = LanguageModel(args)
+            
+        # train
+        loss[k] = lm.train()
+            
+        # get validation loss
+        val_loss[k,:] = lm.val_loss
+
+
+    print('Dumping validation loss...')
+    dump_val_loss(val_loss, args.epochs, basepath='val_loss')
+
+    # print results
+    print('Best:    ' + str(np.amin(loss)))
+    print('Avrg:    ' + str(np.mean(loss)))
+    print('Var:     ' + str(np.var(loss)))
+
+'''
+    THIS IS MAIN!
+'''
+do_gridsearch = True
+if do_gridsearch:
+    if args.loss == 'treelang':
+        gridsearch_treelang(args)
+    else:
+        gridsearch_merity(args)
+else:
+    main(args)

@@ -18,7 +18,7 @@ def args_to_dict(args):
 	return result
 
 
-def gridsearch_step(args, learning_rates, kernels, optimizers, whens, temps, asgds, tiny=True, treelang=True, K=1):
+def gridsearch_step(args, learning_rates, kernels, optimizers, whens, temps, asgds, K=1):
 
 	if args.lmodel == 'tiny':
 		from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
@@ -102,7 +102,7 @@ def gridsearch_treelang(args):
 		args.model = model
 
 		# do gridsearch step
-		best_loss, best_settings = gridsearch_step(args, model, learning_rates, kernels, optimizers, whens, temps, asgds)
+		best_loss, best_settings = gridsearch_step(args, learning_rates, kernels, optimizers, whens, temps, asgds)
 		storage[model] = [best_loss, best_settings]
 
 

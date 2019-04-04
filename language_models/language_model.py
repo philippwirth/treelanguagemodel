@@ -50,7 +50,7 @@ class LanguageModel(AbstractLanguageModel):
 
 			output, hidden, rnn_hs, dropped_rnn_hs = self.model(data, hidden, return_h=True)
 
-			if self.loss == 'treelang':
+			if self.args.loss == 'treelang':
 				output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 				output = torch.cat((hidden[0], output), dim=0)
 				targets = targets.view(seq_len-1, -1)
@@ -97,7 +97,7 @@ class LanguageModel(AbstractLanguageModel):
 			data, targets = get_batch(data_source, i, self.args, evaluation=True)
 			output, hidden = self.model(data, hidden)
 
-			if self.loss == 'treelang':
+			if self.args.loss == 'treelang':
 				output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 				output = torch.cat((hidden[0], output), dim=0)
 				targets = targets.view(seq_len-1, -1)

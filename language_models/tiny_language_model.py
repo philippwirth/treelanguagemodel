@@ -60,7 +60,7 @@ class TinyLanguageModel(AbstractLanguageModel):
 
 				output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data, hidden, return_h=True)
 
-				if self.loss == 'treelang':
+				if self.args.loss == 'treelang':
 					# need to augment output and targets with initial hidden state
 					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 					output = torch.cat((hidden[0], output), dim=0)
@@ -115,7 +115,7 @@ class TinyLanguageModel(AbstractLanguageModel):
 				output, new_hidden = self.model(data, hidden)
 
 				# need to augment output and targets with initial hidden state
-				if self.loss == 'treelang':
+				if self.args.loss == 'treelang':
 					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 					output = torch.cat((hidden[0], output), dim=0)
 					targets = targets.view(seq_len-1, -1)

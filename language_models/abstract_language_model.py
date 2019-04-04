@@ -98,7 +98,7 @@ class AbstractLanguageModel():
 	def _build_model(self):
 		
 		# build criterion
-		if self.loss == 'treelang':
+		if self.args.loss == 'treelang':
 			criterion = TreelangCrossEntropyLoss(ntokens=self.ntokens, temp=self.args.temperature, kernel=self.args.kernel)
 		else:
 			criterion = None

@@ -119,7 +119,7 @@ class TinyLanguageModel(AbstractLanguageModel):
 					output = output.view(seq_len-1, self.batch_size, self.args.nhid)
 					output = torch.cat((hidden[0], output), dim=0)
 					targets = targets.view(seq_len-1, -1)
-					targets = torch.cat((data[0].view(1), targets))
+					targets = torch.cat((data[0].view(1,-1), targets))
 
 				hidden = new_hidden
 				total_loss += len(data) * self.criterion(self.model, output, targets).data

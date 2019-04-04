@@ -6,6 +6,9 @@ import numpy as np
 
 from visualize.dump import dump_val_loss
 
+import sys
+sys.dont_write_bytecode = True
+
 parser = argparse.ArgumentParser(description='PyTorch PennTreeBank RNN/LSTM Language Model')
 parser.add_argument('--data', type=str, default='data/penn/',
                     help='location of the data corpus')
@@ -68,11 +71,14 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
 # which language model to choose
-parser.add_argument('--lmodel', type=str, default='treelangtiny',
-                    help='Which language model to choose')
-parser.add_argument('--treelang', type=bool, default=True)
+parser.add_argument('--lmodel', type=str, default='tiny',
+                    help='Which language model to use.')
+parser.add_argument('--loss', type=str, default='treelang',
+                    help='Which loss to use.')
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
+parser.add_argument('--kernel', type=str, default='polynomial2',
+                    help='Which kernel to use. (polynomial1, polynomial2 or dot)')
 
 # average stochastic gradients descent?
 parser.add_argument('--asgd', type=bool, default=True,
@@ -85,19 +91,13 @@ parser.add_argument('--nruns', type=int, default=1,
 args = parser.parse_args()
 
 
-# import correct language models
-if args.lmodel == 'treelangtiny':
-    from language_models.tree_language_model import TinyTreeLanguageModel as LanguageModel
-elif args.lmodel == 'treelangsmall':
-    from language_models.tree_language_model import SmallTreeLanguageModel as LanguageModel
-elif args.lmodel == 'treelang':
-    from language_models.tree_language_model import TreeLanguageModel as LanguageModel
-elif args.lmodel == 'meritytiny':
-    from language_models.merity_language_model import TinyLanguageModel as LanguageModel
-elif args.lmodel == 'meritysmall':
-    from language_models.merity_language_model import SmallLanguageModel as LanguageModel
-elif args.lmodel == 'merity':
-    from language_models.merity_language_model import LanguageModel
+# import correct language model
+if args.lmodel == 'tiny':
+    from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
+elif args.lmodel == 'small':
+    from language_models.small_language_model import SmallLanguageModel as LanguageModel
+elif args.lmodel == 'regular':
+    from language_models.language_model import LanguageModel
 else:
     raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
 

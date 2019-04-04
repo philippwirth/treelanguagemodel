@@ -1,20 +1,20 @@
 script=main.py
-path="data/treelang_tiny/"
+path="data/treelang/tiny/"
 
-model="LSTM"
-lr=0.25
-emsize=16
-nhid=32
-nlayers=3
+model="RNN"
+lr=0.20
+emsize=2
+nhid=2
+nlayers=1
 clip=0.25
-epochs=1000
+epochs=10
 batchsize=1
-bptt=4
+bptt=8
 dropout=0.
 dropouth=0.
 dropouti=0.
 dropoute=0.
-wdrop=0
+wdrop=0.
 seed=1020
 loginterval=200
 alpha=0
@@ -23,8 +23,10 @@ optimizer="adam"
 when="-1"
 
 dumpat=0
-lmodel="meritytiny"
+lmodel="tiny"
+loss="splitcross"
 temp=65
+kernel="polynomial2"
 
-asgd=True
-nruns=3
+asgd="True"
+nruns=1

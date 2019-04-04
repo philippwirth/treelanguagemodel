@@ -1,0 +1,177 @@
+b
+b a
+b p
+b m
+b k
+b c
+b f
+b d
+b b
+b a i
+b p g
+b m h
+b m e
+b k h
+b c p
+b c b
+b f o
+b f j
+b d o
+b b c
+b b h
+b a i g
+b a i c
+b p g a
+b m h d
+b m e c
+b k h j
+b k h g
+b c p l
+b f o k
+b f j o
+b d o i
+b d o h
+b b c m
+b b h c
+b b h e
+b a i c i
+b p g a p
+b m h d b
+b m e c o
+b k h j o
+b k h j l
+b k h g a
+b f o k n
+b f o k f
+b d o i o
+b d o h n
+b d o h o
+b b c m l
+b b h c a
+b b h c c
+b b h c e
+b b h e k
+b b h e f
+b b h e d
+b b h e p
+b b h e j
+b b h e o
+b b h e h
+b b h e m
+b p g a p b
+b m h d b d
+b m e c o m
+b k h j o e
+b k h j o f
+b k h j o b
+b k h j l p
+b k h g a a
+b f o k n o
+b f o k n n
+b f o k f k
+b d o i o d
+b d o h n f
+b d o h o k
+b b c m l n
+b b h c c l
+b b h c c c
+b b h e k g
+b b h e d c
+b b h e p f
+b b h e j f
+b b h e o l
+b b h e o g
+b b h e h f
+b b h e m f
+b p g a p b o
+b m h d b d c
+b m e c o m h
+b m e c o m k
+b m e c o m a
+b k h j o e f
+b k h j o b o
+b k h j l p o
+b k h g a a o
+b f o k n o d
+b f o k n n o
+b f o k n n p
+b f o k n n h
+b f o k n n f
+b f o k f k c
+b d o i o d m
+b d o h n f k
+b d o h o k o
+b d o h o k e
+b b c m l n n
+b b c m l n b
+b b h c c l h
+b b h c c c j
+b b h e k g h
+b b h e d c d
+b b h e p f m
+b b h e p f g
+b b h e j f n
+b b h e o l m
+b b h e o g p
+b b h e o g m
+b b h e o g d
+b b h e o g f
+b b h e h f k
+b b h e m f d
+b p g a p b o h
+b m h d b d c f
+b m h d b d c l
+b m e c o m h g
+b m e c o m k p
+b m e c o m a p
+b m e c o m a o
+b k h j o e f g
+b k h j o e f o
+b k h j o b o k
+b k h j l p o b
+b k h j l p o e
+b k h g a a o l
+b f o k n o d j
+b f o k n n o k
+b f o k n n p m
+b f o k n n h p
+b f o k n n h o
+b f o k n n h l
+b f o k n n f n
+b f o k f k c f
+b d o i o d m c
+b d o h o k o n
+b d o h o k e l
+b b c m l n n e
+b b c m l n n a
+b b c m l n n f
+b b c m l n n i
+b b c m l n n p
+b b c m l n n m
+b b c m l n n k
+b b c m l n n o
+b b c m l n n h
+b b c m l n n l
+b b c m l n n j
+b b c m l n n b
+b b c m l n n n
+b b c m l n n c
+b b c m l n b h
+b b c m l n b l
+b b c m l n b c
+b b c m l n b k
+b b h c c l h h
+b b h c c c j n
+b b h e k g h p
+b b h e p f m m
+b b h e p f g j
+b b h e p f g o
+b b h e j f n d
+b b h e j f n o
+b b h e o l m a
+b b h e o g p m
+b b h e o g m m
+b b h e o g d b
+b b h e o g f f
+b b h e h f k d
+b b h e m f d f

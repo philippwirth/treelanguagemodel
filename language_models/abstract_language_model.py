@@ -7,6 +7,8 @@ import torch.nn as nn
 import random
 
 from merity.model import RNNModel
+from merity.splitcross import SplitCrossEntropyLoss
+from loss.crossentropy import TreelangCrossEntropyLoss
 
 class AbstractLanguageModel():
 
@@ -62,14 +64,14 @@ class AbstractLanguageModel():
 		with open(fn, 'wb') as f:
 			torch.save([self.model, self.criterion, self.optimizer], f)
 
-	# overwrite _load_data
+
 	def _load_data(self):
 
 		# imports
 		import os
 		import hashlib
-		if self.args.treelang:
-			from treelang.utils import batchify_treelang
+		if self.args.lmodel in ['tiny', 'small']:
+			from treelang.utils import batchify_treelang as batchify
 			import treelang.data as data
 		else:
 			from merity.utils import batchify
@@ -86,29 +88,20 @@ class AbstractLanguageModel():
 			torch.save(corpus, fn)
 
 		# batchify
-		if self.args.treelang:
-			# need to batchify differently for the treelang data
-			train_data = batchify_treelang(corpus.train, self.batch_size, self.args)
-			val_data = batchify_treelang(corpus.valid, self.eval_batch_size, self.args)
-			test_data = batchify_treelang(corpus.test, self.test_batch_size, self.args)
-		else:
-			train_data = batchify(corpus.train, self.batch_size, self.args)
-			val_data = batchify(corpus.valid, self.eval_batch_size, self.args)
-			test_data = batchify(corpus.test, self.test_batch_size, self.args)
+		train_data = batchify(corpus.train, self.batch_size, self.args)
+		val_data = batchify(corpus.valid, self.eval_batch_size, self.args)
+		test_data = batchify(corpus.test, self.test_batch_size, self.args)
 
 		return corpus, train_data, val_data, test_data
+
 
 	def _build_model(self):
 		
 		# build criterion
-		if self.args.loss == 'splitcross':
-			from merity.splitcross import SplitCrossEntropyLoss
-			criterion = None
-		elif self.args.loss == 'treelang_eucl':
-			from treelang.crossentropy import TreelangCrossEntropyLoss
-			criterion = TreelangCrossEntropyLoss(ntokens=self.ntokens, distance='eucl', temp=self.args.temperature)
+		if self.loss == 'treelang':
+			criterion = TreelangCrossEntropyLoss(ntokens=self.ntokens, temp=self.args.temperature, kernel=self.args.kernel)
 		else:
-			raise ValueError("args.loss must be in ['splitcross', 'treelang_eucl']")
+			criterion = None
 
 		# build model
 		model = RNNModel(self.args.model, self.ntokens, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
@@ -128,6 +121,11 @@ class AbstractLanguageModel():
 				if type(rnn) == WeightDrop: rnn.dropout = self.args.wdrop
 				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
+		# apply cuda
+		if self.args.cuda:
+			model = model.cuda()
+			criterion = criterion.cuda()
+
 		# split tokens for quick crossentropy	
 		if not criterion:
 			splits = []
@@ -142,12 +140,8 @@ class AbstractLanguageModel():
 			print('Using', splits)
 			criterion = SplitCrossEntropyLoss(self.args.emsize, splits=splits, verbose=False)
 
-		# apply cuda
-		if self.args.cuda:
-			model = model.cuda()
-			criterion = criterion.cuda()
-
 		return model, criterion
+
 
 	def train(self):
 		'''

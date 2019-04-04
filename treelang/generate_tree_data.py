@@ -253,8 +253,6 @@ class TreeLangGenerator:
 
 def main(argv):
 
-	
-
 	try:
 		opts, args = getopt.getopt(argv, "ho:d:n:m:p:s:", ["output=", "ntokens=", "depth=", "mode=", "pstop=,", "seed="])
 	except:

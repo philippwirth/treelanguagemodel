@@ -19,7 +19,8 @@ class DotProduct(nn.Module):
 		ntokens = next_hidden.size(0) // bsz
 		dot_products = []
 		for i in range(bsz):
-			dots = torch.mv(next_hidden[i*ntokens:(i+1)*ntokens],hidden[i])
+			a, b = next_hidden[i*ntokens:(i+1)*ntokens], hidden[i]
+			dots = torch.mm(a.view(a.size(0), -1), b.view(b.size(0), -1))
 			dot_products.append(dots)
 
 		# stack distances to matrix of size bsz x ntokens

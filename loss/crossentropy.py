@@ -11,7 +11,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 	''' Computes cross entropy based on the treelang model: p(w|c) ~ e^-d(c, [w,c])^2
 	''' 
 
-	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='polynomial'):
+	def __init__(self, ntokens=3, temp=100, distance='eucl', kernel='polynomial2'):
 
 		super(TreelangCrossEntropyLoss, self).__init__()
 
@@ -23,7 +23,9 @@ class TreelangCrossEntropyLoss(nn.Module):
 		else:
 			pass
 
-		if kernel == 'polynomial':
+		if kernel == 'polynomial1':
+			self.kernel = PolynomialKernel(x0=0, p=1)
+		if kernel == 'polynomial2':
 			self.kernel = PolynomialKernel(x0=0, p=2)
 		elif kernel == 'dot':
 			self.kernel = DotProduct()
@@ -66,7 +68,7 @@ class TreelangCrossEntropyLoss(nn.Module):
 			# forward pass through RNN to get output (1*bsz*n_words, ndir*hsz)
 			output, hidden = model(words, h)
 
-			if self.kernel_type == 'polynomial':
+			if self.kernel_type in ['polynomial1', 'polynomial2']:
 				d = self.distance(last_hidden, output)
 				k = self.temp * self.kernel(d)
 			else:

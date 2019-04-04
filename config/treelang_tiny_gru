@@ -1,15 +1,15 @@
 script=main.py
-path="data/treelang_tiny/"
+path="data/treelang/tiny/"
 
 model="GRU"
 lr=0.14
-emsize=16
-nhid=32
+emsize=2
+nhid=2
 nlayers=1
 clip=0.25
-epochs=100
+epochs=10
 batchsize=1
-bptt=4
+bptt=8
 dropout=0.
 dropouth=0.
 dropouti=0.
@@ -23,8 +23,10 @@ optimizer="adam"
 when="-1"
 
 dumpat=0
-lmodel="treelangtiny"
+lmodel="tiny"
+loss="treelang"
 temp=65
+kernel="polynomial2"
 
 asgd="True"
 nruns=1

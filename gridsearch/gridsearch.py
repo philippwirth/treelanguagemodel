@@ -7,7 +7,7 @@ import itertools
 from operator import mul
 
 
-def args_to_dict(args, asgd):
+def args_to_dict(args):
 	result = dict()
 	result['lr'] = args.lr
 	result['alpha'] = args.alpha
@@ -99,8 +99,8 @@ def gridsearch(args, treelang):
 		models = ['RNN', 'GRU']
 		temps = [pow(2,i) for i in range(10)]
 	else:
-		models = ['LSTM']
-		temps = [1
+		models = ['RNN', 'GRU', 'LSTM']
+		temps = [1]
 
 	learning_rates = [0.001 * pow(2,i) for i in range(16)]
 	alphas = [0, 2]

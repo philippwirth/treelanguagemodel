@@ -3,11 +3,11 @@ path="data/treelang_tiny/"
 
 model="GRU"
 lr=0.14
-emsize=2
-nhid=2
+emsize=16
+nhid=32
 nlayers=1
 clip=0.25
-epochs=1000
+epochs=100
 batchsize=1
 bptt=4
 dropout=0.

@@ -70,7 +70,7 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
 # which language model to choose
 parser.add_argument('--lmodel', type=str, default='treelangtiny',
                     help='Which language model to choose')
-parser.add_argument('--treelang', type=bool, default=False)
+parser.add_argument('--treelang', type=bool, default=True)
 parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 

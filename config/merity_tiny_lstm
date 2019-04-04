@@ -2,10 +2,10 @@ script=main.py
 path="data/treelang_tiny/"
 
 model="LSTM"
-lr=0.2
-emsize=2
-nhid=2
-nlayers=1
+lr=0.25
+emsize=16
+nhid=32
+nlayers=3
 clip=0.25
 epochs=1000
 batchsize=1

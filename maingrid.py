@@ -85,7 +85,7 @@ parser.add_argument('--nruns', type=int, default=1,
 
 args = parser.parse_args()
 
-gridsearch(args, False)
+gridsearch(args, True)
 
 
 

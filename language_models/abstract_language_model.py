@@ -121,11 +121,6 @@ class AbstractLanguageModel():
 				if type(rnn) == WeightDrop: rnn.dropout = self.args.wdrop
 				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
-		# apply cuda
-		if self.args.cuda:
-			model = model.cuda()
-			criterion = criterion.cuda()
-
 		# split tokens for quick crossentropy	
 		if not criterion:
 			splits = []
@@ -139,6 +134,11 @@ class AbstractLanguageModel():
 				splits = [2800, 20000, 76000]
 			print('Using', splits)
 			criterion = SplitCrossEntropyLoss(self.args.emsize, splits=splits, verbose=False)
+
+		# apply cuda
+		if self.args.cuda:
+			model = model.cuda()
+			criterion = criterion.cuda()
 
 		return model, criterion
 

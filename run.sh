@@ -2,7 +2,7 @@
 
 # load settings from config file
 #configfile=$1
-configfile="merity_tiny_lstm"
+configfile="treelang_small_gru"
 echo "settings:  config/"$configfile":"
 source "config/"$configfile
 echo "	data:	" $path

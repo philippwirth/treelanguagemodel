@@ -4,8 +4,8 @@ import torch
 import time
 import numpy as np
 
-from gridsearch.gridsearch import gridsearch_treelang, gridsearch_merity
 from visualize.dump import dump_val_loss
+from gridsearch.search_hsz import search_hsz, search_temp
 
 import sys
 sys.dont_write_bytecode = True
@@ -141,11 +141,6 @@ def main(args):
 '''
     THIS IS MAIN!
 '''
-do_gridsearch = False
-if do_gridsearch:
-    if args.loss == 'treelang':
-        gridsearch_treelang(args)
-    else:
-        gridsearch_merity(args)
-else:
-    main(args)
+#main(args)
+search_hsz(args)
+

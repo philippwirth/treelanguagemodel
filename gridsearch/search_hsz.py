@@ -27,8 +27,9 @@ def search_hsz(args):
 
 	storage = dict()
 	for model, loss in zip(models, losses):
-	
+
 		storage[model] = []
+                args.model = model
 		for (hsz, lr) in L:
 
 			# set the random seed manually for reproducibility.

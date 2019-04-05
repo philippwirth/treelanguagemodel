@@ -4,7 +4,7 @@ import torch
 import time
 import numpy as np
 
-from gridsearch.gridsearch import gridsearch_treelang
+from gridsearch.gridsearch import gridsearch_treelang, gridsearch_merity
 from visualize.dump import dump_val_loss
 
 import sys

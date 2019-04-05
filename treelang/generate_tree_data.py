@@ -277,15 +277,15 @@ def main(argv):
 			print('python generate_tree_data.py -o <output path> -n <ntokens> -d <depth> -m <mode> -p <pstop> -s <seed>')
 			sys.exit(2)
 
-	tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
-	tlg.generate_sentences(seed=seed)
-	tlg.save(base=basepath)
+	#tlg = TreeLangGenerator(ntokens=ntokens, depth=depth, mode=mode, pstop=pstop)
+	#tlg.generate_sentences(seed=seed)
+	#tlg.save(base=basepath)
 	
-	print(tlg.ppl)
-
-	#tlg = TreeLangGenerator(2,3)
-	#tlg.load('../data/treelang_small/')
 	#print(tlg.ppl)
+
+	tlg = TreeLangGenerator(2,3)
+	tlg.load('../data/treelang/tiny/')
+	print(tlg.ppl)
 
 if __name__ == '__main__':
 	import sys, getopt

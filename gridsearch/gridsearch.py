@@ -140,5 +140,68 @@ def gridsearch_treelang(args):
 
 	print(storage)
 
+def gridsearch_merity(args):
+
+	if args.lmodel == 'tiny':
+		from language_models.tiny_language_model import TinyLanguageModel as LanguageModel
+	elif args.lmodel == 'small':
+		from language_models.small_language_model import SmallLanguageModel as LanguageModel
+	elif args.lmodel == 'regular':
+		from language_models.language_model import LanguageModel
+	else:
+		raise ValueError("invalid argument: lmodel. Needs to be in [treelang_tiny, treelang_small, general]")
+
+	models = ['RNN', 'GRU', 'LSTM']
+	learning_rates = [0.001 * pow(2, i) for i in range(16)]
+	optimizers = ['adam', 'sgd']
+	whens = [[-1], [25], [25, 35], [50]]
+	asgds = [True, False]
+	temps = [1]
+	kernels = [1]
+
+	# store best settings over #epochs for each model
+	storage = dict()
+	for model in models:
+
+		args.model = model
+
+		# do gridsearch step
+		best_loss, best_settings = gridsearch_step(args, learning_rates, kernels, optimizers, whens, temps, asgds)
+		storage[model] = [best_loss, best_settings]
+
+	# store best result over 1000 epochs for each model
+	args.epochs = 1000
+	for model in models:
+
+		args.model = model
+
+		# reset seed for reproducibility.
+		random.seed(args.seed)
+		np.random.seed(args.seed)
+		torch.manual_seed(args.seed)
+		if torch.cuda.is_available():
+			if not args.cuda:
+				print("WARNING: You have a CUDA device, so you should probably run with --cuda")
+			else:
+				torch.cuda.manual_seed(args.seed)
+
+		# fix settings
+		settings = storage[model][1]
+		args.lr = settings['lr']
+		args.kernel = settings['kernel']
+		args.optimizer = settings['optimizers']
+		args.when = settings['when']
+		args.temperature = settings['temperature']
+		args.asgd = settings['asgd']
+
+		# run lm
+		lm = LanguageModel(args)
+		loss = lm.train()
+
+		# store
+		storage[model].append(loss)
+
+	print(storage)
+
 
 

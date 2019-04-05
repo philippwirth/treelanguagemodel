@@ -141,7 +141,7 @@ def main(args):
 '''
     THIS IS MAIN!
 '''
-do_gridsearch = True
+do_gridsearch = False
 if do_gridsearch:
     if args.loss == 'treelang':
         gridsearch_treelang(args)

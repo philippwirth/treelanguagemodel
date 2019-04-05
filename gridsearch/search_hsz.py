@@ -29,7 +29,8 @@ def search_hsz(args):
 	for model, loss in zip(models, losses):
 
 		storage[model] = []
-                args.model = model
+		args.model = model
+		args.loss = loss
 		for (hsz, lr) in L:
 
 			# set the random seed manually for reproducibility.
@@ -76,6 +77,8 @@ def search_temp(args):
 	for model, loss in zip(models, losses):
 	
 		loss_by_temp = np.zeros(len(temps))
+		args.model = model
+		args.loss = loss
 		for i, temp in enumerate(temps):
 
 			args.temperature = temp

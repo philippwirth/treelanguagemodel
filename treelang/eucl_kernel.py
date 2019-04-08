@@ -28,7 +28,17 @@ class DotProduct(nn.Module):
 		assert (dot_product_matrix.size(0) == bsz and dot_product_matrix.size(1) == ntokens)
 
 		return dot_product_matrix
-		
+
+
+class SimplePolynomialKernel(nn.Module):
+
+	def __init__(self):
+
+		super(SimplePolynomialKernel, self).__init__()
+		pass
+
+	def forward(self, x):
+		return -x.pow(2)
 
 class PolynomialKernel(nn.Module):
 

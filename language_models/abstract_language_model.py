@@ -8,7 +8,7 @@ import random
 
 from merity.model import RNNModel
 from merity.splitcross import SplitCrossEntropyLoss
-from loss.crossentropy import TreelangCrossEntropyLoss
+from loss.splittceloss import SplitTCELoss
 
 class AbstractLanguageModel():
 
@@ -31,6 +31,7 @@ class AbstractLanguageModel():
 		self.ntokens = len(self.corpus.dictionary)
 
 		# initialize model and criterion
+		self.optimizer = None
 		self.model, self.criterion = self._build_model()
 
 		# collect all parameters
@@ -40,10 +41,13 @@ class AbstractLanguageModel():
 		print('Model total parameters:', self.total_params)
 
 		# initialize optimizer
-		if self.args.optimizer == 'sgd':
-			self.optimizer = torch.optim.SGD(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
-		if self.args.optimizer == 'adam':
-			self.optimizer = torch.optim.Adam(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
+		if self.optimizer = None:
+			if self.args.optimizer == 'sgd':
+				self.optimizer = torch.optim.SGD(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
+			elif self.args.optimizer == 'adam':
+				self.optimizer = torch.optim.Adam(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
+			else:
+				raise ValueError('Wrong optimizer specified! Must be in [sgd, adam].')
 
 		# finish up
 		print('Initialization successful!')
@@ -58,7 +62,8 @@ class AbstractLanguageModel():
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:
-			self.model, self.criterion, self.optimizer = torch.load(f)
+			model, criterion, self.optimizer = torch.load(f)
+		return model, criterion
 
 	def _model_save(self, fn):
 		with open(fn, 'wb') as f:
@@ -96,12 +101,8 @@ class AbstractLanguageModel():
 
 
 	def _build_model(self):
-		
-		# build criterion
-		if self.args.loss == 'treelang':
-			criterion = TreelangCrossEntropyLoss(ntokens=self.ntokens, temp=self.args.temperature, kernel=self.args.kernel)
-		else:
-			criterion = None
+
+		criterion = None
 
 		# build model
 		model = RNNModel(self.args.model, self.ntokens, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
@@ -110,7 +111,7 @@ class AbstractLanguageModel():
 		# if resume, load model
 		if self.args.resume:
 			print('Resuming model ...')
-			model_load(self.args.resume)
+			model, criterion = model_load(self.args.resume)
 			self.optimizer.param_groups[0]['lr'] = self.args.lr
 			self.model.dropouti, self.model.dropouth, self.model.dropout, self.args.dropoute = self.args.dropouti, self.args.dropouth, self.args.dropout, self.args.dropoute
 			
@@ -121,8 +122,18 @@ class AbstractLanguageModel():
 				if type(rnn) == WeightDrop: rnn.dropout = self.args.wdrop
 				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
-		# split tokens for quick crossentropy	
-		if not criterion:
+
+		# build criterion with split tokens
+		if criterion is None and self.args.loss == 'treelang':
+			# we may need different splits for our model because of memory issues
+			splits = []
+			if self.ntokens > 12:
+				# small treelang (test)
+				splits = [4, 8] # -> [0, 1, 2, 3], [4, 5, 6, 7] and [8, 9, 10, 11, 12, 13, 14, 15, 16]
+			# more cases here
+			print('Using', splits)
+			criterion = SplitTCELoss(self.ntokens, splits, temp=self.args.temperature)
+		elif criterion is None:
 			splits = []
 			if self.ntokens > 500000:
 				# One Billion

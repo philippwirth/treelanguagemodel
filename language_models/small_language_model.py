@@ -58,12 +58,10 @@ class SmallLanguageModel(AbstractLanguageModel):
 
 				output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data, hidden, return_h=True)
 
-				# need to augment output and targets with initial hidden state
 				if self.args.loss == 'treelang':
-					output = output.view(seq_len-1, seq_data.size(1), self.args.nhid)
-					output = torch.cat((hidden[0], output), dim=0)
-					targets = targets.view(seq_len-1, -1)
-					targets = torch.cat((data[0].view(1,-1), targets))
+					# need to augment output and targets with initial hidden state
+					output = torch.cat((hidden[0][0], output), dim=0)
+					targets = torch.cat((data[0], targets))
 
 				raw_loss = self.criterion(self.model, output, targets)
 
@@ -114,12 +112,10 @@ class SmallLanguageModel(AbstractLanguageModel):
 				# evaluate
 				output, new_hidden = self.model(data, hidden)
 
-				# need to augment output and targets with initial hidden state
 				if self.args.loss == 'treelang':
-					output = output.view(seq_len-1, batch_size, self.args.nhid)
-					output = torch.cat((hidden[0], output), dim=0)
-					targets = targets.view(seq_len-1, -1)
-					targets = torch.cat((data[0].view(1,-1), targets))
+					# need to augment output and targets with initial hidden state
+					output = torch.cat((hidden[0][0], output), dim=0)
+					targets = torch.cat((data[0], targets))
 
 				total_loss += len(data) * self.criterion(self.model, output, targets).data
 

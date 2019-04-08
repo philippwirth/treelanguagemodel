@@ -1,6 +1,24 @@
 import torch
 import torch.nn as nn
 
+class SimpleEuclDistance(nn.Module):
+
+	def __init__(self):
+		
+		super(SimpleEuclDistance, self).__init__()
+		pass
+
+	def forward(self, x, y):
+		'''
+			x of shape 1 x hsz
+			y of shape n x hsz
+
+			return: distance of x to every y_i, size: n
+		'''
+
+		dist_fn = nn.PairwiseDistance(p=2)
+		return dist_fn(x, y)
+
 class EuclideanDistance(nn.Module):
 
 	def __init__(self):

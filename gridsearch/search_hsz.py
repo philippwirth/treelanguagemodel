@@ -22,7 +22,7 @@ def search_hsz(args):
 	models = ['GRU', 'LSTM']
 	losses = ['treelang', 'splitcross']
 	hszs = [2, 8, 16, 64, 128]		# different hidden sizes
-	lrs = [0.001, 0.01, 0.1, 1.]	# different learning rates
+	lrs = [0.01, 0.05, 0.1, 0.15, 0.20]	# different learning rates
 	L = list(itertools.product(*[hszs, lrs]))
 
 	storage = dict()
@@ -71,8 +71,8 @@ def search_temp(args):
 	# initialize some lists
 	models = ['RNN', 'GRU']
 	losses = ['treelang', 'treelang']
-	temps = [5*i for i in range(1,51)]		# different hidden sizes
-	lrs = [0.001, 0.01, 0.1, 1.]	# different learning rates
+	temps = [10*i for i in range(1,51)]		# different hidden sizes
+	lrs = [0.01, 0.05, 0.1, 0.15]	# different learning rates
 
 	for model, loss in zip(models, losses):
 	
@@ -105,8 +105,7 @@ def search_temp(args):
 
 			loss_by_temp[i] = best_loss
 
-		formatstr = ' '.join(['%1.4e']*len(temps))
-		np.savetxt('temp_by_loss_' + model + '.txt', loss_by_temp, delimiter=' ', fmt=formatstr)
+		np.savetxt('loss_by_temp_' + model + '.txt', loss_by_temp, delimiter=' ')
 
 	print('search-temp done.')
 

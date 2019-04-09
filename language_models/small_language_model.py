@@ -41,14 +41,11 @@ class SmallLanguageModel(AbstractLanguageModel):
 		for seq_len, seq_data in items:
 			for i in range(0, seq_data.size(0) - 1, seq_len):
 
-				# this is just a test!
-				self.model.eval()
-
 				# new sequece -> reset hidden state
 				hidden = self.model.init_hidden(seq_data.size(1))#self.batch_size)
 				lr2 = self.optimizer.param_groups[0]['lr']
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
-				#self.model.train()
+				self.model.train()
 
 				# reset gradients of optimizer
 				self.optimizer.zero_grad()
@@ -66,9 +63,7 @@ class SmallLanguageModel(AbstractLanguageModel):
 					output = torch.cat((hidden[0][0], output), dim=0)
 					targets = torch.cat((data[0], targets))
 
-				# still testing
-				self.model.train()
-				raw_loss = self.criterion(self.model, output.detach(), targets)
+				raw_loss = self.criterion(self.model, output, targets)
 
 				loss = raw_loss
 				# Activiation Regularization

@@ -80,6 +80,8 @@ parser.add_argument('--temperature', type=float, default=100,
                     help='Temperature for crossentropy: p ~ exp(-temp * d(x,y)^2)')
 parser.add_argument('--kernel', type=str, default='polynomial2',
                     help='Which kernel to use. (polynomial1, polynomial2 or dot)')
+parser.add_argument('--detach', type=bool, default=False,
+                    help='Whether or not to detach word evaluation outputs from computational graph.')
 
 # average stochastic gradients descent?
 parser.add_argument('--asgd', type=bool, default=True,

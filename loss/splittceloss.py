@@ -11,7 +11,7 @@ from merity.utils import repackage_hidden
 class SplitTCELoss(nn.Module):
 
 
-	def __init__(self, ntokens, splits, bsz=5, temp=65, dist='sqrd'):
+	def __init__(self, ntokens, splits, bsz=20, temp=65, dist='sqrd', detach=True):
 
 		super(SplitTCELoss, self).__init__()
 		self.splits = [0] + splits + [100 * 1000000]
@@ -21,6 +21,11 @@ class SplitTCELoss(nn.Module):
 
 		self.bsz = bsz
 		self.temp = temp
+
+		''' whether or not to detach the outputs from the backpropagation graph.
+			if False, memory requirements are huge. If True, loss is worse.
+		'''
+		self.detach = detach
 
 		# distance functions
 		self.distance = SimpleEuclDistance() if dist == 'sqrd' else None
@@ -37,7 +42,8 @@ class SplitTCELoss(nn.Module):
 	def logprob(self, model, hiddens, words):
 
 		logprobs = []
-		nbatch = len(words) // self.bsz if (len(words) % self.bsz) == 0 else (len(words) // self.bsz) + 1
+		nbatch = len(words) // self.bsz		# number of words we evaluate at once
+		nbatch = nbatch if (len(words) % self.bsz) == 0 else nbatch + 1 # if we can't divide evenly need one more batch
 
 		for i in range(hiddens.size(0)):
 
@@ -46,13 +52,10 @@ class SplitTCELoss(nn.Module):
 
 				# apply model to all words in the split
 				nwords = self.bsz if (j+1)*self.bsz <= len(words) else len(words) % self.bsz
-				#print('nwords: ' + str(nwords))
 				hidden = self._copy_hidden(hiddens[i], nwords)			# copy hidden state nbatch times
 				word_batch = words[j*self.bsz:j*self.bsz + nwords]		# get batch of words
-				#print(word_batch)
 				output, hidden = model(word_batch.view(1,-1), hidden)	# evaluate
-				outputs.append(output.detach())
-				repackage_hidden(hidden)
+				outputs.append(output.detach() if self.detach else output)
 
 			# compute distances between input and outputs
 			outputs = torch.cat(outputs, dim=0)
@@ -158,4 +161,4 @@ class SplitTCELoss(nn.Module):
 		# copy hidden s.t. nbatch is ntokens
 		result = hidden.expand(n, -1)	# ntokens x hsz 
 		result = result.view(1, n, -1)	# (n_layers*n_directions) x ntokens x hsz
-		return [result.contiguous()]								# add another layer of brackets because this is expected input
+		return [result.contiguous()]	# add another layer of brackets because this is expected input

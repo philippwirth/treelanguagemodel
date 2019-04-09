@@ -46,8 +46,6 @@ class TinyLanguageModel(AbstractLanguageModel):
 		for seq_len, seq_data in items:
 			for i in range(0, seq_data.size(0) - 1, seq_len):
 
-				#self.model.eval()
-
 				# new sequece -> reset hidden state
 				hidden = self.model.init_hidden(self.batch_size)
 				lr2 = self.optimizer.param_groups[0]['lr']
@@ -67,7 +65,6 @@ class TinyLanguageModel(AbstractLanguageModel):
 					output = torch.cat((hidden[0][0], output), dim=0)
 					targets = torch.cat((data[0], targets))
 
-				#self.model.train()
 				raw_loss = self.criterion(self.model, output, targets)
 
 				loss = raw_loss

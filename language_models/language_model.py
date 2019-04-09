@@ -33,10 +33,6 @@ class LanguageModel(AbstractLanguageModel):
 		batch, i = 0, 0
 		while i < self.train_data.size(0) - 1 - 1:
 
-
-			# test!
-			#self.model.eval()
-
 			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 			# Prevent excessively small or negative sequence lengths
 			seq_len = max(5, int(np.random.normal(bptt, 5)))
@@ -60,7 +56,6 @@ class LanguageModel(AbstractLanguageModel):
 				output = torch.cat((hidden[0][0], output), dim=0)
 				targets = torch.cat((data[0], targets))
 				
-			#self.model.train()
 			raw_loss = self.criterion(self.model, output, targets)
 
 			loss = raw_loss

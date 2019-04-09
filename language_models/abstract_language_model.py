@@ -115,7 +115,7 @@ class AbstractLanguageModel():
 				splits = [8] # -> [0, 1, 2, 3, 4, 5, 6, 7] and [8, 9, 10, 11, 12, 13, 14, 15, 16]
 			# more cases here
 			print('Using STCE:', splits)
-			criterion = SplitTCELoss(self.ntokens, splits, temp=self.args.temperature)
+			criterion = SplitTCELoss(self.ntokens, splits, temp=self.args.temperature, detach=self.args.detach)
 		elif criterion is None:
 			splits = []
 			if self.ntokens > 500000:

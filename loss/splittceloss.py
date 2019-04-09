@@ -10,7 +10,7 @@ from treelang.eucl_distance import SimpleEuclDistance
 class SplitTCELoss(nn.Module):
 
 
-	def __init__(self, ntokens, splits, bsz=5, temp=65, dist='sqrd'):
+	def __init__(self, ntokens, splits, bsz=10, temp=65, dist='sqrd'):
 
 		super(SplitTCELoss, self).__init__()
 		self.splits = [0] + splits + [100 * 1000000]

@@ -108,7 +108,7 @@ class AbstractLanguageModel():
 			splits = []
 			if self.ntokens > 8000:
 				# PTB has 10'000
-				splits = [10*i for i in range(1,1000)]
+				splits = [1000*i for i in range(1,10)]
 
 			elif self.ntokens > 12:
 				# small treelang (test)

@@ -6,6 +6,7 @@ import torch.nn as nn
 import numpy as np
 from treelang.eucl_kernel import SimplePolynomialKernel
 from treelang.eucl_distance import SimpleEuclDistance
+from merity.utils import repackage_hidden
 
 class SplitTCELoss(nn.Module):
 
@@ -51,6 +52,7 @@ class SplitTCELoss(nn.Module):
 				print(word_batch)
 				output, hidden = model(word_batch.view(1,-1), hidden)	# evaluate
 				outputs.append(output)
+				repackage_hidden(hidden)
 
 			# compute distances between input and outputs
 			outputs = torch.cat(outputs, dim=0)
@@ -99,7 +101,6 @@ class SplitTCELoss(nn.Module):
 
 	def forward(self, model, hiddens, targets, verbose=False):
 
-		model.eval()
 		total_loss = None
 
 		# first, split hiddens and targets
@@ -149,7 +150,6 @@ class SplitTCELoss(nn.Module):
 			running_offset += len(split_hiddens[idx])
 			total_loss = entropy.float().sum() if total_loss is None else total_loss + entropy.float().sum()
 
-		model.train()
 		return (total_loss / len(targets)).type_as(model.decoder.weight)
 
 

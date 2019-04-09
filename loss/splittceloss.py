@@ -46,7 +46,7 @@ class SplitTCELoss(nn.Module):
 				# apply model to all words in the split
 				nwords = self.bsz if j < nbatch - 1 else len(words) % self.bsz
 				hidden = self._copy_hidden(hiddens[i], nwords)
-				output, hidden = model(words.view(1,-1), hidden)
+                                output, hidden = model(words[j*bsz:j*bsz+nwords].view(1,-1), hidden)
 				outputs.append(output)
 
 			# compute distances between input and outputs

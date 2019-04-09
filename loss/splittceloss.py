@@ -12,12 +12,11 @@ class SplitTCELoss(nn.Module):
 
 	def __init__(self, ntokens, splits, temp=65, dist='sqrd'):
 
-		super(SplitCrossEntropyLoss, self).__init__()
+		super(SplitTCELoss, self).__init__()
 		self.ntokens = ntokens
 		self.splits = [0] + splits + [100 * 1000000]
 		self.nsplits = len(self.splits) - 1
 		self.stats = defaultdict(list)
-		self.verbose = verbose
 		self.temp = temp
 
 		# distance functions
@@ -28,7 +27,7 @@ class SplitTCELoss(nn.Module):
 		# The probability given to this tombstone is the probability of selecting an item from the represented split
 		# We need one extra token for each split
 		if self.nsplits > 1:
-			self.tail_targets = torch.LongTensor([self.ntokens + i for i in range(nsplits-1)]) # minus 1 because head doesn't need repr.
+			self.tail_targets = torch.LongTensor([self.ntokens + i for i in range(self.nsplits-1)]) # minus 1 because head doesn't need repr.
 			self.tail_targets = self.tail_targets.contiguous().cuda()
 
 
@@ -41,8 +40,8 @@ class SplitTCELoss(nn.Module):
 			# do smart reshapes!
 
 			# apply model to all words in the split
-			hidden = self._copy_hidden(hiddens[i])
-			output, hidden = model(words.view(1,-1), hiddens)
+			hidden = self._copy_hidden(hiddens[i], len(words))
+			output, hidden = model(words.view(1,-1), hidden)
 
 			# compute distances between input and outputs
 			d = self.distance(hiddens[i].view(1,-1), output)
@@ -90,11 +89,6 @@ class SplitTCELoss(nn.Module):
 
 	def forward(self, model, hiddens, targets, verbose=False):
 
-		if self.verbose or verbose:
-			for idx in sorted(self.stats):
-				print('{}: {}'.format(idx, int(np.mean(self.stats[idx]))), end=', ')
-			print()
-
 		total_loss = None
 
 		# first, split hiddens and targets
@@ -105,17 +99,13 @@ class SplitTCELoss(nn.Module):
 		head_words = torch.LongTensor([i for i in range(start, end)]).contiguous().cuda()
 
 		if self.nsplits > 1:
-			head_words = torch.cat(head_words, self.tail_targets)
+			head_words = torch.cat((head_words, self.tail_targets))
 		
 		# Perform the softmax calculation for the word vectors in the head for all splits
 		# We need to guard against empty splits as torch.cat does not like random lists
 		combo = torch.cat([split_hiddens[i] for i in range(self.nsplits) if len(split_hiddens[i])])
 		###
 		softmaxed_all_head_res = self.logprob(model, combo, head_words)
-
-		if self.verbose or verbose:
-			self.stats[0].append(combo.size()[0] * head_weight.size()[0])
-
 		running_offset = 0
 		for idx in range(self.nsplits):
 			# If there are no targets for this split, continue
@@ -146,12 +136,12 @@ class SplitTCELoss(nn.Module):
 			running_offset += len(split_hiddens[idx])
 			total_loss = entropy.float().sum() if total_loss is None else total_loss + entropy.float().sum()
 
-		return (total_loss / len(targets)).type_as(weight)
+		return (total_loss / len(targets)).type_as(model.decoder.weight)
 
 
-	def _copy_hidden(self, hidden):
+	def _copy_hidden(self, hidden, n):
 
 		# copy hidden s.t. nbatch is ntokens
-		result = hidden.repeat(self.ntokens, 1)		# ntokens x hsz 
-		result = result.view(1, self.ntokens, -1)	# (n_layers*n_directions) x ntokens x hsz
+		result = hidden.repeat(n, 1)	# ntokens x hsz 
+		result = result.view(1, n, -1)	# (n_layers*n_directions) x ntokens x hsz
 		return [result]								# add another layer of brackets because this is expected input

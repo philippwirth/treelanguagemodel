@@ -141,8 +141,8 @@ def main(args):
 '''
     THIS IS MAIN!
 '''
-#main(args)
+main(args)
 #search_temp(args)
 #args.temp = 65
 #args.epochs = 1000
-search_hsz(args)
+#search_hsz(args)

@@ -22,7 +22,7 @@ def search_hsz(args):
 	models = ['GRU', 'LSTM']
 	losses = ['treelang', 'splitcross']
 	hszs = [2, 8, 32, 128]		# different hidden sizes
-	lrs = [0.001, 0.01, 0.1, 1.0]	# different learning rates
+	lrs = [0.01, 0.1]	# different learning rates
 	L = list(itertools.product(*[hszs, lrs]))
 
 	storage = dict()

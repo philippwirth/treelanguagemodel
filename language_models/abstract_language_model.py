@@ -41,7 +41,7 @@ class AbstractLanguageModel():
 		print('Model total parameters:', self.total_params)
 
 		# initialize optimizer
-		if self.optimizer = None:
+		if self.optimizer is None:
 			if self.args.optimizer == 'sgd':
 				self.optimizer = torch.optim.SGD(self.params, lr=self.args.lr, weight_decay=self.args.wdecay)
 			elif self.args.optimizer == 'adam':
@@ -105,7 +105,7 @@ class AbstractLanguageModel():
 		criterion = None
 
 		# build model
-		model = RNNModel(self.args.model, self.ntokens, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
+		model = RNNModel(self.args.model, self.ntokens+2, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
 							self.args.dropouth, self.args.dropouti, self.args.dropoute, self.args.wdrop, self.args.tied)
 		
 		# if resume, load model

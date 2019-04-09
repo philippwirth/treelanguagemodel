@@ -38,7 +38,7 @@ class SimplePolynomialKernel(nn.Module):
 		pass
 
 	def forward(self, x):
-		return -x.pow(2)
+		return -x
 
 class PolynomialKernel(nn.Module):
 

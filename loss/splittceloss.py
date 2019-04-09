@@ -13,7 +13,7 @@ class SplitTCELoss(nn.Module):
 	def __init__(self, ntokens, splits, bsz=5, temp=65, dist='sqrd'):
 
 		super(SplitTCELoss, self).__init__()
-		self.ntokens = ntokens
+		self.ntokens = ntokens - len(splits)
 		self.splits = [0] + splits + [100 * 1000000]
 		self.nsplits = len(self.splits) - 1
 		self.stats = defaultdict(list)
@@ -46,7 +46,7 @@ class SplitTCELoss(nn.Module):
 				# apply model to all words in the split
 				nwords = self.bsz if j < nbatch - 1 else len(words) % self.bsz
 				hidden = self._copy_hidden(hiddens[i], nwords)
-				output, hidden = model(words[j*bsz:j*bsz+nwords].view(1,-1), hidden)
+				output, hidden = model(words[j*self.bsz:j*self.bsz+nwords].view(1,-1), hidden)
 				outputs.append(output)
 
 			# compute distances between input and outputs

@@ -102,10 +102,36 @@ class AbstractLanguageModel():
 
 	def _build_model(self):
 
-		criterion = None
+		# build criterion with split tokens
+		if self.args.loss == 'treelang':
+			# we may need different splits for our model because of memory issues
+			splits = []
+			if self.ntokens > 8000:
+				# PTB has 10'000
+				splits = [500*i for i in range(1,20)]
+
+			elif self.ntokens > 12:
+				# small treelang (test)
+				splits = [8] # -> [0, 1, 2, 3, 4, 5, 6, 7] and [8, 9, 10, 11, 12, 13, 14, 15, 16]
+			# more cases here
+			print('Using STCE:', splits)
+			criterion = SplitTCELoss(self.ntokens, splits, temp=self.args.temperature)
+		elif criterion is None:
+			splits = []
+			if self.ntokens > 500000:
+				# One Billion
+				# This produces fairly even matrix mults for the buckets:
+				# 0: 11723136, 1: 10854630, 2: 11270961, 3: 11219422
+				splits = [4200, 35000, 180000]
+			elif self.ntokens > 75000:
+				# WikiText-103
+				splits = [2800, 20000, 76000]
+			print('Using SCE:', splits)
+			criterion = SplitCrossEntropyLoss(self.args.emsize, splits=splits, verbose=False)
 
 		# build model
-		model = RNNModel(self.args.model, self.ntokens+2, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
+		ntokens = self.ntokens + criterion.nsplits - 1 # add 1 token for each tombstone
+		model = RNNModel(self.args.model, ntokens, self.args.emsize, self.args.nhid, self.args.nlayers, self.args.dropout,
 							self.args.dropouth, self.args.dropouti, self.args.dropoute, self.args.wdrop, self.args.tied)
 		
 		# if resume, load model
@@ -123,28 +149,7 @@ class AbstractLanguageModel():
 				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
 
-		# build criterion with split tokens
-		if criterion is None and self.args.loss == 'treelang':
-			# we may need different splits for our model because of memory issues
-			splits = []
-			if self.ntokens > 12:
-				# small treelang (test)
-				splits = [4, 8] # -> [0, 1, 2, 3], [4, 5, 6, 7] and [8, 9, 10, 11, 12, 13, 14, 15, 16]
-			# more cases here
-			print('Using', splits)
-			criterion = SplitTCELoss(self.ntokens, splits, temp=self.args.temperature)
-		elif criterion is None:
-			splits = []
-			if self.ntokens > 500000:
-				# One Billion
-				# This produces fairly even matrix mults for the buckets:
-				# 0: 11723136, 1: 10854630, 2: 11270961, 3: 11219422
-				splits = [4200, 35000, 180000]
-			elif self.ntokens > 75000:
-				# WikiText-103
-				splits = [2800, 20000, 76000]
-			print('Using', splits)
-			criterion = SplitCrossEntropyLoss(self.args.emsize, splits=splits, verbose=False)
+
 
 		# apply cuda
 		if self.args.cuda:

@@ -121,7 +121,9 @@ class SplitTCELoss(nn.Module):
 
 				# Calculate the softmax for the words in the tombstone
 				start, end = self.splits[idx], min(self.splits[idx + 1], self.ntokens)
+				print('start, end = ' + str(start) + ', ' + str(end))
 				words = torch.LongTensor([i for i in range(start, end)]).contiguous().cuda()
+				print('len(words) = ' + str(len(words)))
 				softmaxed_tail_res = self.logprob(model, split_hiddens[idx], words)
 
 				# Then we calculate p(tombstone) * p(word in tombstone)

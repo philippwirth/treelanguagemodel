@@ -13,10 +13,10 @@ class SplitTCELoss(nn.Module):
 	def __init__(self, ntokens, splits, bsz=5, temp=65, dist='sqrd'):
 
 		super(SplitTCELoss, self).__init__()
-		self.ntokens = ntokens - len(splits)
 		self.splits = [0] + splits + [100 * 1000000]
 		self.nsplits = len(self.splits) - 1
 		self.stats = defaultdict(list)
+		self.ntokens = ntokens # this is the original number of tokens
 
 		self.bsz = bsz
 		self.temp = temp
@@ -45,8 +45,9 @@ class SplitTCELoss(nn.Module):
 
 				# apply model to all words in the split
 				nwords = self.bsz if j < nbatch - 1 else len(words) % self.bsz
-				hidden = self._copy_hidden(hiddens[i], nwords)
-				output, hidden = model(words[j*self.bsz:j*self.bsz+nwords].view(1,-1), hidden)
+				hidden = self._copy_hidden(hiddens[i], nwords)			# copy hidden state nbatch times
+				word_batch = words[j*self.bsz:j*self.bsz + nwords]		# get batch of words
+				output, hidden = model(word_batch.view(1,-1), hidden)	# evaluate
 				outputs.append(output)
 
 			# compute distances between input and outputs

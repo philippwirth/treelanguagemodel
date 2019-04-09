@@ -46,11 +46,13 @@ class TinyLanguageModel(AbstractLanguageModel):
 		for seq_len, seq_data in items:
 			for i in range(0, seq_data.size(0) - 1, seq_len):
 
+				self.model.eval()
+
 				# new sequece -> reset hidden state
 				hidden = self.model.init_hidden(self.batch_size)
 				lr2 = self.optimizer.param_groups[0]['lr']
 				self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
-				self.model.train()
+				#self.model.train()
 
 				data, targets = get_batch_treelang(seq_data, i, self.args, seq_len=seq_len)
 
@@ -65,7 +67,8 @@ class TinyLanguageModel(AbstractLanguageModel):
 					output = torch.cat((hidden[0][0], output), dim=0)
 					targets = torch.cat((data[0], targets))
 
-				raw_loss = self.criterion(self.model, output, targets)
+				self.model.train()
+				raw_loss = self.criterion(self.model, output.detach(), targets)
 
 				loss = raw_loss
 				# Activiation Regularization

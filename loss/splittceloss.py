@@ -45,8 +45,10 @@ class SplitTCELoss(nn.Module):
 
 				# apply model to all words in the split
 				nwords = self.bsz if j < nbatch - 1 else len(words) % self.bsz
+				print('nwords: ' + str(nwords))
 				hidden = self._copy_hidden(hiddens[i], nwords)			# copy hidden state nbatch times
 				word_batch = words[j*self.bsz:j*self.bsz + nwords]		# get batch of words
+				print(word_batch)
 				output, hidden = model(word_batch.view(1,-1), hidden)	# evaluate
 				outputs.append(output)
 

@@ -68,7 +68,7 @@ class SmallLanguageModel(AbstractLanguageModel):
 
 				# still testing
 				self.model.train()
-				raw_loss = self.criterion(self.model, output, targets)
+				raw_loss = self.criterion(self.model, output.detach(), targets)
 
 				loss = raw_loss
 				# Activiation Regularization

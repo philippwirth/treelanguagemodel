@@ -35,7 +35,7 @@ class LanguageModel(AbstractLanguageModel):
 
 
 			# test!
-			self.model.eval()
+			#self.model.eval()
 
 			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 			# Prevent excessively small or negative sequence lengths
@@ -45,7 +45,7 @@ class LanguageModel(AbstractLanguageModel):
 
 			lr2 = self.optimizer.param_groups[0]['lr']
 			self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
-			#self.model.train()
+			self.model.train()
 			data, targets = get_batch(self.train_data, i, self.args, seq_len=seq_len)
 
 			# Starting each batch, we detach the hidden state from how it was previously produced.
@@ -60,8 +60,8 @@ class LanguageModel(AbstractLanguageModel):
 				output = torch.cat((hidden[0][0], output), dim=0)
 				targets = torch.cat((data[0], targets))
 				
-			self.model.train()
-			raw_loss = self.criterion(self.model, output.detach(), targets)
+			#self.model.train()
+			raw_loss = self.criterion(self.model, output, targets)
 
 			loss = raw_loss
 			# Activiation Regularization

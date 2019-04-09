@@ -37,7 +37,7 @@ class SplitTCELoss(nn.Module):
 	def logprob(self, model, hiddens, words):
 
 		logprobs = []
-		nbatch = (len(words) // self.bsz) + 1
+		nbatch = len(words) // self.bsz if (len(words) % self.bsz) == 0 else (len(words) // self.bsz) + 1
 
 		for i in range(hiddens.size(0)):
 
@@ -45,13 +45,13 @@ class SplitTCELoss(nn.Module):
 			for j in range(nbatch):
 
 				# apply model to all words in the split
-				nwords = self.bsz if j < nbatch - 1 else len(words) % self.bsz
-				print('nwords: ' + str(nwords))
+				nwords = self.bsz if (j+1)*self.bsz <= len(words) else len(words) % self.bsz
+				#print('nwords: ' + str(nwords))
 				hidden = self._copy_hidden(hiddens[i], nwords)			# copy hidden state nbatch times
 				word_batch = words[j*self.bsz:j*self.bsz + nwords]		# get batch of words
-				print(word_batch)
+				#print(word_batch)
 				output, hidden = model(word_batch.view(1,-1), hidden)	# evaluate
-				outputs.append(output)
+				outputs.append(output.detach())
 				repackage_hidden(hidden)
 
 			# compute distances between input and outputs
@@ -133,9 +133,9 @@ class SplitTCELoss(nn.Module):
 
 				# Calculate the softmax for the words in the tombstone
 				start, end = self.splits[idx], min(self.splits[idx + 1], self.ntokens)
-				print('start, end = ' + str(start) + ', ' + str(end))
+				#print('start, end = ' + str(start) + ', ' + str(end))
 				words = torch.LongTensor([i for i in range(start, end)]).contiguous().cuda()
-				print('len(words) = ' + str(len(words)))
+				#print('len(words) = ' + str(len(words)))
 				softmaxed_tail_res = self.logprob(model, split_hiddens[idx], words)
 
 				# Then we calculate p(tombstone) * p(word in tombstone)
@@ -156,6 +156,6 @@ class SplitTCELoss(nn.Module):
 	def _copy_hidden(self, hidden, n):
 
 		# copy hidden s.t. nbatch is ntokens
-		result = hidden.repeat(n, 1)	# ntokens x hsz 
+		result = hidden.expand(n, -1)	# ntokens x hsz 
 		result = result.view(1, n, -1)	# (n_layers*n_directions) x ntokens x hsz
-		return [result]								# add another layer of brackets because this is expected input
+		return [result.contiguous()]								# add another layer of brackets because this is expected input

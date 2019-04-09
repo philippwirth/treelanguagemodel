@@ -99,6 +99,7 @@ class SplitTCELoss(nn.Module):
 
 	def forward(self, model, hiddens, targets, verbose=False):
 
+		model.eval()
 		total_loss = None
 
 		# first, split hiddens and targets
@@ -148,6 +149,7 @@ class SplitTCELoss(nn.Module):
 			running_offset += len(split_hiddens[idx])
 			total_loss = entropy.float().sum() if total_loss is None else total_loss + entropy.float().sum()
 
+		model.train()
 		return (total_loss / len(targets)).type_as(model.decoder.weight)
 
 

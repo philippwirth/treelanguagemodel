@@ -10,13 +10,15 @@ from treelang.eucl_distance import SimpleEuclDistance
 class SplitTCELoss(nn.Module):
 
 
-	def __init__(self, ntokens, splits, temp=65, dist='sqrd'):
+	def __init__(self, ntokens, splits, bsz=5, temp=65, dist='sqrd'):
 
 		super(SplitTCELoss, self).__init__()
 		self.ntokens = ntokens
 		self.splits = [0] + splits + [100 * 1000000]
 		self.nsplits = len(self.splits) - 1
 		self.stats = defaultdict(list)
+
+		self.bsz = bsz
 		self.temp = temp
 
 		# distance functions
@@ -34,17 +36,22 @@ class SplitTCELoss(nn.Module):
 	def logprob(self, model, hiddens, words):
 
 		logprobs = []
+		nbatch = (len(words) // self.bsz) + 1
 
 		for i in range(hiddens.size(0)):
 
-			# do smart reshapes!
+			outputs = []
+			for j in range(nbatch):
 
-			# apply model to all words in the split
-			hidden = self._copy_hidden(hiddens[i], len(words))
-			output, hidden = model(words.view(1,-1), hidden)
+				# apply model to all words in the split
+				nwords = self.bsz if j < nbatch - 1 else len(words) % self.bsz
+				hidden = self._copy_hidden(hiddens[i], nwords)
+				output, hidden = model(words.view(1,-1), hidden)
+				outputs.append(output)
 
 			# compute distances between input and outputs
-			d = self.distance(hiddens[i].view(1,-1), output)
+			outputs = torch.cat(outputs, dim=0)
+			d = self.distance(hiddens[i].view(1,-1), outputs)
 			k = self.temp * self.kernel(d)
 
 			softmaxed = torch.nn.functional.log_softmax(k, dim=-1)

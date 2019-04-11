@@ -108,15 +108,15 @@ class AbstractLanguageModel():
 			splits = []
 			if self.ntokens > 8000:
 				# PTB has 10'000
-				splits = [1000*i for i in range(1,10)]
+				splits=[100*i for i in range(1,100)]#splits=[100,200,400,800,1600,3200,6400]#splits = [1000*i for i in range(1,10)]
 
 			elif self.ntokens > 12:
 				# small treelang (test)
-				splits = [8] # -> [0, 1, 2, 3, 4, 5, 6, 7] and [8, 9, 10, 11, 12, 13, 14, 15, 16]
+				splits = [1, 7] # -> [0, 1, 2, 3, 4, 5, 6, 7] and [8, 9, 10, 11, 12, 13, 14, 15, 16]
 			# more cases here
 			print('Using STCE:', splits)
 			criterion = SplitTCELoss(self.ntokens, splits, temp=self.args.temperature, detach=self.args.detach)
-		elif criterion is None:
+		elif self.args.loss == 'splitcross':
 			splits = []
 			if self.ntokens > 500000:
 				# One Billion
@@ -137,7 +137,7 @@ class AbstractLanguageModel():
 		# if resume, load model
 		if self.args.resume:
 			print('Resuming model ...')
-			model, criterion = model_load(self.args.resume)
+			model, criterion = self._model_load(self.args.resume)
 			self.optimizer.param_groups[0]['lr'] = self.args.lr
 			self.model.dropouti, self.model.dropouth, self.model.dropout, self.args.dropoute = self.args.dropouti, self.args.dropouth, self.args.dropout, self.args.dropoute
 			

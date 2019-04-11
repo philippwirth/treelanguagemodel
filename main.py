@@ -143,6 +143,7 @@ def main(args):
 '''
     THIS IS MAIN!
 '''
+args.detach = True
 main(args)
 #search_temp(args)
 #args.temp = 65

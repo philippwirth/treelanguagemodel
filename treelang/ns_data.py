@@ -2,8 +2,6 @@ import os
 import torch
 
 from collections import Counter
-from sets import Set
-
 
 class Dictionary(object):
     def __init__(self):

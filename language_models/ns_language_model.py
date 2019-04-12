@@ -7,7 +7,6 @@ import random
 
 from merity.model import RNNModel
 from loss.nsloss import NSLoss, SimpleEvaluationLoss
-from loss.splitceloss import 
 from treelang.ns_sample import SimpleSampler
 
 class NSLanguageModel():

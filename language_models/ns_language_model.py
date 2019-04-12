@@ -73,7 +73,7 @@ class NSLanguageModel():
 			target = data_source[i]
 
 			# apply model to all the words, no splits atm!
-			raw_loss, new_hidden = self.eval_criterion(self.model, target, hidden[0][0])
+			raw_loss, output, new_hidden = self.eval_criterion(self.model, target, hidden[0][0])
 			
 			# update hidden
 			# we want the target hidden state
@@ -104,14 +104,19 @@ class NSLanguageModel():
 			if reset_hidden:
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(self.batch_size)
-				hidden = repackage_hidden(hidden[0])
+				#hidden = repackage_hidden(hidden[0])
 
 			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 			if i > 0 and i % bptt == 0:
 				# all bptt iterations, do optimizer step
 				loss.backward()
+
+				# clip and update
+				if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 				self.optimizer.step()
 				self.optimizer.zero_grad()
+
+				# reset loss and hiddens
 				hidden = repackage_hidden(hidden[0])
 				loss = 0
 
@@ -138,8 +143,11 @@ class NSLanguageModel():
 			# TODO: add other reset conditions
 
 		loss.backward()
+
+		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
-		print(loss)#self.optimizer.zero_grad()#print(loss)
+		self.optimizer.zero_grad()#print(loss)
+		print('Test loss: ' + str(loss.data.cpu().numpy()[0]))#
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:

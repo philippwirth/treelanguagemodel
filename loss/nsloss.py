@@ -48,6 +48,6 @@ class SimpleEvaluationLoss(nn.Module):
 
 		# compute crossentropy
 		loss = nn.CrossEntropyLoss()
-		return loss(dist.view(1,-1), target.view(1)), new_hidden
+		return loss(dist.view(1,-1), target.view(1)), output, new_hidden
 
 

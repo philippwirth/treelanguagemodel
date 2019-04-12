@@ -194,6 +194,8 @@ class NSLanguageModel():
 				if type(rnn) == WeightDrop: rnn.dropout = self.args.wdrop
 				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
+		return model, train_criterion, eval_criterion
+
 	def train(self):
 		'''
 			trains the language model for args.epochs number of epochs and evaluates

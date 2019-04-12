@@ -14,7 +14,7 @@ class NSLoss(nn.Module):
 
 		# compute squared distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist = dist_fn(hidden, output)
+		dist = 200*dist_fn(hidden, output)
 
 		# store positive sample
 		pos = -dist[0]
@@ -24,7 +24,7 @@ class NSLoss(nn.Module):
 		negs = torch.log(torch.sum(dist[1:]))
 
 		# compute maximilians loss
-		return (pos - negs)
+		return -(pos - negs)
 
 class SimpleEvaluationLoss(nn.Module):
 
@@ -44,7 +44,7 @@ class SimpleEvaluationLoss(nn.Module):
 
 		# compute distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist = -dist_fn(hidden, output).pow(2)
+		dist = -200 * dist_fn(hidden, output).pow(2)
 
 		# compute crossentropy
 		loss = nn.CrossEntropyLoss()

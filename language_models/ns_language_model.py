@@ -83,7 +83,7 @@ class NSLanguageModel():
 			total_loss += raw_loss
 
 			# update control variables
-			reset_hidden = True if target in self.corpus.reset_idxs else False
+			reset_hidden = True if target.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			# TODO: add other reset conditions
 
 		return total_loss.item() / data_source.size(0)
@@ -134,12 +134,12 @@ class NSLanguageModel():
 			if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
 
 			# update control variables
-			reset_hidden = True if pos in self.corpus.reset_idxs else False
+			reset_hidden = True if pos.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			# TODO: add other reset conditions
 
 		loss.backward()
 		self.optimizer.step()
-		print(loss)
+		print(loss)#self.optimizer.zero_grad()#print(loss)
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:

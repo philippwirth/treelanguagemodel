@@ -37,10 +37,10 @@ class SimpleEvaluationLoss(nn.Module):
 
 		# initialize words and hidden states
 		words = torch.LongTensor([i for i in range(self.ntokens)]).cuda()
-		hiddens = hidden.repeat(self.ntokens, 1).view(1, self.ntokens, -1)
+		hiddens = hidden.repeat(self.ntokens, 1)
 
 		# apply model to all words
-		output, new_hidden = model(words, hiddens)
+		output, new_hidden = model(words.view(1,-1), [hiddens.view(1, self.ntokens, -1)])
 
 		# compute distances
 		dist_fn = nn.PairwiseDistance(p=2)

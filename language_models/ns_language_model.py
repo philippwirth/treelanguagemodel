@@ -83,7 +83,7 @@ class NSLanguageModel():
 			total_loss += raw_loss
 
 			# update control variables
-			reset_hidden = True if pos in self.corpus.reset_idxs else False
+			reset_hidden = True if target in self.corpus.reset_idxs else False
 			# TODO: add other reset conditions
 
 		return total_loss.item() / data_source.size(0)
@@ -126,7 +126,7 @@ class NSLanguageModel():
 			raw_loss = self.train_criterion(hidden[0][0], output)
 			
 			# update hidden
-			print(hidden[0][0])# sample at index 0 is the positive sample
+			print(loss)# sample at index 0 is the positive sample
 			hidden = new_hidden[0][0][0].view(1, self.batch_size, -1)	
 
 			# regularizer
@@ -140,12 +140,11 @@ class NSLanguageModel():
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:
-			model, criterion, self.optimizer = torch.load(f)
-		return model, criterion
+			self.model, self.train_criterion, self.eval_criterion, self.optimizer = torch.load(f)
 
 	def _model_save(self, fn):
 		with open(fn, 'wb') as f:
-			torch.save([self.model, self.criterion, self.optimizer], f)
+			torch.save([self.model, self.train_criterion, self.eval_criterion, self.optimizer], f)
 
 	def _load_data(self):
 

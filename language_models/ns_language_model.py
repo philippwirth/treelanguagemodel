@@ -95,6 +95,11 @@ class NSLanguageModel():
 
 		for i in range(self.train_data.size(0)):
 
+			# set learning rate and model trainable
+			lr2 = self.optimizer.param_groups[0]['lr']
+			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
+			self.model.train()
+
 			# control variables
 			if reset_hidden:
 				# if eos, reset hidden state
@@ -106,13 +111,9 @@ class NSLanguageModel():
 				# all bptt iterations, do optimizer step
 				loss.backward()
 				self.optimizer.step()
-                                self.zero_grad()
+				self.optimizer.zero_grad()
+				hidden = repackage_hidden(hidden[0])
 				loss = 0
-
-			# set learning rate and model trainable
-			lr2 = self.optimizer.param_groups[0]['lr']
-			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
-			self.model.train()
 
 			# take current word, sample negatives, evaluate at once, compute loss
 			pos, negs = self.train_data[i], self.sampler(self.args)

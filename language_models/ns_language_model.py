@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import random
 
+from merity.utils import repackage_hidden
 from merity.model import RNNModel
 from loss.nsloss import NSLoss, SimpleEvaluationLoss
 from treelang.ns_sample import SimpleSampler
@@ -34,7 +35,7 @@ class NSLanguageModel():
 		self.model, self.train_criterion, self.eval_criterion = self._build_model()
 
 		# collect all parameters
-		self.params = list(self.model.parameters()) + list(self.criterion.parameters())
+		self.params = list(self.model.parameters())
 		self.total_params = sum(x.size()[0] * x.size()[1] if len(x.size()) > 1 else x.size()[0] for x in self.params if x.size())
 		print('Args:', self.args)
 		print('Model total parameters:', self.total_params)
@@ -66,7 +67,7 @@ class NSLanguageModel():
 			if reset_hidden:
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(batch_size)
-				hidden = repackage(hidden)
+				#hidden = repackage_hidden(hidden)
 
 			# get current word and target
 			target = data_source[i]
@@ -98,7 +99,7 @@ class NSLanguageModel():
 			if reset_hidden:
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(self.batch_size)
-				hidden = repackage(hidden)
+				hidden = repackage_hidden(hidden[0])
 
 			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 			if i > 0 and i % bptt == 0:
@@ -109,15 +110,15 @@ class NSLanguageModel():
 
 			# set learning rate and model trainable
 			lr2 = self.optimizer.param_groups[0]['lr']
-			self.optimizer.param_groups[0]['lr'] = lr2 * seq_len / self.args.bptt
+			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
 			self.model.train()
 
 			# take current word, sample negatives, evaluate at once, compute loss
-			pos, negs = train_data[i], sampler(i, self.train_data, self.args)
+			pos, negs = self.train_data[i], self.sampler(self.args)
 
-			# reshape pos, negs, and hidden correctly
+			print(hidden[0])# reshape pos, negs, and hidden correctly
 			data_in = torch.cat((pos, negs))									# input data
-			hidden_in = hidden.repeat(1, self.args.nsamples+1, self.args.hsz)	# input hidden states (1 for each sample)
+			hidden_in = hidden[0].repeat(1, self.args.nsamples+1, 1)	# input hidden states (1 for each sample)
 			output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
 
 			raw_loss = self.train_criterion(hidden, output)

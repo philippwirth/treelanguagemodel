@@ -71,6 +71,7 @@ parser.add_argument('--dumpat', type=int, default=1,
 parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
+parser.add_argument('--nsamples', type=int, default=4)
 # which language model to choose
 parser.add_argument('--lmodel', type=str, default='simplens',
                     help='Which language model to use.')

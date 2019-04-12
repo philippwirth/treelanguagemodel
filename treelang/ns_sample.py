@@ -11,13 +11,13 @@ class SimpleSampler(nn.Module):
 		self.replacement = replacement
 		super(SimpleSampler, self).__init__()
 
-	def forward(i, data, freqs, args):
+	def forward(self, args):
 
 		# sample indices
 		wrs = WeightedRandomSampler(self.frequencies, self.nsamples, replacement=self.replacement)
 
 		# transform to tensor
-		negs = torch.FloatTensor(list(wrs)).cuda() if args.cuda else torch.FloatTensor(list(wrs))
+		negs = torch.LongTensor(list(wrs)).cuda() if args.cuda else torch.LongTensor(list(wrs))
 
 		return negs
 

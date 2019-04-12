@@ -97,7 +97,7 @@ class NSLanguageModel():
 
 			# set learning rate and model trainable
 			lr2 = self.optimizer.param_groups[0]['lr']
-			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
+			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt if epoch <= 50 else 0.001 / self.args.bptt
 			self.model.train()
 
 			# control variables

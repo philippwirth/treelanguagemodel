@@ -140,14 +140,14 @@ class NSLanguageModel():
 
 			# update control variables
 			reset_hidden = True if pos.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
-			# TODO: add other reset conditions
+			self.optimizer.param_groups[0]['lr'] = lr2# TODO: add other reset conditions
 
 		loss.backward()
 
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
 		self.optimizer.zero_grad()#print(loss)
-		print('Test loss: ' + str(loss.data.cpu().numpy()[0]))#
+		print('Test loss: ' + str(loss))#
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:

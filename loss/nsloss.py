@@ -14,7 +14,7 @@ class NSLoss(nn.Module):
 
 		# compute squared distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist = 200*dist_fn(hidden, output)
+		dist = 5*dist_fn(hidden, output).pow(2)
 
 		# store positive sample
 		pos = -dist[0]
@@ -44,7 +44,7 @@ class SimpleEvaluationLoss(nn.Module):
 
 		# compute distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist = -200 * dist_fn(hidden, output).pow(2)
+		dist =  -5 * dist_fn(hidden, output).pow(2)
 
 		# compute crossentropy
 		loss = nn.CrossEntropyLoss()

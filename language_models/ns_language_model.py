@@ -97,7 +97,7 @@ class NSLanguageModel():
 
 			# set learning rate and model trainable
 			lr2 = self.optimizer.param_groups[0]['lr']
-			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt if epoch <= 50 else 0.001 / self.args.bptt
+			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
 			self.model.train()
 
 			# control variables
@@ -186,7 +186,7 @@ class NSLanguageModel():
 	def _build_model(self):
 
 		# build criterion (negative sampling crit)
-		train_criterion = NSLoss()
+		train_criterion = NSLoss(self.args.temp)
 		eval_criterion = SimpleEvaluationLoss(self.ntokens)
 
 		# build model

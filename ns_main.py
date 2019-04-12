@@ -3,6 +3,7 @@ import random
 import torch
 import time
 import numpy as np
+import itertools
 
 from visualize.dump import dump_val_loss
 from gridsearch.search_hsz import search_hsz, search_temp
@@ -25,7 +26,7 @@ parser.add_argument('--lr', type=float, default=0.008,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
-parser.add_argument('--epochs', type=int, default=2000,
+parser.add_argument('--epochs', type=int, default=1000,
                     help='upper epoch limit')
 parser.add_argument('--batch_size', type=int, default=1, metavar='N',
                     help='batch size')
@@ -72,6 +73,7 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
 parser.add_argument('--nsamples', type=int, default=10)
+parser.add_argument('--temp', type=float, default=5)
 # which language model to choose
 parser.add_argument('--lmodel', type=str, default='simplens',
                     help='Which language model to use.')
@@ -86,7 +88,7 @@ parser.add_argument('--nruns', type=int, default=1,
 
 args = parser.parse_args()
 
-def main(args):
+def run(args):
 
     # import correct language model
     from language_models.ns_language_model import NSLanguageModel as LanguageModel
@@ -117,15 +119,37 @@ def main(args):
         # get validation loss
         val_loss[k,:] = lm.val_loss
 
-    print('Dumping validation loss...')
-    dump_val_loss(val_loss, args.epochs, basepath='val_loss')
 
-    # print results
-    print('Best:    ' + str(np.amin(loss)))
-    print('Avrg:    ' + str(np.mean(loss)))
-    print('Var:     ' + str(np.var(loss)))
+    return np.mean(loss)
 
 '''
     THIS IS MAIN!
 '''
-main(args)
+L = [[0.001, 0.005, 0.01, 0.05, 0.10, 0.15, 0.25, 1.0, 10., 30.],
+    [1, 2, 4, 8],
+    ['adam', 'sgd'],
+    [3, 6, 9]]
+L = list(itertools.product(*L))
+best_loss = 1e5
+best_settings = []
+for (lr, temp, optimizer, nsamples) in L:
+
+    args.lr = lr
+    args.temp = temp
+    args.optimizer = optimizer
+    args.nsamples = nsamples
+
+    loss = run(args)
+
+    if loss < best_loss:
+        best_loss = loss
+        best_settings.append([lr, temp, optimizer, nsamples])
+
+print('Done!')
+print(best_loss)
+print(best_settings)
+
+
+
+
+

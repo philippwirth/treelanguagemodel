@@ -3,9 +3,9 @@ import torch.nn as nn
 
 class NSLoss(nn.Module):
 
-	def __init__(self):
+	def __init__(self, temp=5):
 		super(NSLoss, self).__init__()
-		pass
+		self.temp = temp
 
 	def forward(self, hidden, output):
 		'''
@@ -14,7 +14,7 @@ class NSLoss(nn.Module):
 
 		# compute squared distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist = 7*dist_fn(hidden, output).pow(2)
+		dist = self.temp*dist_fn(hidden, output).pow(2)
 
 		# store positive sample
 		pos = -dist[0]
@@ -44,7 +44,7 @@ class SimpleEvaluationLoss(nn.Module):
 
 		# compute distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist =  -7 * dist_fn(hidden, output).pow(2)
+		dist =  -self.temp * dist_fn(hidden, output).pow(2)
 
 		# compute crossentropy
 		loss = nn.CrossEntropyLoss()

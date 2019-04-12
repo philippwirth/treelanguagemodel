@@ -121,7 +121,8 @@ class NSLanguageModel():
 				loss = 0
 
 			# take current word, sample negatives, evaluate at once, compute loss
-			pos, negs = self.train_data[i], self.sampler(self.args)
+			pos = self.train_data[i]
+			negs = self.sampler(pos, self.args)
 
 			# reshape pos, negs, and hidden correctly
 			data_in = torch.cat((pos, negs)).view(1, -1)									# input data

@@ -126,7 +126,7 @@ class NSLanguageModel():
 			raw_loss = self.train_criterion(hidden[0][0], output)
 			
 			# update hidden
-			print(loss)# sample at index 0 is the positive sample
+			# sample at index 0 is the positive sample
 			hidden = new_hidden[0][0][0].view(1, self.batch_size, -1)	
 
 			# regularizer
@@ -137,6 +137,9 @@ class NSLanguageModel():
 			reset_hidden = True if pos in self.corpus.reset_idxs else False
 			# TODO: add other reset conditions
 
+		loss.backward()
+		self.optimizer.step()
+		print(loss)
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:

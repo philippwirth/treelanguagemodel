@@ -195,6 +195,12 @@ class NSLanguageModel():
 				if type(rnn) == WeightDrop: rnn.dropout = self.args.wdrop
 				elif rnn.zoneout > 0: rnn.zoneout = self.args.wdrop
 
+		# apply cuda
+		if self.args.cuda:
+			model = model.cuda()
+			train_criterion = train_criterion.cuda()
+			eval_criterion = eval_criterion.cuda()
+
 		return model, train_criterion, eval_criterion
 
 	def train(self):

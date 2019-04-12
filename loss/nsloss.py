@@ -24,7 +24,7 @@ class NSLoss(nn.Module):
 		negs = torch.log(torch.sum(dist[1:]))
 
 		# compute maximilians loss
-		return pos - negs
+		return (pos - negs)
 
 class SimpleEvaluationLoss(nn.Module):
 

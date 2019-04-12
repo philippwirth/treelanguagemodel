@@ -106,6 +106,7 @@ class NSLanguageModel():
 				# all bptt iterations, do optimizer step
 				loss.backward()
 				self.optimizer.step()
+                                self.zero_grad()
 				loss = 0
 
 			# set learning rate and model trainable
@@ -116,15 +117,15 @@ class NSLanguageModel():
 			# take current word, sample negatives, evaluate at once, compute loss
 			pos, negs = self.train_data[i], self.sampler(self.args)
 
-			print(hidden[0])# reshape pos, negs, and hidden correctly
-			data_in = torch.cat((pos, negs))									# input data
+			# reshape pos, negs, and hidden correctly
+			data_in = torch.cat((pos, negs)).view(1, -1)									# input data
 			hidden_in = hidden[0].repeat(1, self.args.nsamples+1, 1)	# input hidden states (1 for each sample)
-			output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
+			output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, [hidden_in], return_h=True)
 
-			raw_loss = self.train_criterion(hidden, output)
+			raw_loss = self.train_criterion(hidden[0][0], output)
 			
 			# update hidden
-			# sample at index 0 is the positive sample
+			print(hidden[0][0])# sample at index 0 is the positive sample
 			hidden = new_hidden[0][0][0].view(1, self.batch_size, -1)	
 
 			# regularizer

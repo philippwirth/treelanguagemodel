@@ -9,6 +9,7 @@ from merity.utils import repackage_hidden
 from merity.model import RNNModel
 from loss.nsloss import NSLoss, SimpleEvaluationLoss
 from treelang.ns_sample import SimpleSampler
+from visualize.dump import dump_contexts
 
 class NSLanguageModel():
 

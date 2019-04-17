@@ -193,19 +193,19 @@ class NSLanguageModel():
 				hidden = repackage_hidden(hidden[0])
 				loss = 0
 
-			target = data_source[i]
+			target = self.train_data[i]
 			raw_loss, output = self.eval_criterion(self.model, target, hidden[0][0])
 			
 			# update hidden
 			# sample at index 0 is the positive sample
-			hidden = [output[target].view(1, batch_size, -1)]	
+			hidden = [output[target].view(1, self.batch_size, -1)]	
 
 			# regularizer
 			loss = loss + raw_loss
 			if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
 
 			# update control variables
-			reset_hidden = True if pos.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
+			reset_hidden = True if target.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			self.optimizer.param_groups[0]['lr'] = lr2# TODO: add other reset conditions
 
 		loss.backward()

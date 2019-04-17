@@ -61,23 +61,30 @@ class NSLanguageModel():
 		reset_hidden = True
 		self.model.eval()
 
+		# if we dump contexts, need a list to store them
+		if not dump_vars is None: contexts = []
+
 		for i in range(data_source.size(0)):
 
 			# control variables
 			if reset_hidden:
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(batch_size)
+				if not dump_vars is None:
+					if i > 0: contexts.append(context)
+					context = hidden[0][0][0].view(1,-1)
 				#hidden = repackage_hidden(hidden)
 
 			# get current word and target
 			target = data_source[i]
 
 			# apply model to all the words, no splits atm!
-			raw_loss, output, new_hidden = self.eval_criterion(self.model, target, hidden[0][0])
+			raw_loss, output = self.eval_criterion(self.model, target, hidden[0][0])
 			
 			# update hidden
 			# we want the target hidden state
-			hidden = new_hidden[0][0][target].view(1, batch_size, -1)
+			hidden = [output[target].view(1, batch_size, -1)]
+			if not dump_vars is None: context = torch.cat((hidden[0][0][0].view(1,-1), context), 0)
 
 			# update loss
 			total_loss += raw_loss
@@ -85,6 +92,9 @@ class NSLanguageModel():
 			# update control variables
 			reset_hidden = True if target.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			# TODO: add other reset conditions
+
+		# dump contexts
+		if not dump_vars is None: dump_contexts(contexts, bsz=batch_size, **dump_vars)
 
 		return total_loss.item() / data_source.size(0)
 

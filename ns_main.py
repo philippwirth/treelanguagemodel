@@ -120,7 +120,7 @@ def run(args):
         val_loss[k,:] = lm.val_loss
 
 
-    return np.mean(loss)
+    return np.mean(loss), lm
 
 '''
     THIS IS MAIN!
@@ -150,7 +150,9 @@ print('Done!')
 print(best_loss)
 print(best_settings)
 '''
-print(run(args))
+loss1, lm = run(args)
+for i in range(5):
+    lm._refine()
 
 
 

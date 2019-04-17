@@ -159,7 +159,62 @@ class NSLanguageModel():
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
 		self.optimizer.zero_grad()#print(loss)
-		print('Test loss: ' + str(loss))#
+		print('Train loss: ' + str(loss))#
+
+	def _refine(self):
+
+		loss = 0
+		reset_hidden = True
+
+		for i in range(self.train_data.size(0)):
+
+			# set learning rate and model trainable
+			lr2 = self.optimizer.param_groups[0]['lr']
+			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
+			self.model.train()
+
+			# control variables
+			if reset_hidden:
+				# if eos, reset hidden state
+				hidden = self.model.init_hidden(self.batch_size)
+				#hidden = repackage_hidden(hidden[0])
+
+			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
+			if i > 0 and i % bptt == 0:
+				# all bptt iterations, do optimizer step
+				loss.backward()
+
+				# clip and update
+				if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
+				self.optimizer.step()
+				self.optimizer.zero_grad()
+
+				# reset loss and hiddens
+				hidden = repackage_hidden(hidden[0])
+				loss = 0
+
+			target = data_source[i]
+			raw_loss, output = self.eval_criterion(self.model, target, hidden[0][0])
+			
+			# update hidden
+			# sample at index 0 is the positive sample
+			hidden = [output[target].view(1, batch_size, -1)]	
+
+			# regularizer
+			loss = loss + raw_loss
+			if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
+
+			# update control variables
+			reset_hidden = True if pos.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
+			self.optimizer.param_groups[0]['lr'] = lr2# TODO: add other reset conditions
+
+		loss.backward()
+
+		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
+		self.optimizer.step()
+		self.optimizer.zero_grad()#print(loss)
+		print('Train loss: ' + str(loss))#
+
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:

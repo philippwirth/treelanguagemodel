@@ -177,7 +177,7 @@ class NSLanguageModel():
 			if reset_hidden:
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(self.batch_size)
-				#hidden = repackage_hidden(hidden[0])
+				hidden = repackage_hidden(hidden[0])
 
 			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 			if i > 0 and i % bptt == 0:

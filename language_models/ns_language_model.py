@@ -163,7 +163,7 @@ class NSLanguageModel():
 
 	def _refine(self):
 
-		loss = 0
+		total_loss, loss = 0, 0
 		reset_hidden = True
 
 		for i in range(self.train_data.size(0)):
@@ -191,6 +191,7 @@ class NSLanguageModel():
 
 				# reset loss and hiddens
 				hidden = repackage_hidden(hidden[0])
+				total_loss += loss
 				loss = 0
 
 			target = self.train_data[i]
@@ -213,7 +214,7 @@ class NSLanguageModel():
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
 		self.optimizer.zero_grad()#print(loss)
-		print('Train loss: ' + str(loss))#
+		print('Train loss: ' + str(total_loss / self.train_data.size(0)))#
 
 
 	def _model_load(self, fn):

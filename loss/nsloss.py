@@ -14,7 +14,7 @@ class NSLoss(nn.Module):
 
 		# compute squared distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist = self.temp*dist_fn(hidden, output).pow(2)
+		dist = self.temp * dist_fn(hidden, output).pow(2)
 
 		# store positive sample
 		pos = -dist[0]

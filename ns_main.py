@@ -26,11 +26,11 @@ parser.add_argument('--lr', type=float, default=0.01,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
-parser.add_argument('--epochs', type=int, default=50,
+parser.add_argument('--epochs', type=int, default=100,
                     help='upper epoch limit')
 parser.add_argument('--batch_size', type=int, default=1, metavar='N',
                     help='batch size')
-parser.add_argument('--bptt', type=int, default=10,
+parser.add_argument('--bptt', type=int, default=70,
                     help='sequence length')
 parser.add_argument('--dropout', type=float, default=0.,
                     help='dropout applied to layers (0 = no dropout)')
@@ -73,7 +73,7 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
 parser.add_argument('--nsamples', type=int, default=5)
-parser.add_argument('--temp', type=float, default=8)
+parser.add_argument('--temp', type=float, default=10)
 # which language model to choose
 parser.add_argument('--lmodel', type=str, default='simplens',
                     help='Which language model to use.')
@@ -151,6 +151,7 @@ print(best_loss)
 print(best_settings)
 '''
 loss1, lm = run(args)
+#lm.optimizer.param_groups[0]['lr'] = 0.01
 for i in range(5):
     lm._refine()
 

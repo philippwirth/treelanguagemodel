@@ -209,8 +209,8 @@ class NSLanguageModel():
 			reset_hidden = True if target.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			self.optimizer.param_groups[0]['lr'] = lr2# TODO: add other reset conditions
 
-		loss.backward()
-
+                total_loss += loss
+		total_loss.backward()
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
 		self.optimizer.zero_grad()#print(loss)
@@ -298,7 +298,7 @@ class NSLanguageModel():
 		# iterate over epochs
 		for epoch in range(1, self.args.epochs + 1):
 
-			# train
+			#self.eval_criterion.temp, self.train_criterion.temp = 60 / epoch, 60/epoch# train
 			epoch_start_time = time.time()
 			self._train(epoch)
 

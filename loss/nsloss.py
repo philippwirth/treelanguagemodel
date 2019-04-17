@@ -29,9 +29,9 @@ class NSLoss(nn.Module):
 class SimpleEvaluationLoss(nn.Module):
 
 
-	def __init__(self, ntokens):
+	def __init__(self, ntokens, temp):
 		super(SimpleEvaluationLoss, self).__init__()
-		self.ntokens = ntokens
+		self.ntokens, self.temp = ntokens, temp
 
 	def forward(self, model, target, hidden):
 

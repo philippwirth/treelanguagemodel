@@ -187,7 +187,7 @@ class NSLanguageModel():
 
 		# build criterion (negative sampling crit)
 		train_criterion = NSLoss(self.args.temp)
-		eval_criterion = SimpleEvaluationLoss(self.ntokens)
+		eval_criterion = SimpleEvaluationLoss(self.ntokens, self.args.temp)
 
 		# build model
 		ntokens = self.ntokens

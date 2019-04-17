@@ -22,11 +22,11 @@ parser.add_argument('--nhid', type=int, default=2,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=1,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=0.008,
+parser.add_argument('--lr', type=float, default=0.01,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
-parser.add_argument('--epochs', type=int, default=1000,
+parser.add_argument('--epochs', type=int, default=100,
                     help='upper epoch limit')
 parser.add_argument('--batch_size', type=int, default=1, metavar='N',
                     help='batch size')
@@ -73,7 +73,7 @@ parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
 parser.add_argument('--nsamples', type=int, default=10)
-parser.add_argument('--temp', type=float, default=5)
+parser.add_argument('--temp', type=float, default=8)
 # which language model to choose
 parser.add_argument('--lmodel', type=str, default='simplens',
                     help='Which language model to use.')
@@ -125,6 +125,7 @@ def run(args):
 '''
     THIS IS MAIN!
 '''
+'''
 L = [[0.001, 0.005, 0.01, 0.05, 0.10, 0.15, 0.25, 1.0, 10., 30.],
     [1, 2, 4, 8],
     ['adam', 'sgd'],
@@ -148,7 +149,8 @@ for (lr, temp, optimizer, nsamples) in L:
 print('Done!')
 print(best_loss)
 print(best_settings)
-
+'''
+print(run(args))
 
 
 

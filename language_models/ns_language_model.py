@@ -74,7 +74,7 @@ class NSLanguageModel():
 				if not dump_vars is None:
 					if i > 0: contexts.append(context)
 					context = hidden[0][0][0].view(1,-1)
-				#hidden = repackage_hidden(hidden)
+				hidden = repackage_hidden(hidden)
 
 			# get current word and target
 			target = data_source[i]
@@ -115,7 +115,7 @@ class NSLanguageModel():
 			if reset_hidden:
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(self.batch_size)
-				#hidden = repackage_hidden(hidden[0])
+				hidden = repackage_hidden(hidden[0])
 
 			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 			if i > 0 and i % bptt == 0:

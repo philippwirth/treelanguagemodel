@@ -209,7 +209,7 @@ class NSLanguageModel():
 			reset_hidden = True if target.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			self.optimizer.param_groups[0]['lr'] = lr2# TODO: add other reset conditions
 
-                total_loss += loss
+		total_loss += loss
 		total_loss.backward()
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()

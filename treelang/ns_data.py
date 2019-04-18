@@ -45,7 +45,7 @@ class Corpus(object):
                     self.dictionary.add_word(word)
 
         # initialize frequencies
-        self.frequencies = torch.zeros(len(self.dictionary.counter))
+        self.frequencies = torch.zeros(sum[1 for (token_id, freq) in self.dictionary.counter.most_common()])
         for (token_id, freq) in self.dictionary.counter.most_common():
             self.frequencies[token_id] = freq
 

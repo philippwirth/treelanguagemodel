@@ -250,7 +250,7 @@ class SplitNSLM():
 
 		# build criterion (negative sampling crit)
 		train_criterion = SplitNegativeSampleCriterion(self.args.temp)
-		eval_criterion = SplitCrossEntropy(self.ntokens, self.args.temp)
+		eval_criterion = SplitCrossEntropy(self.ntokens, self.args.temp, self.splits)
 
 		# build model
 		ntokens = self.ntokens

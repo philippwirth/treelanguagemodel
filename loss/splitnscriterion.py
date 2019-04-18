@@ -36,26 +36,89 @@ class SplitNegativeSampleCriterion(nn.Module):
 class SplitCrossEntropy(nn.Module):
 
 
-	def __init__(self, ntokens, temp):
+	def __init__(self, ntokens, temp, splits):
 		super(SplitCrossEntropy, self).__init__()
-		self.ntokens, self.temp = ntokens, temp
-		#self.splits = splits
+		
+		self.ntokens = ntokens
+		self.temp = temp
+		
+		self.splits = splits
+		self.nsplits = len(splits) - 1
 
-	def forward(self, model, target, hidden):
+		self.head_targets = torch.LongTensor([i for i in range(min(self.ntokens, self.splits[1]))])
+		self.head_targets =self.head_targets.cuda()
 
-		# initialize words and hidden states
-		words = torch.LongTensor([i for i in range(self.ntokens)]).cuda()
-		hiddens = hidden.repeat(self.ntokens, 1)
+		if self.nsplits > 1:
+			self.tail_targets = torch.LongTensor([self.ntokens + i for i in range(self.nsplits-1)]) # minus 1 because head doesn't need repr.
+			self.tail_targets = self.tail_targets.contiguous().cuda()
 
-		# apply model to all words
-		output, new_hidden = model(words.view(1,-1), [hiddens.view(1, self.ntokens, -1)])
+	def _log_probs(self, model, hidden, tokens, batch_size=128):
 
-		# compute distances
 		dist_fn = nn.PairwiseDistance(p=2)
-		dist =  -self.temp * dist_fn(hidden, output).pow(2)
 
-		# compute crossentropy
-		loss = nn.CrossEntropyLoss()
-		return loss(dist.view(1,-1), target.view(1)), output
+		# number of words we evaluate at once
+		nbatch = len(tokens) // batch_size
+		# if we can't divide evenly need one more batch
+		nbatch = nbatch if (len(words) % batch_size) == 0 else nbatch + 1
 
+		for j in range(nbatch):
+
+			# apply model to all words in the split
+			nwords = self.bsz if (j+1)*batch_size <= len(words) else len(words) % batch_size
+			hiddens = self._copy_hidden(hidden, nwords)					# copy hidden state nbatch times
+			word_batch = words[j*batch_size:j*batch_size + nwords]		# get batch of words
+			output, new_hidden = model(word_batch.view(1,-1), hidden)	# evaluate
+			outputs.append(output)
+
+		# compute distances between input and outputs
+		outputs = torch.cat(outputs, dim=0)
+		dist = -self.temp * dist_fn(hidden, output).pow(2)
+
+		softmaxed = torch.nn.functional.log_softmax(dist, dim=-1)
+
+		return softmaxed, outputs
+
+	def forward(self, model, target, hidden, batch_size=128):
+
+		nllloss = nn.NLLLoss()
+
+		# target in head?
+		target_in_head = target < self.splits[1]
+
+		# bring hidden in correct form
+		
+		# head probs
+		head_targets = torch.cat((self.head_targets, self.tail_targets))
+		head_log_probs, outputs = self._log_probs(model, hidden, head_targets, batch_size=batch_size)
+
+		if target_in_head:
+			entropy = -head_log_probs[target]
+		else:
+
+			# find split
+			i, tombstone = 0, self.ntokens - self.nsplits
+			while self.splits[i+1] <= target: i = i+1
+			tombstone = tombstone + i
+
+			# get new hidden
+			new_hidden = outputs[tombstone]
+
+			# compute tail log probabilities
+			left, right = self.splits[i], min(self.splits[i+1], self.ntokens-self.nsplits+1)
+			tail_targets = torch.LongTensor([i for i in range(left, right)]).cuda()
+			tail_log_probs, outputs = self._log_probs(model, new_hidden, tail_targets, batch_size=batch_size)
+
+			# entropy
+			head_entropy = head_log_probs[tombstone]
+			tail_entropy = tail_log_probs[target - self.splits[i]]
+			entropy = -(head_entropy + tail_entropy)
+
+		return entropy, outputs
+
+	def _copy_hidden(self, hidden, n):
+
+		# copy hidden s.t. nbatch is ntokens
+		result = hidden.expand(n, -1)	# ntokens x hsz 
+		result = result.view(1, n, -1)	# (n_layers*n_directions) x ntokens x hsz
+		return [result.contiguous()]	# add another layer of brackets because this is expected input
 

@@ -33,12 +33,13 @@ class SplitNegativeSampleCriterion(nn.Module):
 
 		return loss / len(hiddens)
 
-class SimpleEvaluationLoss(nn.Module):
+class SplitCrossEntropy(nn.Module):
 
 
 	def __init__(self, ntokens, temp):
-		super(SimpleEvaluationLoss, self).__init__()
+		super(SplitCrossEntropy, self).__init__()
 		self.ntokens, self.temp = ntokens, temp
+		self.splits = splits
 
 	def forward(self, model, target, hidden):
 

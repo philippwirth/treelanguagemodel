@@ -186,7 +186,7 @@ class SplitNSLM():
 				outputs = [output_ts, output_tar]
 
 
-			raw_loss = self.train_criterion(hiddens, output)
+			raw_loss = self.train_criterion(hiddens, outputs)
 			
 			# update hidden
 			# sample at index 0 is the positive sample

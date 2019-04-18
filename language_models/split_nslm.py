@@ -95,7 +95,7 @@ class SplitNSLM():
 			
 			# update hidden
 			# we want the target hidden state
-			hidden = [output[target].view(1, batch_size, -1)]
+			hidden = [output.view(1, batch_size, -1)]
 			if not dump_vars is None: context = torch.cat((hidden[0][0][0].view(1,-1), context), 0)
 
 			# update loss

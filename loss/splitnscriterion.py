@@ -31,6 +31,7 @@ class SplitNegativeSampleCriterion(nn.Module):
 
 			loss = loss + (pos - negs)
 
+		print(loss / len(hiddens))
 		return loss / len(hiddens)
 
 class SplitCrossEntropy(nn.Module):

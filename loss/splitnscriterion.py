@@ -59,14 +59,14 @@ class SplitCrossEntropy(nn.Module):
 		# number of words we evaluate at once
 		nbatch = len(tokens) // batch_size
 		# if we can't divide evenly need one more batch
-		nbatch = nbatch if (len(words) % batch_size) == 0 else nbatch + 1
+		nbatch = nbatch if (len(tokens) % batch_size) == 0 else nbatch + 1
 
 		for j in range(nbatch):
 
 			# apply model to all words in the split
-			nwords = self.bsz if (j+1)*batch_size <= len(words) else len(words) % batch_size
-			hiddens = self._copy_hidden(hidden, nwords)					# copy hidden state nbatch times
-			word_batch = words[j*batch_size:j*batch_size + nwords]		# get batch of words
+			ntokens = batch_size if (j+1)*batch_size <= len(tokens) else len(tokens) % batch_size
+			hiddens = self._copy_hidden(hidden, ntokens)					# copy hidden state nbatch times
+			word_batch = words[j*batch_size:j*batch_size + ntokens]		# get batch of words
 			output, new_hidden = model(word_batch.view(1,-1), hidden)	# evaluate
 			outputs.append(output)
 

@@ -30,7 +30,7 @@ class SplitNegativeSampleCriterion(nn.Module):
 			negs = torch.log(torch.sum(dist[1:]))
 
 			loss = loss - (pos - negs)
-			
+
 		return loss / len(hiddens)
 
 class SplitCrossEntropy(nn.Module):
@@ -105,7 +105,7 @@ class SplitCrossEntropy(nn.Module):
 			tombstone = tombstone + i
 
 			# get new hidden
-			new_hidden = outputs[tombstone]
+			new_hidden = outputs[self.splits[1] + i - 1]
 
 			# compute tail log probabilities
 			left, right = self.splits[i], min(self.splits[i+1], self.ntokens-self.nsplits+1)

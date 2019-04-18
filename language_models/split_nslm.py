@@ -168,7 +168,7 @@ class SplitNSLM():
 				while self.splits[i+1] <= target: i = i+1
 
 				# sample negatives for tombstone and run model
-				tombstone = torch.LongTensor([tombstone + i - 1])
+				tombstone = torch.LongTensor([tombstone + i - 1]).cuda()
 				neg = self.sampler(0, self.args.cuda)
 				data_in, hidden_in = self._posneg2input(tombstone, neg, hidden)
 				output_ts, hidden_ts, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
@@ -209,9 +209,7 @@ class SplitNSLM():
 
 
 	def _posneg2input(self, pos, neg, hidden):
-		data_in = torch.zeros((1, len(neg)+1))
-		data_in[0][0] = pos
-		data_in[0][1:] = neg
+		data_in = torch.cat((pos,neg)).view(1,-1)
 		hidden_in = hidden[0].repeat(1, self.args.nsamples+1, 1)
 		return data_in.cuda(), [hidden_in]
 

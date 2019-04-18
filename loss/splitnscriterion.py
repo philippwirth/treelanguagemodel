@@ -113,7 +113,7 @@ class SplitCrossEntropy(nn.Module):
 			tail_log_probs, outputs = self._log_probs(model, new_hidden, tail_targets, batch_size=batch_size)
 
 			# entropy
-			head_entropy = head_log_probs[tombstone]
+			head_entropy = head_log_probs[self.splits[1] + i - 1]
 			tail_entropy = tail_log_probs[target - self.splits[i]]
 			entropy = -(head_entropy + tail_entropy)
 

@@ -54,6 +54,7 @@ class SplitNegativeSampler(nn.Module):
 
 		# use masked frequencies
 		masked_freqs = mask * self.frequencies
+		print(masked_freqs)
 
 		# get a sampler and sample negatives
 		wrs = WeightedRandomSampler(masked_freqs, self.nsamples)

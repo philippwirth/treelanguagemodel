@@ -99,6 +99,7 @@ class SplitCrossEntropy(nn.Module):
 
 		if target_in_head:
 			entropy = -head_log_probs[target]
+			new_hidden = outputs[target]
 		else:
 
 			# find split
@@ -119,7 +120,9 @@ class SplitCrossEntropy(nn.Module):
 			tail_entropy = tail_log_probs[target - self.splits[i]]
 			entropy = -(head_entropy + tail_entropy)
 
-		return entropy, outputs[target - self.splits[i]]
+			new_hidden = outputs[target - self.splits[i]]
+
+		return entropy, new_hidden
 
 	def _copy_hidden(self, hidden, n):
 

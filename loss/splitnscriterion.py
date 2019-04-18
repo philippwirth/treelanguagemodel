@@ -61,6 +61,7 @@ class SplitCrossEntropy(nn.Module):
 		# if we can't divide evenly need one more batch
 		nbatch = nbatch if (len(tokens) % batch_size) == 0 else nbatch + 1
 
+		outputs = []
 		for j in range(nbatch):
 
 			# apply model to all words in the split

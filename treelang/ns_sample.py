@@ -59,7 +59,7 @@ class SplitNegativeSampler(nn.Module):
 		wrs = WeightedRandomSampler(masked_freqs, self.nsamples)
 		negs = torch.LongTensor(list(wrs))
 
-		return (negs.cuda() if cuda else negs)
+		return negs.cuda() if cuda else negs
 
 
 

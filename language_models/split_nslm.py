@@ -149,7 +149,7 @@ class SplitNSLM():
 			target_in_head = target < self.splits[1]
 
 			# if the target is in the head we only have to apply our model once
-			if target_in_head
+			if target_in_head:
 				
 				# take current word, sample negatives, evaluate at once, compute loss
 				neg = self.sampler(0, self.args.cuda)

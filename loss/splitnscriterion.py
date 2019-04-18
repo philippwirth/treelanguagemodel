@@ -30,8 +30,7 @@ class SplitNegativeSampleCriterion(nn.Module):
 			negs = torch.log(torch.sum(dist[1:]))
 
 			loss = loss - (pos - negs)
-
-		print(loss / len(hiddens))
+			
 		return loss / len(hiddens)
 
 class SplitCrossEntropy(nn.Module):

@@ -44,7 +44,7 @@ class SplitNegativeSampler(nn.Module):
 
 	def forward(self, split, cuda):
 
-		print(split)# mask out samples from other splits
+		# mask out samples from other splits
 		mask = torch.zeros(self.frequencies.size())
 		index = torch.LongTensor([i for i in range(self.splits[split], min(self.splits[split+1],self.ntokens-self.nsplits+1))])
 		if split == 0:
@@ -54,13 +54,10 @@ class SplitNegativeSampler(nn.Module):
 
 		# use masked frequencies
 		masked_freqs = mask * self.frequencies
-		print(masked_freqs)
 
 		# get a sampler and sample negatives
 		wrs = WeightedRandomSampler(masked_freqs, self.nsamples)
 		negs = torch.LongTensor(list(wrs))
-		print([self.splits[split], self.splits[split+1]])
-		print(negs)
 
 		return negs.cuda() if cuda else negs
 

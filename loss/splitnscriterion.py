@@ -88,7 +88,10 @@ class SplitCrossEntropy(nn.Module):
 		# bring hidden in correct form
 		
 		# head probs
-		head_targets = torch.cat((self.head_targets, self.tail_targets))
+		if self.nsplits > 1:
+			head_targets = torch.cat((self.head_targets, self.tail_targets))
+		else:
+			head_targets = self.head_targets
 		head_log_probs, outputs = self._log_probs(model, hidden, head_targets, batch_size=batch_size)
 
 		if target_in_head:

@@ -38,7 +38,7 @@ class SplitNegativeSampler(nn.Module):
 
 		self.splits = splits
 		self.nsplits = len(self.splits) - 1
-		self.tombstones = torch.LongTensor([i for i in range(self.ntokens - self.nsplits, self.ntokens)])
+		self.tombstones = torch.LongTensor([i for i in range(self.ntokens - self.nsplits + 1, self.ntokens)])
 
 		super(SplitNegativeSampler, self).__init__()
 

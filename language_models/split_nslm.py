@@ -57,13 +57,11 @@ class SplitNSLM():
 
 		# sampler (update frequencies first)
 		self.frequencies = torch.zeros(self.ntokens)
-		print(self.corpus.frequencies)
 		self.frequencies[:self.ntokens_wots] = self.corpus.frequencies
 		for i in range(1, self.nsplits):
 			tombstone = self.ntokens_wots + i - 1
 			left, right = self.splits[i], min(self.splits[i+1], self.ntokens_wots)
 			self.frequencies[tombstone] = torch.sum(self.frequencies[left:right])
-		print(self.frequencies)
 		self.sampler = SplitNegativeSampler(self.args.nsamples, self.corpus.frequencies, self.splits)
 
 		# finish up
@@ -199,7 +197,7 @@ class SplitNSLM():
 			if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
 
 			# update control variables
-			reset_hidden = True if pos.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
+			reset_hidden = True if target.data.cpu().numpy()[0] in self.corpus.reset_idxs else False
 			self.optimizer.param_groups[0]['lr'] = lr2# TODO: add other reset conditions
 
 		# final weight update	

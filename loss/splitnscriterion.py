@@ -49,7 +49,7 @@ class SplitCrossEntropy(nn.Module):
 		self.head_targets =self.head_targets.cuda()
 
 		if self.nsplits > 1:
-			self.tail_targets = torch.LongTensor([self.ntokens + i for i in range(self.nsplits-1)]) # minus 1 because head doesn't need repr.
+			self.tail_targets = torch.LongTensor([self.ntokens - self.nsplits + 1 + i for i in range(self.nsplits-1)]) # minus 1 because head doesn't need repr.
 			self.tail_targets = self.tail_targets.contiguous().cuda()
 
 	def _log_probs(self, model, hidden, tokens, batch_size=128):
@@ -100,12 +100,12 @@ class SplitCrossEntropy(nn.Module):
 		else:
 
 			# find split
-			i, tombstone = 0, self.ntokens - self.nsplits
+			i = 0
 			while self.splits[i+1] <= target: i = i+1
-			tombstone = tombstone + i
+			tombstone_idx = self.splits[1] + i - 1
 
 			# get new hidden
-			new_hidden = outputs[self.splits[1] + i - 1]
+			new_hidden = outputs[tombstone_idx]
 
 			# compute tail log probabilities
 			left, right = self.splits[i], min(self.splits[i+1], self.ntokens-self.nsplits+1)
@@ -113,7 +113,7 @@ class SplitCrossEntropy(nn.Module):
 			tail_log_probs, outputs = self._log_probs(model, new_hidden, tail_targets, batch_size=batch_size)
 
 			# entropy
-			head_entropy = head_log_probs[self.splits[1] + i - 1]
+			head_entropy = head_log_probs[tombstone_idx]
 			tail_entropy = tail_log_probs[target - self.splits[i]]
 			entropy = -(head_entropy + tail_entropy)
 

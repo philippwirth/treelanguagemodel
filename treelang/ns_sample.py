@@ -7,7 +7,7 @@ class SimpleSampler(nn.Module):
 	def __init__(self, nsamples, frequencies, replacement=True):
 
 		self.nsamples = nsamples
-		self.frequencies = frequencies# / torch.sum(frequencies)).pow(1)
+		self.frequencies = frequencies.pow(0.5)# / torch.sum(frequencies)).pow(0.5)
 		self.replacement = replacement
 		super(SimpleSampler, self).__init__()
 

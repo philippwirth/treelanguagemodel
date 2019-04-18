@@ -22,7 +22,7 @@ parser.add_argument('--nhid', type=int, default=2,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=1,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=0.01,
+parser.add_argument('--lr', type=float, default=.005,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
@@ -72,7 +72,7 @@ parser.add_argument('--dumpat', type=int, default=1,
 parser.add_argument('--dumpto', type=str, default="context_dump_",
                     help="Dump contexts to file starting with <dumpto>.")
 
-parser.add_argument('--nsamples', type=int, default=5)
+parser.add_argument('--nsamples', type=int, default=10)
 parser.add_argument('--temp', type=float, default=10)
 # which language model to choose
 parser.add_argument('--lmodel', type=str, default='simplens',
@@ -151,8 +151,9 @@ print(best_loss)
 print(best_settings)
 '''
 loss1, lm = run(args)
-#lm.optimizer.param_groups[0]['lr'] = 0.01
-for i in range(5):
+print(loss1)
+lm.optimizer.param_groups[0]['lr'] = 0.01
+for i in range(250):
     lm._refine()
 
 

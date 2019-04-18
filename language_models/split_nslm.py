@@ -62,7 +62,7 @@ class SplitNSLM():
 			tombstone = self.ntokens_wots + i - 1
 			left, right = self.splits[i], min(self.splits[i+1], self.ntokens_wots)
 			self.frequencies[tombstone] = torch.sum(self.frequencies[left:right])
-		self.sampler = SplitNegativeSampler(self.args.nsamples, self.corpus.frequencies, self.splits)
+		self.sampler = SplitNegativeSampler(self.args.nsamples, self.frequencies, self.splits)
 
 		# finish up
 		print('Initialization successful!')

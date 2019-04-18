@@ -46,6 +46,8 @@ class Corpus(object):
 
         # initialize frequencies
         self.frequencies = torch.zeros(self.dictionary.total)
+        for (token_id, freq) in self.dictionary.counter.most_common():
+            self.frequencies[token_id] = freq
 
         # Tokenize file content
         with open(path, 'r') as f:
@@ -60,7 +62,6 @@ class Corpus(object):
                         self.reset_idxs.add(self.dictionary.word2idx[word])
 
                     ids[token] = self.dictionary.word2idx[word]
-                    self.frequencies[ids[token]] += 1.
 
                     token += 1
 

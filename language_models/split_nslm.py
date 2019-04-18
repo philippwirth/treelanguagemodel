@@ -157,7 +157,7 @@ class SplitNSLM():
 				data_in, hidden_in = self._posneg2input(target, neg, hidden)
 				output, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
 
-				hiddens = [new_hidden[0][0]]
+				hiddens = [hidden[0][0]]
 				outputs = [output]
 
 			# otherwise we have to sample negatives for the tombstone and the actual token
@@ -182,7 +182,7 @@ class SplitNSLM():
 				output_tar, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
 
 				# collect outputs
-				hiddens = [hidden_ts[0][0], new_hidden[0][0]]
+				hiddens = [hidden_in[0][0], output_ts[0][0]]
 				outputs = [output_ts, output_tar]
 
 

@@ -28,6 +28,41 @@ class SimpleSampler(nn.Module):
 
 		return negs
 
+class SplitNegativeSampler(nn.Module):
+
+	def __init__(self, nsamples, frequencies, splits, exp=0.75):
+
+		self.nsamples = nsamples
+		self.frequencies = (frequencies / torch.sum(frequencies)).pow(exp)
+		self.ntokens = len(self.frequencies)
+
+		self.splits = splits
+		self.nsplits = len(self.splits) - 1
+		self.tombstones = torch.LongTensor([i for i in range(self.ntokens - self.nsplits, self.ntokens)])
+
+		super(SplitNegativeSampler, self).__init__()
+
+	def forward(self, split, cuda):
+
+		# mask out samples from other splits
+		mask = torch.zeros(self.frequencies.size())
+		index = torch.LongTensor([i for i in range(self.splits[split], self.splits[split+1])])
+		if split == 0:
+			# need tombstones in the split
+			index = torch.cat((index, self.tombstones))
+		mask.scatter_(0, index, 1.)
+
+		# use masked frequencies
+		masked_freqs = mask * self.frequencies
+
+		# get a sampler and sample negatives
+		wrs = WeightedRandomSampler(masked_freqs, self.nsamples)
+		negs = torch.LongTensor(list(wrs))
+
+		return (negs.cuda() if cuda else negs)
+
+
+
 		
 
 

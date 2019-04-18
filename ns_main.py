@@ -85,13 +85,15 @@ parser.add_argument('--asgd', type=bool, default=True,
 # how many times should we run the training sess?
 parser.add_argument('--nruns', type=int, default=1,
                     help="how many times to run.")
+parser.add_argument('--splits', nargs="+", type=int, default=[2, 6])
+
 
 args = parser.parse_args()
 
 def run(args):
 
     # import correct language model
-    from language_models.ns_language_model import NSLanguageModel as LanguageModel
+    from language_models.split_nslm import SplitNSLM as LanguageModel
 
     # set the random seed manually for reproducibility.
     random.seed(args.seed)

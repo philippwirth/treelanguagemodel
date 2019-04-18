@@ -46,6 +46,7 @@ class Corpus(object):
 
         # initialize frequencies
         self.frequencies = torch.zeros(len(list(self.dictionary.counter)))
+        print(self.frequencies)
         for (token_id, freq) in self.dictionary.counter.most_common():
             self.frequencies[token_id] = freq
 

@@ -57,6 +57,8 @@ class SplitNSLM():
 
 		# sampler (update frequencies first)
 		self.frequencies = torch.zeros(self.ntokens)
+		print(self.frequencies)
+		print(self.corpus.frequencies)
 		self.frequencies[:self.ntokens_wots] = self.corpus.frequencies
 		for i in range(1, self.nsplits):
 			tombstone = self.ntokens_wots + i - 1

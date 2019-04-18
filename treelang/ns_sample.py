@@ -58,6 +58,7 @@ class SplitNegativeSampler(nn.Module):
 		# get a sampler and sample negatives
 		wrs = WeightedRandomSampler(masked_freqs, self.nsamples)
 		negs = torch.LongTensor(list(wrs))
+		print(negs)
 
 		return negs.cuda() if cuda else negs
 

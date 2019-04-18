@@ -39,7 +39,7 @@ class SplitCrossEntropy(nn.Module):
 	def __init__(self, ntokens, temp):
 		super(SplitCrossEntropy, self).__init__()
 		self.ntokens, self.temp = ntokens, temp
-		self.splits = splits
+		#self.splits = splits
 
 	def forward(self, model, target, hidden):
 

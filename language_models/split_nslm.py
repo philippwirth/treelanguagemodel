@@ -209,7 +209,9 @@ class SplitNSLM():
 
 
 	def _posneg2input(self, pos, neg, hidden):
-		data_in = torch.cat((pos, neg)).view(1,-1)
+		data_in = torch.zeros((1, len(neg)+1))
+		data_in[0] = pos
+		data_in[1:] = neg
 		hidden_in = hidden[0].repeat(1, self.args.nsamples+1, 1)
 		return data_in, [hidden_in]
 

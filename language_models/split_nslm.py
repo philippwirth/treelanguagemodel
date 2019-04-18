@@ -210,10 +210,10 @@ class SplitNSLM():
 
 	def _posneg2input(self, pos, neg, hidden):
 		data_in = torch.zeros((1, len(neg)+1))
-		data_in[0] = pos
-		data_in[1:] = neg
+		data_in[0][0] = pos
+		data_in[0][1:] = neg
 		hidden_in = hidden[0].repeat(1, self.args.nsamples+1, 1)
-		return data_in, [hidden_in]
+		return data_in.cuda(), [hidden_in]
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:

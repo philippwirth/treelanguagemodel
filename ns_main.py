@@ -87,6 +87,9 @@ parser.add_argument('--nruns', type=int, default=1,
                     help="how many times to run.")
 parser.add_argument('--splits', nargs="+", type=int, default=[])
 
+parser.add_argument('--evaluate', type=int, default=100,
+                    help="when to evaluate (because it's slow)")
+
 
 args = parser.parse_args()
 
@@ -122,7 +125,7 @@ def run(args):
         val_loss[k,:] = lm.val_loss
 
 
-    return np.mean(loss), lm
+    return val_loss
 
 '''
     THIS IS MAIN!
@@ -152,8 +155,12 @@ print('Done!')
 print(best_loss)
 print(best_settings)
 '''
-loss = [run(args) for i in range(1)]
-print(loss)
+args.splits = [100*i for i in range(1,100)]
+
+loss = run(args)
+print(np.amin(loss))
+print(np.mean(loss))
+print(np.var(loss))
 
 
 

@@ -298,6 +298,10 @@ class SplitNSLM():
 			epoch_start_time = time.time()
 			self._train(epoch)
 
+			if epoch % self.args.evaluate > 0:
+				print('Time: ' + str(time.time() - epoch_start_time))
+				continue
+
 			# this is if asgd is active
 			if 't0' in self.optimizer.param_groups[0]:
 				tmp = {}

@@ -164,25 +164,25 @@ class SplitNSLM():
 			else:
 
 				# find index of tombstone
-				i, tombstone = 0, self.ntokens - self.nsplits + 1
-				while self.splits[i+1] <= target: i = i+1
+				idx, tombstone = 0, self.ntokens - self.nsplits + 1
+				while self.splits[idx+1] <= target: idx = idx+1
 
 				# sample negatives for tombstone and run model
-				tombstone = torch.LongTensor([tombstone + i - 1]).cuda()
+				tombstone = torch.LongTensor([tombstone + idx - 1]).cuda()
 				neg = self.sampler(0, self.args.cuda)
-				data_in, hidden_in = self._posneg2input(tombstone, neg, hidden)
-				output_ts, hidden_ts, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
+				data_in, hidden_in_ts = self._posneg2input(tombstone, neg, hidden)
+				output_ts, hidden_ts, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in_ts, return_h=True)
 
 				# udpate hidden
-				hidden = hidden_ts[0][0][0].view(1, self.batch_size, -1)
+				hidden = output_ts[0].view(1, self.batch_size, -1)
 
 				# now, sample index for actual token and run model
-				neg = self.sampler(i, self.args.cuda)
+				neg = self.sampler(idx, self.args.cuda)
 				data_in, hidden_in = self._posneg2input(target, neg, hidden)
 				output_tar, new_hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
 
 				# collect outputs
-				hiddens = [hidden_in[0][0], output_ts[0][0]]
+				hiddens = [hidden_in_ts[0][0], hidden_in[0][0]]
 				outputs = [output_ts, output_tar]
 
 

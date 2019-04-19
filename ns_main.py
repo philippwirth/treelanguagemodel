@@ -22,11 +22,11 @@ parser.add_argument('--nhid', type=int, default=2,
                     help='number of hidden units per layer')
 parser.add_argument('--nlayers', type=int, default=1,
                     help='number of layers')
-parser.add_argument('--lr', type=float, default=.005,
+parser.add_argument('--lr', type=float, default=0.01,
                     help='initial learning rate')
 parser.add_argument('--clip', type=float, default=0.25,
                     help='gradient clipping')
-parser.add_argument('--epochs', type=int, default=100,
+parser.add_argument('--epochs', type=int, default=1000,
                     help='upper epoch limit')
 parser.add_argument('--batch_size', type=int, default=1, metavar='N',
                     help='batch size')
@@ -85,7 +85,7 @@ parser.add_argument('--asgd', type=bool, default=True,
 # how many times should we run the training sess?
 parser.add_argument('--nruns', type=int, default=1,
                     help="how many times to run.")
-parser.add_argument('--splits', nargs="+", type=int, default=[2, 6])
+parser.add_argument('--splits', nargs="+", type=int, default=[])
 
 
 args = parser.parse_args()
@@ -152,12 +152,8 @@ print('Done!')
 print(best_loss)
 print(best_settings)
 '''
-loss1, lm = run(args)
-print(loss1)
-lm.optimizer.param_groups[0]['lr'] = 0.01
-for i in range(250):
-    lm._refine()
-
+loss = [run(args) for i in range(1)]
+print(loss)
 
 
 

@@ -33,6 +33,40 @@ class SplitNegativeSampleCriterion(nn.Module):
 
 		return loss / len(hiddens)
 
+
+class NegativeSampleCriterion(nn.Module):
+
+	def __init__(self, temp=5):
+		super(SplitNegativeSampleCriterion, self).__init__()
+		self.temp = temp
+
+	def forward(self, output):
+
+		dist_fn = nn.PairwiseDistance(p=2)
+
+		# seq_len includes the initial hidden states! look out for that
+		seq_len, seq_len_times_nsamples, hsz = output.size()
+		nsamples = (seq_len_times_nsamples-1) // (seq_len-1)	# minus 1 because initial hiddens
+
+		# compute loss
+		loss = 0
+		for i in range(1, seq_len):
+			# don't consider initial hidden states
+
+			# get positive term
+			pos = -self.temp * dist_fn(output[i-1][0], output[i][0])
+
+			# get negative term
+			left, right = (i-1)*nsamples+1, i*nsamples+1
+			dist = -self.temp * dist_fn(output[i-1][0], output[i][left:right])
+			neg = torch.log(torch.sum(torch.exp(dist)))
+
+			# update loss
+			loss -= (pos - neg) / seq_len
+
+		return loss
+
+
 class SplitCrossEntropy(nn.Module):
 
 

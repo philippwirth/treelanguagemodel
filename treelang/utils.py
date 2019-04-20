@@ -55,3 +55,19 @@ def get_batch_treelang(source, i, args, seq_len=None, evaluation=False):
     data = source[i:i+seq_len]
     target = source[i+1:i+1+seq_len].view(-1)
     return data, target
+
+
+def get_sequence(source, i, stops):
+
+    # find next stop
+    j = i
+    while not source[j] in stops: j += 1
+
+    # optionally: fill in splits
+
+    # return sequence
+    return source[i:j]
+
+
+
+

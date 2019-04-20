@@ -188,8 +188,8 @@ class SplitNSLM():
 
 			raw_loss = self.train_criterion(hiddens, outputs)
 			
-			# update hidden
-			# sample at index 0 is the positive sample
+			if i % 100 == 0: print(str(100*i/self.train_data.size(0))+'%')# update hidden
+                        #sample at index 0 is the positive sample
 			hidden = new_hidden[0][0][0].view(1, self.batch_size, -1)	
 
 			# regularizer

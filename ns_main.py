@@ -87,7 +87,7 @@ parser.add_argument('--nruns', type=int, default=1,
                     help="how many times to run.")
 parser.add_argument('--splits', nargs="+", type=int, default=[])
 
-parser.add_argument('--evaluate', type=int, default=100,
+parser.add_argument('--evaluate', type=int, default=1,
                     help="when to evaluate (because it's slow)")
 
 
@@ -155,7 +155,7 @@ print('Done!')
 print(best_loss)
 print(best_settings)
 '''
-args.splits = [100*i for i in range(1,100)]
+args.splits = [1000*i for i in range(1,10)]
 
 loss = run(args)
 print(np.amin(loss))

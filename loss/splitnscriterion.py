@@ -62,8 +62,6 @@ class NegativeSampleCriterion(nn.Module):
 			neg = torch.log(torch.sum(torch.exp(dist)))
 
 			# update loss
-			print(pos)
-			print(negs)
 			loss -= (pos - neg) / seq_len
 
 		return loss

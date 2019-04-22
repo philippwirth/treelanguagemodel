@@ -117,6 +117,7 @@ class SplitNSLM():
 		total_loss, loss = 0, 0
 
 		i, last_update = 0, 0
+		print(self.corpus.reset_idxs)
 		while i < self.train_data.size(0):
 
 			# set learning rate and model trainable
@@ -151,7 +152,7 @@ class SplitNSLM():
 
 			# get the next sequence (a line from the data set atm)
 			sequence = get_sequence(self.train_data, i, self.corpus.reset_idxs)
-			print(sequence)
+			print(str(i) + " " + str(sequence))
 
 			# determine sequence length, i.e. how many steps we take at a time
 			seq_len = 8 if np.random.random() > 1. else 10	# change hardcoded stuff!

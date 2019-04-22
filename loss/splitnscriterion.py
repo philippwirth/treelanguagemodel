@@ -130,7 +130,6 @@ class SplitCrossEntropy(nn.Module):
 		head_log_probs, outputs = self._log_probs(model, hidden, head_targets, batch_size=batch_size)
 
 		if target_in_head:
-			print(str(head_log_probs.size()) + " " +str(target))
 			entropy = -head_log_probs[target]
 			new_hidden = outputs[target]
 		else:

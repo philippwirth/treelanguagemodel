@@ -38,7 +38,5 @@ class NegativeSampler(nn.Module):
 			offset += step
 
 		# return data
-		return torch.cat((sequence.view(-1,1), data.cuda()), 1)
+		return torch.cat((sequence[start:start+seq_len].view(-1,1), data.cuda()), 1)
 
-
-		

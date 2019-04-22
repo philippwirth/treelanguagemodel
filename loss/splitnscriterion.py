@@ -102,7 +102,6 @@ class SplitCrossEntropy(nn.Module):
 
 			# apply model to all words in the split
 			ntokens = batch_size if (j+1)*batch_size <= len(tokens) else len(tokens) % batch_size
-			print(str(j*batch_size + ntokens) + " and " + str(len(tokens)))
 			hiddens = self._copy_hidden(hidden, ntokens)					# copy hidden state nbatch times
 			token_batch = tokens[j*batch_size:j*batch_size + ntokens]		# get batch of words
 			output, new_hidden = model(token_batch.view(1,-1), hiddens)	# evaluate
@@ -131,6 +130,7 @@ class SplitCrossEntropy(nn.Module):
 		head_log_probs, outputs = self._log_probs(model, hidden, head_targets, batch_size=batch_size)
 
 		if target_in_head:
+			print(str(head_log_probs.size()) + " " +str(target))
 			entropy = -head_log_probs[target]
 			new_hidden = outputs[target]
 		else:

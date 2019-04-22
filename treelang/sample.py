@@ -33,7 +33,7 @@ class NegativeSampler(nn.Module):
 			# fill in positive samples
 			index = torch.LongTensor([j for j in range(step, self.nsamples*seq_len)])
 			if len(index) > 0:
-				data[i].scatter_(0, index, sequence[i].cpu())
+				data[i].scatter_(0, index, sequence[i][0].cpu())
 
 			offset += step
 

@@ -183,11 +183,12 @@ class SplitNSLM():
 				if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
 
 				# update hidden state
-				hidden = [hidden[0][0].view(1, self.batch_size, -1)]
+				hidden = [hidden[0][0][0].view(1, self.batch_size, -1)]
 
 			# reset the learning rate
 			self.optimizer.param_groups[0]['lr'] = lr2
 			i = i + len(sequence)
+			print(100 * i / self.train_data.size(0))
 
 		# final weight update	
 		loss.backward()

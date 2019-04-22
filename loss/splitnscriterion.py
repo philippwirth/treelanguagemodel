@@ -29,8 +29,6 @@ class SplitNegativeSampleCriterion(nn.Module):
 			dist = torch.exp(-dist)
 			negs = torch.log(torch.sum(dist[1:]))
 
-			print(pos)
-			print(negs)
 			loss = loss - (pos - negs)
 
 		return loss / len(hiddens)
@@ -56,7 +54,7 @@ class NegativeSampleCriterion(nn.Module):
 			# don't consider initial hidden states
 
 			# get positive term
-			pos = -self.temp * dist_fn(output[i-1][0], output[i])
+			pos = -self.temp * dist_fn(output[i-1][0], output[i][0])
 
 			# get negative term
 			left, right = (i-1)*nsamples+1, i*nsamples+1
@@ -64,6 +62,8 @@ class NegativeSampleCriterion(nn.Module):
 			neg = torch.log(torch.sum(torch.exp(dist)))
 
 			# update loss
+			print(pos)
+			print(negs)
 			loss -= (pos - neg) / seq_len
 
 		return loss

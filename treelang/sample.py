@@ -26,13 +26,18 @@ class NegativeSampler(nn.Module):
 		for i in range(seq_len):
 			step = (i+1)*self.nsamples
 
-                        # fill in negative samples
+			# fill in negative samples
+			print(data[i])
 			index = torch.LongTensor([j for j in range(step)])
+			print(index)
 			data[i].scatter(0, index, samples[offset:offset+step])
+			print(data[i])
 
-                        # fill in positive samples
-                        index = torch.LongTensor([j for j in range(step, self.nsamples*seq_len)])
+			# fill in positive samples
+			index = torch.LongTensor([j for j in range(step, self.nsamples*seq_len)])
+			print(index)
 			data[i].scatter(0, index, sequence[i].cpu())
+			print(data[i])
 
 			offset += step
 

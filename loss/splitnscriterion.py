@@ -109,7 +109,7 @@ class SplitCrossEntropy(nn.Module):
 
 		# compute distances between input and outputs
 		outputs = torch.cat(outputs, dim=0)
-		dist = -self.temp * dist_fn(hidden, output).pow(2)
+		dist = -self.temp * dist_fn(hidden, outputs).pow(2)
 
 		softmaxed = torch.nn.functional.log_softmax(dist, dim=0)
 

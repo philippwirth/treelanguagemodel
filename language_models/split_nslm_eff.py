@@ -161,6 +161,7 @@ class SplitNSLM():
 
 				# determine the actual sequence length
 				act_seq_len = seq_len if j+seq_len <= len(sequence) else len(sequence) % seq_len
+				print(act_seq_len)
 
 				# sample negatives
 				# input shape is: act_seq_len x (1 + nsamples*act_seq_len)

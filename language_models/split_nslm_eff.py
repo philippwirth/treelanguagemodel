@@ -201,7 +201,7 @@ class SplitNSLM():
 	def _copy_hidden(self, hidden, seq_len):
 		new_hidden = []
 		for h in hidden:
-			new_hidden.append(h.expand(1, self.args.nsamples*seq_len+1, 1))
+			new_hidden.append(h.repeat(1, self.args.nsamples*seq_len+1, 1))
 		return new_hidden
 
 	def _posneg2input(self, pos, neg, hidden):

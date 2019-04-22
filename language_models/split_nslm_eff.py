@@ -172,7 +172,7 @@ class SplitNSLM():
 				output, hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
 
 				# concatenate hidden state with output & append
-				output = output.view(act_seq_len, 1+self.nsamples*act_seq_len, hsz)
+				output = output.view(act_seq_len, 1+self.args.nsamples*act_seq_len, hsz)
 				output = torch.cat((hidden_in[0], output), 0)
 
 				# apply criterion

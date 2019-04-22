@@ -61,7 +61,7 @@ def get_sequence(source, i, stops):
 
     # find next stop
     j = i
-    while not (source[j].data.cpu().numpy()[0]) and (j < source.size(0)) in stops: j += 1
+    while (j < source.size(0)) and (not source[j].data.cpu().numpy()[0] in stops): j += 1
 
     # optionally: fill in splits
 

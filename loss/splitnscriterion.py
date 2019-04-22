@@ -54,6 +54,8 @@ class NegativeSampleCriterion(nn.Module):
 			# don't consider initial hidden states
 
 			# get positive term
+			print(output[i-1][0])
+			print(output[i][0])
 			pos = -self.temp * dist_fn(output[i-1][0], output[i][0])
 
 			# get negative term

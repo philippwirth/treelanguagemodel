@@ -151,6 +151,7 @@ class SplitNSLM():
 
 			# get the next sequence (a line from the data set atm)
 			sequence = get_sequence(self.train_data, i, self.corpus.reset_idxs)
+			print(sequence)
 
 			# determine sequence length, i.e. how many steps we take at a time
 			seq_len = 8 if np.random.random() > 1. else 10	# change hardcoded stuff!

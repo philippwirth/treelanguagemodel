@@ -101,6 +101,7 @@ class SplitCrossEntropy(nn.Module):
 		for j in range(nbatch):
 
 			# apply model to all words in the split
+			print(str(j*batch_size) + " and " + str(ntokens))
 			ntokens = batch_size if (j+1)*batch_size <= len(tokens) else len(tokens) % batch_size
 			hiddens = self._copy_hidden(hidden, ntokens)					# copy hidden state nbatch times
 			token_batch = tokens[j*batch_size:j*batch_size + ntokens]		# get batch of words
@@ -116,8 +117,6 @@ class SplitCrossEntropy(nn.Module):
 		return softmaxed, outputs
 
 	def forward(self, model, target, hidden, batch_size=128):
-
-		nllloss = nn.NLLLoss()
 
 		# target in head?
 		target_in_head = target < self.splits[1]

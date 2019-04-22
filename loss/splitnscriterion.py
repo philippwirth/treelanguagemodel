@@ -37,7 +37,7 @@ class SplitNegativeSampleCriterion(nn.Module):
 class NegativeSampleCriterion(nn.Module):
 
 	def __init__(self, temp=5):
-		super(SplitNegativeSampleCriterion, self).__init__()
+		super(NegativeSampleCriterion, self).__init__()
 		self.temp = temp
 
 	def forward(self, output):

@@ -111,7 +111,7 @@ class SplitCrossEntropy(nn.Module):
 		outputs = torch.cat(outputs, dim=0)
 		dist = -self.temp * dist_fn(hidden, output).pow(2)
 
-		softmaxed = torch.nn.functional.log_softmax(dist, dim=-1)
+		softmaxed = torch.nn.functional.log_softmax(dist, dim=1)
 
 		return softmaxed, outputs
 

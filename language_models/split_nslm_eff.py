@@ -84,7 +84,7 @@ class SplitNSLM():
 				# if eos, reset hidden state
 				hidden = self.model.init_hidden(batch_size)
 				if not dump_vars is None:
-					if i > 0: contexts.append(context)
+					if not dump_vars and i > 0: contexts.append(context)
 					context = hidden[0][0][0].view(1,-1)
 				hidden = repackage_hidden(hidden)
 

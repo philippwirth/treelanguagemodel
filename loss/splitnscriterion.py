@@ -29,6 +29,8 @@ class SplitNegativeSampleCriterion(nn.Module):
 			dist = torch.exp(-dist)
 			negs = torch.log(torch.sum(dist[1:]))
 
+			print(pos)
+			print(negs)
 			loss = loss - (pos - negs)
 
 		return loss / len(hiddens)

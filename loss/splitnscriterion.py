@@ -55,8 +55,8 @@ class NegativeSampleCriterion(nn.Module):
 
 			# get positive term
 			print(output[i-1][0])
-			print(output[i][0])
-			pos = -self.temp * dist_fn(output[i-1][0], output[i][0])
+			print(output[i])
+			pos = -self.temp * dist_fn(output[i-1][0], output[i])
 
 			# get negative term
 			left, right = (i-1)*nsamples+1, i*nsamples+1

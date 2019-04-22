@@ -117,7 +117,6 @@ class SplitNSLM():
 		total_loss, loss = 0, 0
 
 		i, last_update = 0, 0
-		print(self.corpus.reset_idxs)
 		while i < self.train_data.size(0):
 
 			# set learning rate and model trainable
@@ -184,7 +183,6 @@ class SplitNSLM():
 				if self.args.alpha: loss = loss + sum(self.args.alpha * dropped_rnn_h.pow(2).mean() for dropped_rnn_h in dropped_rnn_hs[-1:])
 
 				# update hidden state
-				print(loss)
 				hidden = [hidden[0][0].view(1, self.batch_size, -1)]
 
 			# reset the learning rate

@@ -117,6 +117,11 @@ class SplitNSLM():
 		total_loss, loss = 0, 0
 
 		i, last_update = 0, 0
+
+		# determine bptt
+		bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
+		bptt2 = max(5, int(np.random.normal(bptt, 5)))
+
 		while i < self.train_data.size(0):
 
 			# make model trainable
@@ -126,11 +131,12 @@ class SplitNSLM():
 			hidden = self.model.init_hidden(self.args.batch_size)
 			hidden = repackage_hidden(hidden)
 
-			# determine bptt
-			bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
+			# set learning rate
+			lr2 = self.optimizer.param_groups[0]['lr']
+			self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
 
 			# backpropagate etc!
-			if i - last_update >= bptt:
+			if i - last_update >= bptt2:
 
 				# keep note of last update
 				last_update = i
@@ -142,6 +148,10 @@ class SplitNSLM():
 				# update weights & reset gradients
 				self.optimizer.step()
 				self.optimizer.zero_grad()
+
+				# determine bptt
+				bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
+				bptt2 = max(5, int(np.random.normal(bptt, 5)))
 
 				# reset loss
 				total_loss = total_loss + loss
@@ -159,10 +169,6 @@ class SplitNSLM():
 
 				# determine the actual sequence length
 				act_seq_len = seq_len if j+seq_len <= len(sequence) else len(sequence) % seq_len
-
-				# set learning rate
-				lr2 = self.optimizer.param_groups[0]['lr']
-				self.optimizer.param_groups[0]['lr'] = lr2 * act_seq_len / self.args.bptt
 
 				# sample negatives
 				# input shape is: act_seq_len x (1 + nsamples*act_seq_len)
@@ -187,13 +193,13 @@ class SplitNSLM():
 				# update hidden state
 				hidden = [hidden[0][0][0].view(1, self.batch_size, -1)]
 
-				# reset the learning rate
-				self.optimizer.param_groups[0]['lr'] = lr2
+			# reset the learning rate
+			self.optimizer.param_groups[0]['lr'] = lr2
 			
 			i = i + len(sequence)
 			#print(100 * i / self.train_data.size(0))
 
-                #print(loss)# final weight update	
+		# final weight update	
 		loss.backward()
 
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)

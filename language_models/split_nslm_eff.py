@@ -138,12 +138,13 @@ class SplitNSLM():
 				last_update = i
 
 				# backpropagate 
-				loss.backward()
-				if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
+				if i > 0:
+					loss.backward()
+					if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 
-				# update weights & reset gradients
-				self.optimizer.step()
-				self.optimizer.zero_grad()
+					# update weights & reset gradients
+					self.optimizer.step()
+					self.optimizer.zero_grad()
 
 				# determine bptt
 				bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.

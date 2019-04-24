@@ -137,26 +137,23 @@ class SplitNSLM():
 				# keep note of last update
 				last_update = i
 
-				# backpropagate 
 				if i > 0:
+					# backpropagate 
 					loss.backward()
 					if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
-
-					# update weights & reset gradients
 					self.optimizer.step()
-					self.optimizer.zero_grad()
+				
+				# set optimizer gradients to 0
+				self.optimizer.zero_grad()
 
 				# determine bptt
 				bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 				bptt2 = max(5, int(np.random.normal(bptt, 5)))
-				print(bptt2)
 
 				# set learning rate
 				self.optimizer.param_groups[0]['lr'] = lr2
 				lr2 = self.optimizer.param_groups[0]['lr']
 				self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
-
-				print(self.optimizer.param_groups[0]['lr'])
 
 				# reset loss
 				total_loss = total_loss + loss
@@ -207,11 +204,10 @@ class SplitNSLM():
 
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
 		self.optimizer.step()
-		self.optimizer.zero_grad()
-
+		
 		# reset learning rate
 		self.optimizer.param_groups[0]['lr'] = lr2
-		print(self.optimizer.param_groups[0]['lr'])
+
 		return total_loss
 
 	def _copy_hidden(self, hidden, seq_len):

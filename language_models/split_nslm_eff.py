@@ -153,8 +153,7 @@ class SplitNSLM():
 				# set learning rate
 				self.optimizer.param_groups[0]['lr'] = lr2
 				lr2 = self.optimizer.param_groups[0]['lr']
-				#self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
-				self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
+				self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
 
 				# reset loss
 				total_loss = total_loss + loss

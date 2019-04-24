@@ -206,6 +206,8 @@ class SplitNSLM():
 		self.optimizer.step()
 		self.optimizer.zero_grad()
 
+		# reset learning rate
+		self.optimizer.param_groups[0]['lr'] = lr2
 		return total_loss
 
 	def _copy_hidden(self, hidden, seq_len):

@@ -109,7 +109,7 @@ class SplitNSLM():
 		# dump contexts
 		if not dump_vars is None: dump_contexts(contexts, bsz=batch_size, **dump_vars)
 
-		return total_loss.item() / data_source.size(0)
+		return total_loss / data_source.size(0)
 
 	def _train(self, epoch):
 
@@ -188,9 +188,9 @@ class SplitNSLM():
 			# reset the learning rate
 			self.optimizer.param_groups[0]['lr'] = lr2
 			i = i + len(sequence)
-			print(100 * i / self.train_data.size(0))
+			#print(100 * i / self.train_data.size(0))
 
-		# final weight update	
+                #print(loss)# final weight update	
 		loss.backward()
 
 		if self.args.clip: torch.nn.utils.clip_grad_norm_(self.params, self.args.clip)
@@ -360,15 +360,15 @@ class SplitNSLM():
 
 		# done with training!
 		# load best model and evaluate it on the test set
-		self._model_load(self.args.save)
-		test_loss = self._evaluate(self.test_data, self.test_batch_size)
-		print('=' * 89)
-		print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
-			test_loss, math.exp(test_loss), test_loss / math.log(2)))
-		print('=' * 89)
-		print('| End of training | best loss {:5.2f} | best ppl {:8.2f} | best bpc {:8.3f}'.format(
-			stored_loss, math.exp(stored_loss), stored_loss / math.log(2)))
-		print('=' * 89)
+		#self._model_load(self.args.save)
+		#test_loss = self._evaluate(self.test_data, self.test_batch_size)
+		#print('=' * 89)
+		#print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
+		#	test_loss, math.exp(test_loss), test_loss / math.log(2)))
+		#print('=' * 89)
+		#print('| End of training | best loss {:5.2f} | best ppl {:8.2f} | best bpc {:8.3f}'.format(
+		#	stored_loss, math.exp(stored_loss), stored_loss / math.log(2)))
+		#print('=' * 89)
 
 		return test_loss
 

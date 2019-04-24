@@ -119,8 +119,8 @@ class SplitNSLM():
 		i, last_update = 0, 0
 
 		# determine bptt
-		bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
-		bptt2 = max(5, int(np.random.normal(bptt, 5)))
+		bptt2 = 0
+		lr2 = self.optimizer.param_groups[0]['lr']
 
 		while i < self.train_data.size(0):
 
@@ -130,10 +130,6 @@ class SplitNSLM():
 			# initialize hidden to 0
 			hidden = self.model.init_hidden(self.args.batch_size)
 			hidden = repackage_hidden(hidden)
-
-			# set learning rate
-			lr2 = self.optimizer.param_groups[0]['lr']
-			self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
 
 			# backpropagate etc!
 			if i - last_update >= bptt2:
@@ -153,15 +149,21 @@ class SplitNSLM():
 				bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 				bptt2 = max(5, int(np.random.normal(bptt, 5)))
 
+				# set learning rate
+				self.optimizer.param_groups[0]['lr'] = lr2
+				lr2 = self.optimizer.param_groups[0]['lr']
+				self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
+
 				# reset loss
 				total_loss = total_loss + loss
 				loss = 0
+
 
 			# get the next sequence (a line from the data set atm)
 			sequence = get_sequence(self.train_data, i, self.corpus.reset_idxs)
 
 			# determine sequence length, i.e. how many steps we take at a time
-			seq_len = 8 if np.random.random() > 1. else 10	# change hardcoded stuff!
+			seq_len = 8 if np.random.random() > .5 else 10	# change hardcoded stuff!
 
 			# evaluate positive and negative samples
 			outputs = []
@@ -192,9 +194,6 @@ class SplitNSLM():
 
 				# update hidden state
 				hidden = [hidden[0][0][0].view(1, self.batch_size, -1)]
-
-			# reset the learning rate
-			self.optimizer.param_groups[0]['lr'] = lr2
 			
 			i = i + len(sequence)
 			#print(100 * i / self.train_data.size(0))

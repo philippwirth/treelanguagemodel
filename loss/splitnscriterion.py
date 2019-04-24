@@ -59,7 +59,7 @@ class NegativeSampleCriterion(nn.Module):
 			# get negative term
 			left, right = (i-1)*nsamples+1, i*nsamples+1
 			dist = -self.temp * dist_fn(output[i-1][0], output[i][left:right])
-			neg = torch.log(torch.sum(torch.exp(dist)))
+			neg = torch.log(0.001 + torch.sum(torch.exp(dist)))
 
 			# update loss
 			loss -= (pos - neg) / seq_len
@@ -154,7 +154,7 @@ class SplitCrossEntropy(nn.Module):
 
 			new_hidden = outputs[target - self.splits[i]]
 
-		return entropy, new_hidden
+		return entropy.item(), new_hidden.detach()
 
 	def _copy_hidden(self, hidden, n):
 

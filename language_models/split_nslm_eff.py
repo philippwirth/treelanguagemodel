@@ -149,11 +149,14 @@ class SplitNSLM():
 				# determine bptt
 				bptt = self.args.bptt if np.random.random() < 0.95 else self.args.bptt / 2.
 				bptt2 = max(5, int(np.random.normal(bptt, 5)))
+				print(bptt2)
 
 				# set learning rate
 				self.optimizer.param_groups[0]['lr'] = lr2
 				lr2 = self.optimizer.param_groups[0]['lr']
 				self.optimizer.param_groups[0]['lr'] = lr2 * bptt2 / self.args.bptt
+
+				print(self.optimizer.param_groups[0]['lr'])
 
 				# reset loss
 				total_loss = total_loss + loss

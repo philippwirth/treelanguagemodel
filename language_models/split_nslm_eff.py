@@ -119,9 +119,7 @@ class SplitNSLM():
 		i, last_update = 0, 0
 		while i < self.train_data.size(0):
 
-			# set learning rate and model trainable
-			lr2 = self.optimizer.param_groups[0]['lr']
-			self.optimizer.param_groups[0]['lr'] = lr2 * 1 / self.args.bptt
+			# make model trainable
 			self.model.train()
 
 			# initialize hidden to 0
@@ -162,6 +160,10 @@ class SplitNSLM():
 				# determine the actual sequence length
 				act_seq_len = seq_len if j+seq_len <= len(sequence) else len(sequence) % seq_len
 
+				# set learning rate
+				lr2 = self.optimizer.param_groups[0]['lr']
+				self.optimizer.param_groups[0]['lr'] = lr2 * act_seq_len / self.args.bptt
+
 				# sample negatives
 				# input shape is: act_seq_len x (1 + nsamples*act_seq_len)
 				# hiddn shape is: [1 x (1 + nsamples*act_seq_len) x hsz]
@@ -185,8 +187,9 @@ class SplitNSLM():
 				# update hidden state
 				hidden = [hidden[0][0][0].view(1, self.batch_size, -1)]
 
-			# reset the learning rate
-			self.optimizer.param_groups[0]['lr'] = lr2
+				# reset the learning rate
+				self.optimizer.param_groups[0]['lr'] = lr2
+			
 			i = i + len(sequence)
 			#print(100 * i / self.train_data.size(0))
 

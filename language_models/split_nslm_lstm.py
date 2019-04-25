@@ -117,7 +117,7 @@ class SplitNSLM():
 
 			# compute distances between input and outputs
 			outputs = torch.cat(outputs, dim=0)
-			dist = -self.args.temp * dist_fn(hidden, outputs).pow(2)
+			dist = -self.args.temp * dist_fn(hidden[self.nlayers-1][0][0][0], outputs).pow(2)
 
 			softmaxed = torch.nn.functional.log_softmax(dist, dim=0)
 			raw_loss = -softmaxed[target].item()

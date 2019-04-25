@@ -111,8 +111,8 @@ class SplitNSLM():
 
 				# keep hidden
 				if j*bsz <= target and j*bsz + bsz > target:
-					hss = [new_h[l][0][0][target-j].view(1, self.batch_size, -1) for l in range(self.args.nlayers)]
-					css = [new_h[l][1][0][target-j].view(1, self.batch_size, -1) for l in range(self.args.nlayers)]
+					hss = [new_h[l][0][0][target-j*bsz].view(1, self.batch_size, -1) for l in range(self.args.nlayers)]
+					css = [new_h[l][1][0][target-j*bsz].view(1, self.batch_size, -1) for l in range(self.args.nlayers)]
 					new_hidden = [(hs, cs) for hs,cs in zip(hss, css)]
 
 			# compute distances between input and outputs

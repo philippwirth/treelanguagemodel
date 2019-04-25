@@ -212,7 +212,7 @@ class SplitNSLM():
 				# input shape is: act_seq_len x (1 + nsamples*act_seq_len)
 				# hiddn shape is: [1 x (1 + nsamples*act_seq_len) x hsz]
 				data_in = self.sampler(sequence, j, act_seq_len, self.args.cuda)
-				hidden_in = self._copy_hidden(hidden, act_seq_len)
+				hidden_in = self._copy_hidden(hidden, self.args.nsamples*act_seq_len+1)
 
 				# apply model to all of them
 				output, hidden, rnn_hs, dropped_rnn_hs = self.model(data_in, hidden_in, return_h=True)
@@ -255,11 +255,11 @@ class SplitNSLM():
 		return hidden
 
 
-	def _copy_hidden(self, hidden, seq_len):
+	def _copy_hidden(self, hidden, n):
 		new_hidden = []
 		for h in hidden:
-			hs = h[0].repeat(1, self.args.nsamples*seq_len+1, 1)
-			cs = h[0].repeat(1, self.args.nsamples*seq_len+1, 1)
+			hs = h[0].repeat(1, n, 1)
+			cs = h[0].repeat(1, n, 1)
 			new_hidden.append((hs, cs))
 		return new_hidden
 

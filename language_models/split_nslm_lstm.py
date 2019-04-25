@@ -251,7 +251,7 @@ class SplitNSLM():
 
 		keep_states = [hidden[l][keep] for l in range(self.args.nlayers)]
 		hidden = self.model.init_hidden(self.args.batch_size)
-		hidden = [(hs[l][0], cs[l]) for hs, cs in zip(hidden, keep_states)]
+		hidden = [(hs[0], cs) for hs, cs in zip(hidden, keep_states)]
 		return hidden
 
 

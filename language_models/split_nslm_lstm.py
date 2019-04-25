@@ -219,7 +219,7 @@ class SplitNSLM():
 
 				# concatenate hidden state with output & append
 				output = output.view(act_seq_len, 1+self.args.nsamples*act_seq_len, -1)
-				output = torch.cat((hidden_in[0], output), 0)
+				output = torch.cat((hidden_in[0][0], output), 0)
 
 				# apply criterion
 				raw_loss = self.train_criterion(output)	

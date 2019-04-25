@@ -106,7 +106,7 @@ class SplitNSLM():
 				ntokens = bsz if (j+1)*bsz <= len(tokens) else len(tokens) % bsz
 				hiddens = self._copy_hidden(hidden, ntokens)					# copy hidden state nbatch times
 				token_batch = tokens[j*bsz:j*bsz+ ntokens]		# get batch of words
-				output, new_h = model(token_batch.view(1,-1), hiddens)	# evaluate
+				output, new_h = self.model(token_batch.view(1,-1), hiddens)	# evaluate
 				outputs.append(output)
 
 				# keep hidden

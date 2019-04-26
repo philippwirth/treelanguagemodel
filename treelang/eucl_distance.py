@@ -1,6 +1,34 @@
 import torch
 import torch.nn as nn
 
+class EuclEntailmentCone(nn.Module):
+
+	def __init__(self):
+
+		super(EuclEntailmentCone, self).__init__()
+		self.eps = 1e-6
+
+	def forward(self, x, y):
+		# x of shape 1 x hsz
+		# y of shape n x hsz
+
+		x_norm = x.norm()			# shape 1
+		y_norm = y.norm(dim=1)		# shape n
+		xy_norm = (x-y).norm(dim=1)	# shape n
+
+		# calculate the angle between x and y
+		top = y_norm.pow(2) - x_norm.pow(2) - xy_norm.pow(2)
+		btm = 2 * x_norm * xy_norm + self.eps
+		arg = self.eps + (top / btm)
+
+		# clip s.t. input is clean
+		arg = torch.clamp(arg, min=-1, max=1)
+
+		return torch.acos(arg)
+
+
+
+
 class SimpleEuclDistance(nn.Module):
 
 	def __init__(self):

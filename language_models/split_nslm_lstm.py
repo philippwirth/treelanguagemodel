@@ -349,7 +349,7 @@ class SplitNSLM():
 		# iterate over epochs
 		for epoch in range(1, self.args.epochs + 1):
 
-			print(self.model.bias)
+			print(self.model.decoder.bias)
 
 			#self.eval_criterion.temp, self.train_criterion.temp = 60 / epoch, 60/epoch# train
 			epoch_start_time = time.time()

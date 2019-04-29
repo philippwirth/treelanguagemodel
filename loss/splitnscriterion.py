@@ -41,7 +41,10 @@ class NegativeSampleCriterion(nn.Module):
 		super(NegativeSampleCriterion, self).__init__()
 		self.temp = temp
 
-	def forward(self, output):
+	def _distance(self, x, y, bias):
+		return torch.nn.functional.linear(x, y, bias=bias)
+
+	def forward(self, output, data, bias):
 
 		dist_fn = nn.PairwiseDistance(p=2)
 
@@ -55,11 +58,12 @@ class NegativeSampleCriterion(nn.Module):
 			# don't consider initial hidden states
 
 			# get positive term
-			pos = -self.temp * dist_fn(output[i-1][0], output[i][0].view(1,-1))
+			pos = self._distance(output[i-1][0], output[i][0].view(1,-1), bias[data[i][0]])
 
 			# get negative term
 			left, right = (i-1)*nsamples+1, i*nsamples+1
-			dist = -self.temp * dist_fn(output[i-1][0], output[i][left:right])
+			temp_bias = bias[data[i][left:right]]
+			dist = dist_fn(output[i-1][0], output[i][left:right], temp_bias)
 			neg = torch.log(0.001 + torch.sum(torch.exp(dist)))
 
 			# update loss

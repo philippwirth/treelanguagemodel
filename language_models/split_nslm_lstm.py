@@ -222,7 +222,7 @@ class SplitNSLM():
 				output = torch.cat((hidden_in[0][0], output), 0)
 
 				# apply criterion
-				raw_loss = self.train_criterion(output)	
+				raw_loss = self.train_criterion(output, data_in, self.model.decoder.bias)	
 
 				# regularizer
 				loss = loss + raw_loss

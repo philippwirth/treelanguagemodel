@@ -58,14 +58,14 @@ class NegativeSampleCriterion(nn.Module):
 			# don't consider initial hidden states
 
 			# get positive term
-			#pos = self._distance(output[i-1][0], output[i][0].view(1,-1), bias[data[i-1][0]])
-			pos = -10*dist_fn(output[i-1][0], output[i][0].view(1,-1)) + bias[data[i-1][0]]
+			pos = self._distance(output[i-1][0], output[i][0].view(1,-1), bias[data[i-1][0]])
+			#pos = -10*dist_fn(output[i-1][0], output[i][0].view(1,-1)) + bias[data[i-1][0]]
 
 			# get negative term
 			left, right = (i-1)*nsamples+1, i*nsamples+1
 			temp_bias = bias[data[i-1][left:right]]
-			#dist = self._distance(output[i-1][0], output[i][left:right], temp_bias)
-			dist = -10*dist_fn(output[i-1][0], output[i][left:right]) + temp_bias
+			dist = self._distance(output[i-1][0], output[i][left:right], temp_bias)
+			#dist = -10*dist_fn(output[i-1][0], output[i][left:right]) + temp_bias
 			neg = torch.log(0.001 + torch.sum(torch.exp(dist)))
 
 			# update loss

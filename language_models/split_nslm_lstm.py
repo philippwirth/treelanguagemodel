@@ -11,7 +11,7 @@ from loss.splitnscriterion import NegativeSampleCriterion, SplitCrossEntropy
 from treelang.sample import NegativeSampler
 from treelang.utils import get_sequence
 from visualize.dump import dump_contexts
-
+from treelang.eucl_distance import EuclEntailmentCone
 class SplitNSLM():
 
 	def __init__(self, args):
@@ -418,15 +418,15 @@ class SplitNSLM():
 
 		# done with training!
 		# load best model and evaluate it on the test set
-		#self._model_load(self.args.save)
-		#test_loss = self._evaluate(self.test_data, self.test_batch_size)
-		#print('=' * 89)
-		#print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
-		#	test_loss, math.exp(test_loss), test_loss / math.log(2)))
-		#print('=' * 89)
-		#print('| End of training | best loss {:5.2f} | best ppl {:8.2f} | best bpc {:8.3f}'.format(
-		#	stored_loss, math.exp(stored_loss), stored_loss / math.log(2)))
-		#print('=' * 89)
+		self._model_load(self.args.save)
+		test_loss = self._evaluate(self.test_data, self.test_batch_size)
+		print('=' * 89)
+		print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
+			test_loss, math.exp(test_loss), test_loss / math.log(2)))
+		print('=' * 89)
+		print('| End of training | best loss {:5.2f} | best ppl {:8.2f} | best bpc {:8.3f}'.format(
+			stored_loss, math.exp(stored_loss), stored_loss / math.log(2)))
+		print('=' * 89)
 
 		return test_loss
 

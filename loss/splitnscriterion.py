@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from treelang.eucl_distance import EuclEntailmentCone
 
 class SplitNegativeSampleCriterion(nn.Module):
 
@@ -14,7 +15,7 @@ class SplitNegativeSampleCriterion(nn.Module):
 		'''
 
 		# distance function is euclidean distance	
-		dist_fn = nn.PairwiseDistance(p=2)
+		dist_fn = EuclEntailmentCone()#nn.PairwiseDistance(p=2)
 
 		loss = 0
 		for hidden, output in zip(hiddens, outputs):

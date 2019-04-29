@@ -96,7 +96,7 @@ args = parser.parse_args()
 def run(args):
 
     # import correct language model
-    from language_models.split_nslm_eff import SplitNSLM as LanguageModel
+    from language_models.split_nslm_lstm import SplitNSLM as LanguageModel
 
     # set the random seed manually for reproducibility.
     random.seed(args.seed)
@@ -158,9 +158,4 @@ print(best_settings)
 args.splits = []
 
 loss = run(args)
-print(np.amin(loss))
-print(np.mean(loss))
-print(np.var(loss))
-
-
-
+print(loss)

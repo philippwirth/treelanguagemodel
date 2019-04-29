@@ -381,7 +381,7 @@ class SplitNSLM():
 		#	stored_loss, math.exp(stored_loss), stored_loss / math.log(2)))
 		#print('=' * 89)
 
-		return test_loss
+		return self.val_loss
 
 
 

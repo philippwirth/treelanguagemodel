@@ -58,7 +58,7 @@ class NegativeSampleCriterion(nn.Module):
 			# don't consider initial hidden states
 
 			# get positive term
-			pos = self._distance(output[i-1][0], output[i][0].view(1,-1), bias[data[i-1][0]])
+			pos = 10*self._distance(output[i-1][0], output[i][0].view(1,-1), bias[data[i-1][0]])
 			#pos = -10*dist_fn(output[i-1][0], output[i][0].view(1,-1)) + bias[data[i-1][0]]
 
 			# get negative term

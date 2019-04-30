@@ -130,8 +130,8 @@ class NS_LSTM():
 
 		# dump contexts
 		if not dump_vars is None: dump_contexts(contexts, bsz=batch_size, **dump_vars)
-		if dump_distance: dump(distances, basepath=self.args.distance_dump+'-'+str(epoch))
-		if dump_entropy: dump(entropies, basepath=self.args.entropy_dump+'-'+str(epoch))
+		if dump_distance: dump(distances, basepath=self.args.dump_distance+'-'+str(epoch))
+		if dump_entropy: dump(entropies, basepath=self.args.dump_entropy+'-'+str(epoch))
 
 		return total_loss
 

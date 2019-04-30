@@ -87,7 +87,7 @@ parser.add_argument('--nruns', type=int, default=1,
                     help="how many times to run.")
 parser.add_argument('--splits', nargs="+", type=int, default=[])
 
-parser.add_argument('--evaluate', type=int, default=1,
+parser.add_argument('--evaluate', type=int, default=4,
                     help="when to evaluate (because it's slow)")
 
 

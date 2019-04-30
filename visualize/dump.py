@@ -1,6 +1,12 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+def dump(data, basepath=''):
+	savepath = basepath + '.out'
+	data = np.array(data).reshape((len(data), 1))
+	np.savetxt(savepath, data)
+
+
 def dump_val_loss(val_loss, epochs, basepath=''):
 	savepath = basepath + '.out'
 	formatstr= ' '.join(['%1.4e']*epochs)

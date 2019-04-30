@@ -10,19 +10,15 @@ from merity.model import RNNModel
 from loss.splitnscriterion import NegativeSampleCriterion, SplitCrossEntropy
 from treelang.sample import NegativeSampler
 from treelang.utils import get_sequence
-from visualize.dump import dump_contexts
+from visualize.dump import dump_contexts, dump
 from treelang.eucl_distance import EuclEntailmentCone
-class SplitNSLM():
+class NS_LSTM():
 
 	def __init__(self, args):
 
 		# store args
 		self.args = args
 		self.asgd = args.asgd
-
-		# splits
-		self.splits = [0] + args.splits + [100 * 1000000]
-		self.nsplits = len(self.splits) - 1
 
 		# empty list to store val loss
 		self.val_loss = []
@@ -34,12 +30,11 @@ class SplitNSLM():
 
 		# initialize data sets
 		self.corpus, self.train_data, self.val_data, self.test_data = self._load_data()
-		self.ntokens = len(self.corpus.dictionary) + self.nsplits - 1	# extra tokens for tombstones
-		self.ntokens_wots = len(self.corpus.dictionary)
+		self.ntokens = len(self.corpus.dictionary)
 
 		# initialize model and criterion
 		self.optimizer = None
-		self.model, self.train_criterion, self.eval_criterion = self._build_model()
+		self.model, self.criterion = self._build_model()
 
 		# collect all parameters
 		self.params = list(self.model.parameters())
@@ -57,18 +52,15 @@ class SplitNSLM():
 				raise ValueError('Wrong optimizer specified! Must be in [sgd, adam].')
 
 		# sampler (update frequencies first)
-		self.frequencies = torch.zeros(self.ntokens)
-		self.frequencies[:self.ntokens_wots] = self.corpus.frequencies
-		for i in range(1, self.nsplits):
-			tombstone = self.ntokens_wots + i - 1
-			left, right = self.splits[i], min(self.splits[i+1], self.ntokens_wots)
-			self.frequencies[tombstone] = torch.sum(self.frequencies[left:right])
+		self.frequencies = self.corpus.frequencies
 		self.sampler = NegativeSampler(self.args.nsamples, self.frequencies)
+
+		self.dist_fn = nn.PairwiseDistance(p=2)
 
 		# finish up
 		print('Initialization successful!')
 
-	def _evaluate(self, data_source, batch_size=1, dump_vars=None):
+	def _evaluate(self, data_source, epoch, batch_size=1, dump_vars=None, dump_distance=True, dump_entropy=True):
 
 		total_loss = 0
 		reset_hidden = True
@@ -76,6 +68,8 @@ class SplitNSLM():
 
 		# if we dump contexts, need a list to store them
 		if not dump_vars is None: contexts = []
+		if dump_distance: distances = []
+		if dump_entropy: entropies = []
 
 		for i in range(data_source.size(0)):
 
@@ -96,7 +90,6 @@ class SplitNSLM():
 
 			# apply model to all the words, no splits atm!
 			bsz, tokens = 128, torch.LongTensor([i for i in range(self.ntokens)]).cuda()
-			dist_fn = nn.PairwiseDistance(p=2)
 			nbatch = len(tokens) // bsz
 			nbatch = nbatch if (len(tokens) % bsz) == 0 else nbatch + 1
 
@@ -117,8 +110,7 @@ class SplitNSLM():
 
 			# compute distances between input and outputs
 			outputs = torch.cat(outputs, dim=0)
-			#dist = torch.nn.functional.linear(hidden[self.args.nlayers-1][0][0][0], outputs, bias=self.model.decoder.bias) 
-			dist = -dist_fn(hidden[self.args.nlayers-1][0][0][0], outputs) + self.model.decoder.bias
+			dist = -self.dist_fn(hidden[self.args.nlayers-1][0][0][0], outputs) + self.model.decoder.bias
 			softmaxed = torch.nn.functional.log_softmax(dist + 0.00001, dim=0)
 			raw_loss = -softmaxed[target].item()
 			
@@ -126,6 +118,8 @@ class SplitNSLM():
 			# we want the target hidden state
 			hidden = new_hidden
 			if not dump_vars is None: context = torch.cat((hidden[0][0][0].view(1,-1), context), 0)
+			if dump_distance: distances.append(dist[target].item())
+			if dump_entropy: entropies.append(raw_loss.item())
 
 			# update loss
 			total_loss += raw_loss / data_source.size(0)
@@ -136,6 +130,8 @@ class SplitNSLM():
 
 		# dump contexts
 		if not dump_vars is None: dump_contexts(contexts, bsz=batch_size, **dump_vars)
+		if dump_distance: dump(distances, basepath=self.args.distance_dump+'-'+str(epoch))
+		if dump_entropy: dump(entropies, basepath=self.args.entropy_dump+'-'+str(epoch))
 
 		return total_loss
 
@@ -222,7 +218,7 @@ class SplitNSLM():
 				output = torch.cat((hidden_in[0][0], output), 0)
 
 				# apply criterion
-				raw_loss = self.train_criterion(output, data_in, self.model.decoder.bias)	
+				raw_loss = self.criterion(output, data_in, self.model.decoder.bias, self.dist_fn)	
 
 				# regularizer
 				loss = loss + raw_loss
@@ -270,11 +266,11 @@ class SplitNSLM():
 
 	def _model_load(self, fn):
 		with open(fn, 'rb') as f:
-			self.model, self.train_criterion, self.eval_criterion, self.optimizer = torch.load(f)
+			self.model, self.criterion, self.optimizer = torch.load(f)
 
 	def _model_save(self, fn):
 		with open(fn, 'wb') as f:
-			torch.save([self.model, self.train_criterion, self.eval_criterion, self.optimizer], f)
+			torch.save([self.model, self.criterion, self.optimizer], f)
 
 	def _load_data(self):
 
@@ -304,8 +300,7 @@ class SplitNSLM():
 	def _build_model(self):
 
 		# build criterion (negative sampling crit)
-		train_criterion = NegativeSampleCriterion(self.args.temp)
-		eval_criterion = SplitCrossEntropy(self.ntokens, self.args.temp, self.splits)
+		criterion = NegativeSampleCriterion(self.args.temp)
 
 		# build model
 		ntokens = self.ntokens
@@ -329,10 +324,9 @@ class SplitNSLM():
 		# apply cuda
 		if self.args.cuda:
 			model = model.cuda()
-			train_criterion = train_criterion.cuda()
-			eval_criterion = eval_criterion.cuda()
+			criterion = criterion.cuda()
 
-		return model, train_criterion, eval_criterion
+		return model, criterion
 
 	def train(self):
 		'''
@@ -351,7 +345,7 @@ class SplitNSLM():
 
 			print(self.model.decoder.bias)
 
-			#self.eval_criterion.temp, self.train_criterion.temp = 60 / epoch, 60/epoch# train
+			# train
 			epoch_start_time = time.time()
 			self._train(epoch)
 
@@ -367,7 +361,7 @@ class SplitNSLM():
 					if 'ax' in self.optimizer.state[prm]:
 						prm.data = self.optimizer.state[prm]['ax'].clone()
 
-				val_loss2 = self._evaluate(self.val_data, self.eval_batch_size)
+				val_loss2 = self._evaluate(self.val_data, self.eval_batch_size, epoch)
 				print('-' * 89)
 				print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
 					'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
@@ -386,7 +380,7 @@ class SplitNSLM():
 
 			# otherwise
 			else:
-				val_loss = self._evaluate(self.val_data, self.eval_batch_size)
+				val_loss = self._evaluate(self.val_data, self.eval_batch_size, epoch)
 				print('-' * 89)
 				print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
 					'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
@@ -412,16 +406,11 @@ class SplitNSLM():
 				best_val_loss.append(val_loss)
 				self.val_loss.append(val_loss)
 
-			# every dumpat iteration: store contexts to file for later plotting
-			if self.args.dumpat > 0 and epoch % self.args.dumpat == 0:
-				dump_vars = dict({'basepath': self.args.dumpto, 'epoch':epoch, 'hsz':self.args.nhid})
-				self._evaluate(self.test_data, self.test_batch_size, dump_vars)
-
 
 		# done with training!
 		# load best model and evaluate it on the test set
 		self._model_load(self.args.save)
-		test_loss = self._evaluate(self.test_data, self.test_batch_size)
+		test_loss = self._evaluate(self.test_data, self.test_batch_size, epochs+1)
 		print('=' * 89)
 		print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
 			test_loss, math.exp(test_loss), test_loss / math.log(2)))

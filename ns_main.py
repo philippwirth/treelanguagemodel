@@ -5,7 +5,7 @@ import time
 import numpy as np
 import itertools
 
-from visualize.dump import dump_val_loss
+from visualize.dump import dump_val_loss, dump
 from gridsearch.search_hsz import search_hsz, search_temp
 
 import sys
@@ -90,13 +90,20 @@ parser.add_argument('--splits', nargs="+", type=int, default=[])
 parser.add_argument('--evaluate', type=int, default=1,
                     help="when to evaluate (because it's slow)")
 
+parser.add_argument('--dump_distance', type=str, default='distance_dump')
+parser.add_argument('--dump_entropy', type=str, default='entropy_dump')
+
 
 args = parser.parse_args()
 
 def run(args):
 
+    path = args.optimizer+'-'+str(args.lr)+'-'+str(args.wdrop)
+    args.dump_distance = path + '-distance'
+    args.dump_entropy = path + '-entropy'
+
     # import correct language model
-    from language_models.split_nslm_lstm import SplitNSLM as LanguageModel
+    from language_models.split_nslm_lstm import NS_LSTM as LanguageModel
 
     # set the random seed manually for reproducibility.
     random.seed(args.seed)
@@ -107,55 +114,74 @@ def run(args):
             print("WARNING: You have a CUDA device, so you should probably run with --cuda")
         else:
             torch.cuda.manual_seed(args.seed)
-
-
-    # number of trials and empty list for loss
-    loss = np.zeros(args.nruns)
-    val_loss = np.zeros((args.nruns, args.epochs))
-
-    for k in range(args.nruns):
+ 
+    # build model
+    lm = LanguageModel(args)
             
-        # build model
-        lm = LanguageModel(args)
+    # train
+    test_loss = lm.train()
             
-        # train
-        loss[k] = lm.train()
-            
-        # get validation loss
-        val_loss[k,:] = lm.val_loss
+    # get validation loss
+    val_loss = lm.val_loss
+    
+    dump(val_loss, basepath=path+'-valid')
 
-
-    return val_loss
+    return test_loss
 
 '''
     THIS IS MAIN!
 '''
-'''
-L = [[0.001, 0.005, 0.01, 0.05, 0.10, 0.15, 0.25, 1.0, 10., 30.],
-    [1, 2, 4, 8],
-    ['adam', 'sgd'],
-    [3, 6, 9]]
-L = list(itertools.product(*L))
-best_loss = 1e5
-best_settings = []
-for (lr, temp, optimizer, nsamples) in L:
+args.splits=[]
+settings_adam = [['adam', 1e-3], ['adam', 5e-4], ['adam', 1e-4]]
+settings_sgd = [['sgd', 1.], ['sgd', 10.], ['sgd', 30.]]
+
+# run three adams
+best_adam_loss = 1e5
+best_adam_settings = None
+for optimizer, lr in settings_adam:
 
     args.lr = lr
-    args.temp = temp
     args.optimizer = optimizer
-    args.nsamples = nsamples
 
     loss = run(args)
 
-    if loss < best_loss:
-        best_loss = loss
-        best_settings.append([lr, temp, optimizer, nsamples])
+    if loss < best_adam_loss:
+        best_adam_loss = loss
+        best_adam_settings = [optimizer, lr, loss]
+
+# run three sgds
+best_settings = [best_adam_settings]
+best_sgd_loss = 1e5
+best_sgd_settings = None
+for optimizer, lr in settings_sgd:
+
+    args.lr = lr
+    args.optimizer = optimizer
+
+    loss = run(args)
+
+    if loss < best_sgd_loss:
+        best_sgd_loss = loss
+        best_sgd_settings = [optimizer, lr, loss]
+
+best_settings.append(best_sgd_settings)
+
+# switch on regularization and run both best settings
+args.dropout = 0.4
+args.dropouth = 0.25
+args.dropouti = 0.4
+args.dropoute = 0.4
+args.wdrop = 0.5
+reg_loss = []
+for optimizer, lr, test_loss in best_settings:
+
+    args.lr = lr
+    args.optimizer = optimizer
+
+    loss = run(args)
+    reg_loss.append(loss)
 
 print('Done!')
-print(best_loss)
-print(best_settings)
-'''
-args.splits = []
+print('Reg. Loss: ' + str(reg_loss))
+print('Best Settings: ' + str(best_settings))
 
-loss = run(args)
-print(loss)

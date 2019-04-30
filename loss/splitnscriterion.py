@@ -40,13 +40,12 @@ class NegativeSampleCriterion(nn.Module):
 	def __init__(self, temp=5):
 		super(NegativeSampleCriterion, self).__init__()
 		self.temp = temp
+		self.eps = 1e-6
 
 	def _distance(self, x, y, bias):
 		return torch.nn.functional.linear(x, y, bias=bias)
 
-	def forward(self, output, data, bias):
-
-		dist_fn = nn.PairwiseDistance(p=2)
+	def forward(self, output, data, bias, dist_fn):
 
 		# seq_len includes the initial hidden states! look out for that
 		seq_len, seq_len_times_nsamples, hsz = output.size()
@@ -58,15 +57,13 @@ class NegativeSampleCriterion(nn.Module):
 			# don't consider initial hidden states
 
 			# get positive term
-			#pos = self._distance(output[i-1][0], output[i][0].view(1,-1), bias[data[i-1][0]])
 			pos = -dist_fn(output[i-1][0], output[i][0].view(1,-1)) + bias[data[i-1][0]]
 
 			# get negative term
 			left, right = (i-1)*nsamples+1, i*nsamples+1
 			temp_bias = bias[data[i-1][left:right]]
-			#dist = self._distance(output[i-1][0], output[i][left:right], temp_bias)
 			dist = -dist_fn(output[i-1][0], output[i][left:right]) + temp_bias
-			neg = torch.log(0.00001 + torch.sum(torch.exp(dist)))
+			neg = torch.log(self.eps + torch.sum(torch.exp(dist)))
 
 			# update loss
 			loss -= (pos - neg) / seq_len

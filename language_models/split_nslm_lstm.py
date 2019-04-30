@@ -119,7 +119,7 @@ class NS_LSTM():
 			hidden = new_hidden
 			if not dump_vars is None: context = torch.cat((hidden[0][0][0].view(1,-1), context), 0)
 			if dump_distance: distances.append(dist[target].item())
-			if dump_entropy: entropies.append(raw_loss
+			if dump_entropy: entropies.append(raw_loss)
 
 			# update loss
 			total_loss += raw_loss / data_source.size(0)

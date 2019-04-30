@@ -410,7 +410,7 @@ class NS_LSTM():
 		# done with training!
 		# load best model and evaluate it on the test set
 		self._model_load(self.args.save)
-		test_loss = self._evaluate(self.test_data, self.test_batch_size, epochs+1)
+		test_loss = self._evaluate(self.test_data, self.test_batch_size, self.args.epochs+1)
 		print('=' * 89)
 		print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
 			test_loss, math.exp(test_loss), test_loss / math.log(2)))

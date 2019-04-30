@@ -361,7 +361,7 @@ class NS_LSTM():
 					if 'ax' in self.optimizer.state[prm]:
 						prm.data = self.optimizer.state[prm]['ax'].clone()
 
-				val_loss2 = self._evaluate(self.val_data, self.eval_batch_size, epoch)
+				val_loss2 = self._evaluate(self.val_data, epoch, batch_size=self.eval_batch_size)
 				print('-' * 89)
 				print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
 					'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
@@ -380,7 +380,7 @@ class NS_LSTM():
 
 			# otherwise
 			else:
-				val_loss = self._evaluate(self.val_data, self.eval_batch_size, epoch)
+				val_loss = self._evaluate(self.val_data, epoch, batch_size=self.eval_batch_size)
 				print('-' * 89)
 				print('| end of epoch {:3d} | time: {:5.2f}s | valid loss {:5.2f} | '
 					'valid ppl {:8.2f} | valid bpc {:8.3f}'.format(
@@ -410,7 +410,7 @@ class NS_LSTM():
 		# done with training!
 		# load best model and evaluate it on the test set
 		self._model_load(self.args.save)
-		test_loss = self._evaluate(self.test_data, self.test_batch_size, self.args.epochs+1)
+		test_loss = self._evaluate(self.test_data, self.args.epochs+1, batch_size=self.test_batch_size)
 		print('=' * 89)
 		print('| End of training | test loss {:5.2f} | test ppl {:8.2f} | test bpc {:8.3f}'.format(
 			test_loss, math.exp(test_loss), test_loss / math.log(2)))
